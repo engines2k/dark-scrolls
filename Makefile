@@ -27,10 +27,10 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CPPFLAGS := $(INC_FLAGS) -MMD -MP
 CFLAGS := -Wall --std=c++17 -g -Dmain=SDL_main
 CXXFLAGS := $(CFLAGS)
-LDFLAGS := -lmingw32 -mwindows -lSDL2main -lSDL2
+LDFLAGS := -lmingw32 -mwindows -lSDL2main -lSDL2 -lSDL2_ttf
 
 # The final build step.
-$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+$(TARGET_EXEC): $(OBJS)
 	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
 
 # Build step for C source
@@ -46,6 +46,7 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 .PHONY: clean
 clean:
 	rm -r $(BUILD_DIR)
+	rm dark_scrolls.exe
 
 # Include the .d makefiles. The - at the front suppresses the errors of missing
 # Makefiles. Initially, all the .d files will be missing, and we don't want those

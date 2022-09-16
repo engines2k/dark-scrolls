@@ -2,7 +2,9 @@
 #include <unordered_set>
 #include <mutex>
 #include <cstdint>
+#include <cstdlib>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <memory>
 #include <vector>
 //could be <SDL.h>
@@ -61,8 +63,27 @@ class Sprite {
   Game &game;
 };
 
+class Text {
+  Game &game;
+  //SDL_Surface *message = NULL; // Is unused?
+  SDL_Surface *surface = NULL;
+  TTF_Font *font;
+  SDL_Texture *texture;
+  int texW,texH;
+  SDL_Rect dstrect;
+  SDL_Color color = { 255, 255, 255 };
+
+  public:
+  Text(Game &game);
+
+  void draw();
+};
+
 class Game {
   public:
+  Game(SDL_Renderer *renderer): renderer(renderer), test_text(*this) {
+  }
+
   SDL_Renderer *renderer;
   KeyboardManager keyboard;
   int32_t tick_event_id;
@@ -70,19 +91,9 @@ class Game {
   std::mutex frame_counter_lock;
   std::vector<std::unique_ptr<Sprite>> sprite_list;
 
-  void tick() {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
+  Text test_text;
 
-    for (auto &sprite: sprite_list) {
-      sprite->tick();
-      sprite->draw();
-    }
-
-    SDL_RenderPresent(renderer);
-    auto frame_counter_lock = std::lock_guard(this->frame_counter_lock);
-    frame_counter.rendered_frames++;
-  }
+  void tick();
 };
 
 class Player: public Sprite {
@@ -124,6 +135,29 @@ class Player: public Sprite {
   static constexpr uint8_t BLUE = 222;
 };
 
+Text::Text(Game &game): game(game) {
+  char font_path[261];
+  snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
+  font = TTF_OpenFont(font_path, 25);
+  if (font == nullptr) {
+    printf("Font error: %s\n", SDL_GetError());
+    abort();
+  }
+
+  surface = TTF_RenderText_Solid(font,
+  "Welcome to Dark Scrolls", color);
+  texture = SDL_CreateTextureFromSurface(game.renderer, surface);
+
+  texW = 0;
+  texH = 0;
+  SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
+  dstrect = { 0, 0, texW, texH };
+}
+
+void Text::draw() {
+  SDL_RenderCopy(game.renderer, texture, NULL, &dstrect);
+}
+
 uint32_t game_timer(uint32_t rate, void *game_ptr) {
   Game &game = *static_cast<Game*>(game_ptr);
 
@@ -150,15 +184,32 @@ uint32_t game_timer(uint32_t rate, void *game_ptr) {
   return rate;
 }
 
+void Game::tick() {
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  SDL_RenderClear(renderer);
+
+  for (auto &sprite: sprite_list) {
+    sprite->tick();
+    sprite->draw();
+  }
+  test_text.draw();
+
+  SDL_RenderPresent(renderer);
+  auto frame_counter_lock = std::lock_guard(this->frame_counter_lock);
+  frame_counter.rendered_frames++;
+}
+
 int main(int argc, char *argv[]) {
-  Game game;
-  SDL_Window *window;
   if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
     printf("SDL_Init failed: %s\n", SDL_GetError());
     return 1;
   }
 
-  game.tick_event_id = SDL_RegisterEvents(1);
+  if(TTF_Init() < 0) {
+    printf("TTF_Init failed: %s\n", TTF_GetError());
+  }
+
+  SDL_Window *window;
 
   window = SDL_CreateWindow("Hello, World!",
                                         SDL_WINDOWPOS_UNDEFINED,
@@ -169,9 +220,12 @@ int main(int argc, char *argv[]) {
     printf("Could not create window: %s\n", SDL_GetError());
     return 1;
   }
-  
-  game.renderer = SDL_CreateRenderer(window, -1, 0);
+
+
+  Game game(SDL_CreateRenderer(window, -1, 0));
   game.sprite_list.push_back(std::make_unique<Player>(Player(game, 0, 0)));
+
+  game.tick_event_id = SDL_RegisterEvents(1);
 
   SDL_TimerID tick_timer = SDL_AddTimer(FRAME_RATE * 1000, game_timer, &game);
   
