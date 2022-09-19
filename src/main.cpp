@@ -63,25 +63,10 @@ class Sprite {
   Game &game;
 };
 
-class Text {
-  Game &game;
-  //SDL_Surface *message = NULL; // Is unused?
-  SDL_Surface *surface = NULL;
-  TTF_Font *font;
-  SDL_Texture *texture;
-  int texW,texH;
-  SDL_Rect dstrect;
-  SDL_Color color = { 255, 255, 255 };
-
-  public:
-  Text(Game &game);
-
-  void draw();
-};
 
 class Game {
   public:
-  Game(SDL_Renderer *renderer): renderer(renderer), test_text(*this) {
+  Game(SDL_Renderer *renderer): renderer(renderer) {
   }
 
   SDL_Renderer *renderer;
@@ -91,10 +76,34 @@ class Game {
   std::mutex frame_counter_lock;
   std::vector<std::unique_ptr<Sprite>> sprite_list;
 
-  Text test_text;
+  //Text test_text;
 
   void tick();
 };
+
+class Text : public Sprite {
+  SDL_Surface *surface = NULL;
+  TTF_Font *font;
+  SDL_Texture *texture;
+  int texW,texH;
+  SDL_Rect dstrect;
+  SDL_Color color = { 255, 255, 255 };
+
+  public:
+  Text(Game &game, int pos_x, int pos_y) : Sprite(game, pos_x, pos_y) {
+    char font_path[261];
+    snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
+    font = TTF_OpenFont(font_path, 25);
+    if (font == nullptr) {
+      printf("Font error: %s\n", SDL_GetError());
+      abort();
+    }
+  }
+
+  void draw();
+  void tick();
+};
+
 
 class Player: public Sprite {
   public:
@@ -135,27 +144,23 @@ class Player: public Sprite {
   static constexpr uint8_t BLUE = 222;
 };
 
-Text::Text(Game &game): game(game) {
-  char font_path[261];
-  snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
-  font = TTF_OpenFont(font_path, 25);
-  if (font == nullptr) {
-    printf("Font error: %s\n", SDL_GetError());
-    abort();
-  }
+void Text::draw() {
+  surface = TTF_RenderText_Solid(font, "Welcome to Dark Scrolls", color);
 
-  surface = TTF_RenderText_Solid(font,
-  "Welcome to Dark Scrolls", color);
   texture = SDL_CreateTextureFromSurface(game.renderer, surface);
 
   texW = 0;
   texH = 0;
   SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
   dstrect = { 0, 0, texW, texH };
+  SDL_RenderCopy(game.renderer, texture, NULL, &dstrect);
 }
 
-void Text::draw() {
-  SDL_RenderCopy(game.renderer, texture, NULL, &dstrect);
+void Text::tick() {
+  if (game.keyboard.is_held(SDL_SCANCODE_A)) {
+  color = {255, 0, 0}; //will turn text red
+
+  }
 }
 
 uint32_t game_timer(uint32_t rate, void *game_ptr) {
@@ -191,8 +196,14 @@ void Game::tick() {
   for (auto &sprite: sprite_list) {
     sprite->tick();
     sprite->draw();
+
   }
-  test_text.draw();
+
+  // ADDED TEMP!!!
+  // Text needs to be refactored as a child of sprite.  
+  // test_text.draw();
+  // test_text.tick();
+  // test_text.draw();
 
   SDL_RenderPresent(renderer);
   auto frame_counter_lock = std::lock_guard(this->frame_counter_lock);
@@ -224,6 +235,7 @@ int main(int argc, char *argv[]) {
 
   Game game(SDL_CreateRenderer(window, -1, 0));
   game.sprite_list.push_back(std::make_unique<Player>(Player(game, 0, 0)));
+  game.sprite_list.push_back(std::make_unique<Text>(Text(game, 0, 0)));
 
   game.tick_event_id = SDL_RegisterEvents(1);
 
