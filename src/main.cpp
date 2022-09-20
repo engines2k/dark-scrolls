@@ -157,9 +157,10 @@ void Text::draw() {
 }
 
 void Text::tick() {
-  if (game.keyboard.is_held(SDL_SCANCODE_A)) {
+  if (game.keyboard.is_held(SDL_SCANCODE_J)) {
   color = {255, 0, 0}; //will turn text red
-
+  } else if (game.keyboard.is_held(SDL_SCANCODE_K)) {
+    color= {200,200,200};
   }
 }
 
@@ -235,7 +236,7 @@ int main(int argc, char *argv[]) {
 
   Game game(SDL_CreateRenderer(window, -1, 0));
   game.sprite_list.push_back(std::make_unique<Player>(Player(game, 0, 0)));
-  game.sprite_list.push_back(std::make_unique<Text>(Text(game, 0, 0)));
+  game.sprite_list.push_back(std::make_unique<Text>(Text(game, 0, 0))); 
 
   game.tick_event_id = SDL_RegisterEvents(1);
 
