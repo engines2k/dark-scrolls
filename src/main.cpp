@@ -89,8 +89,19 @@ class Text : public Sprite {
   SDL_Rect dstrect;
   SDL_Color color = { 255, 255, 255 };
 
-  public:
-  Text(Game &game, int pos_x, int pos_y) : Sprite(game, pos_x, pos_y) {
+public:
+  char *text;
+  void set_color(SDL_Color n_color) {
+    color = n_color;
+  }
+
+  int get_w() {
+    return texW;
+  }
+
+  Text(char *n_text, Game &game, int pos_x, int pos_y, SDL_Color n_color = { 255, 255, 255 }) : Sprite(game, pos_x, pos_y) {
+    color = n_color;
+    text = n_text;
     char font_path[261];
     snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
     font = TTF_OpenFont(font_path, 25);
@@ -146,13 +157,15 @@ class Player: public Sprite {
 
 // this whole class needs to be cleaned up, probably (definitely)
 class Incantation : public Sprite {
+  char ch = 's';
+  SDL_Color c1 = { 255, 0, 0 };
+  SDL_Color c2 = { 200, 200, 200 };
   std::vector<std::unique_ptr<Text>> text_list;
   public:
-  int pos_x2;
   Incantation(Game &game, int pos_x, int pos_y) : Sprite(game, pos_x, pos_y) {
-    text_list.push_back(std::make_unique<Text>(Text(game, pos_x, pos_y)));
-    pos_x2 = text_list[0]->get_pos_x();
-    text_list.push_back(std::make_unique<Text>(Text(game, 300, pos_y + 60)));
+    text_list.push_back(std::make_unique<Text>(Text((char*)"Welcome to Dark Scrolls", game, pos_x, pos_y)));
+    text_list[0]->draw();
+    text_list.push_back(std::make_unique<Text>(Text((char*)"Welcome to Dark Scrolls", game, text_list[0]->get_w(), pos_y)));
   }
 
   void tick();
@@ -161,7 +174,7 @@ class Incantation : public Sprite {
 
 
 void Text::draw() {
-  surface = TTF_RenderText_Solid(font, "Welcome to Dark Scrolls", color);
+  surface = TTF_RenderText_Solid(font, text, color);
   texture = SDL_CreateTextureFromSurface(game.renderer, surface);
 
   texW = 0;
@@ -172,17 +185,21 @@ void Text::draw() {
 }
 
 void Text::tick() {
-  if (game.keyboard.is_held(SDL_SCANCODE_J)) {
-  color = {255, 0, 0}; //will turn text red
-  } else if (game.keyboard.is_held(SDL_SCANCODE_K)) {
-    color= {200,200,200};
-  }
 }
 
 void Incantation::tick() {
-    text_list[0]->tick();
-    text_list[1]->tick();
+
+  if (game.keyboard.is_held(SDL_SCANCODE_J)) {
+    // ima fix this real soon
+    // text_list[1]->text = malloc(sizeof text_list[1]->text)
+    // strcat(text_list[1]->text, &ch);
+    text_list[0]->set_color(c1);
+  } else if (game.keyboard.is_held(SDL_SCANCODE_K)) {
+    text_list[0]->set_color(c2);
   }
+  text_list[0]->tick();
+  text_list[1]->tick();
+}
 
 void Incantation::draw() {
   text_list[0]->draw();
@@ -261,7 +278,7 @@ int main(int argc, char *argv[]) {
 
   Game game(SDL_CreateRenderer(window, -1, 0));
   game.sprite_list.push_back(std::make_unique<Player>(Player(game, 0, 0)));
-  game.sprite_list.push_back(std::make_unique<Text>(Text(game, 0, 0)));
+  game.sprite_list.push_back(std::make_unique<Text>(Text((char*)"Welcome to Dark Scrolls", game, 0, 0)));
   game.sprite_list.push_back(std::make_unique<Incantation>(Incantation(game, 0, 100)));
 
   game.tick_event_id = SDL_RegisterEvents(1);
