@@ -144,15 +144,30 @@ class Player: public Sprite {
   static constexpr uint8_t BLUE = 222;
 };
 
+// this whole class needs to be cleaned up, probably (definitely)
+class Incantation : public Sprite {
+  std::vector<std::unique_ptr<Text>> text_list;
+  public:
+  int pos_x2;
+  Incantation(Game &game, int pos_x, int pos_y) : Sprite(game, pos_x, pos_y) {
+    text_list.push_back(std::make_unique<Text>(Text(game, pos_x, pos_y)));
+    pos_x2 = text_list[0]->get_pos_x();
+    text_list.push_back(std::make_unique<Text>(Text(game, 300, pos_y + 60)));
+  }
+
+  void tick();
+  void draw();
+};
+
+
 void Text::draw() {
   surface = TTF_RenderText_Solid(font, "Welcome to Dark Scrolls", color);
-
   texture = SDL_CreateTextureFromSurface(game.renderer, surface);
 
   texW = 0;
   texH = 0;
   SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
-  dstrect = { 0, 0, texW, texH };
+  dstrect = { pos_x, pos_y, texW, texH };
   SDL_RenderCopy(game.renderer, texture, NULL, &dstrect);
 }
 
@@ -162,6 +177,16 @@ void Text::tick() {
   } else if (game.keyboard.is_held(SDL_SCANCODE_K)) {
     color= {200,200,200};
   }
+}
+
+void Incantation::tick() {
+    text_list[0]->tick();
+    text_list[1]->tick();
+  }
+
+void Incantation::draw() {
+  text_list[0]->draw();
+  text_list[1]->draw();
 }
 
 uint32_t game_timer(uint32_t rate, void *game_ptr) {
@@ -236,7 +261,8 @@ int main(int argc, char *argv[]) {
 
   Game game(SDL_CreateRenderer(window, -1, 0));
   game.sprite_list.push_back(std::make_unique<Player>(Player(game, 0, 0)));
-  game.sprite_list.push_back(std::make_unique<Text>(Text(game, 0, 0))); 
+  game.sprite_list.push_back(std::make_unique<Text>(Text(game, 0, 0)));
+  game.sprite_list.push_back(std::make_unique<Incantation>(Incantation(game, 0, 100)));
 
   game.tick_event_id = SDL_RegisterEvents(1);
 
