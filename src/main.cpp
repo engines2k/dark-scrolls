@@ -39,9 +39,12 @@ struct FrameCounter {
 
 class Game;
 
+static uint64_t NEXT_SPRITE_ID = 0;
+
 class Sprite {
   public:
   Sprite(Game &game, int x, int y): game(game) {
+    NEXT_SPRITE_ID++;
     this->pos_x = x;
     this->pos_y = y;
   }
@@ -54,12 +57,21 @@ class Sprite {
   int get_pos_y() const {
     return pos_y;
   }
+  void despawn() {
+    spawn_flag = false;
+  }
+  bool is_spawned() const {
+    return spawn_flag;
+  }
 
   virtual ~Sprite() {}
+
+  const int id = NEXT_SPRITE_ID;
 
   protected:
   int pos_x;
   int pos_y;
+  bool spawn_flag = true;
   Game &game;
 };
 
@@ -137,6 +149,11 @@ class Player: public Sprite {
 
     pos_x += x_speed;
     pos_y += y_speed;
+
+    //Suicide test code
+    if (game.keyboard.is_held(SDL_SCANCODE_0)) {
+      despawn(); 
+    }
   }
 
   virtual void draw() override {
@@ -241,6 +258,16 @@ void Game::tick() {
     sprite->draw();
 
   }
+
+  std::vector<std::unique_ptr<Sprite>> next_sprite_list;
+
+  for (auto &sprite: sprite_list) {
+    if (sprite->is_spawned()) {
+      next_sprite_list.push_back(std::move(sprite));
+    }
+  }
+
+  sprite_list = std::move(next_sprite_list);
 
   // ADDED TEMP!!!
   // Text needs to be refactored as a child of sprite.  
