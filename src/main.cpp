@@ -174,21 +174,52 @@ class Player: public Sprite {
 
 // this whole class needs to be cleaned up, probably (definitely)
 class Incantation : public Sprite {
-  char ch = 's';
-  SDL_Color c1 = { 255, 0, 0 };
-  SDL_Color c2 = { 200, 200, 200 };
-  std::vector<std::unique_ptr<Text>> text_list;
+  SDL_Color color_red = { 255, 0, 0 };
+  SDL_Color color_grey = { 200, 200, 200 };
+  SDL_Surface *typed_surface = NULL;
+  TTF_Font *font;
+  SDL_Texture *typed_texture;
+  int typed_texW,typed_texH;
+  SDL_Rect dstrect;
+
+  SDL_Surface *untyped_surface = NULL;
+  SDL_Texture *untyped_texture;
+  int untyped_texW,untyped_texH;
+  SDL_Rect undstrect;
+
+  std::string phrase = "This is an incantation";
+  uint32_t index;
   public:
   Incantation(Game &game, int pos_x, int pos_y) : Sprite(game, pos_x, pos_y) {
-    text_list.push_back(std::make_unique<Text>(Text((char*)"Welcome to Dark Scrolls", game, pos_x, pos_y)));
-    text_list[0]->draw();
-    text_list.push_back(std::make_unique<Text>(Text((char*)"Welcome to Dark Scrolls", game, text_list[0]->get_w(), pos_y)));
+    char font_path[261];
+    snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
+    font = TTF_OpenFont(font_path, 25);
+    if (font == nullptr) {
+      printf("Font error: %s\n", SDL_GetError());
+      abort();
+    }
+    index = 0;
   }
 
   void tick();
-  void draw();
-};
+  void draw() {
+    if(index <= phrase.length()) {
+    const char *typed = phrase.substr(0, index).c_str();
+    typed_surface = TTF_RenderText_Solid(font, typed, color_red);
+    typed_texture = SDL_CreateTextureFromSurface(game.renderer, typed_surface);
+    SDL_QueryTexture(typed_texture, NULL, NULL, &typed_texW, &typed_texH);
+    dstrect = { pos_x, pos_y, typed_texW, typed_texH };
 
+    const char *untyped = phrase.substr(index).c_str();
+    untyped_surface = TTF_RenderText_Solid(font, untyped, color_grey);
+    untyped_texture = SDL_CreateTextureFromSurface(game.renderer, untyped_surface);
+    SDL_QueryTexture(untyped_texture, NULL, NULL, &untyped_texW, &untyped_texH);
+    undstrect = { pos_x + typed_texW, pos_y, untyped_texW, untyped_texH };
+    }
+    SDL_RenderCopy(game.renderer, typed_texture, NULL, &dstrect);
+    SDL_RenderCopy(game.renderer, untyped_texture, NULL, &undstrect);
+  }
+};
 
 void Text::draw() {
   surface = TTF_RenderText_Solid(font, text, color);
@@ -207,21 +238,11 @@ void Text::tick() {
 void Incantation::tick() {
 
   if (game.keyboard.is_held(SDL_SCANCODE_J)) {
-    // ima fix this real soon
-    // text_list[1]->text = malloc(sizeof text_list[1]->text)
-    // strcat(text_list[1]->text, &ch);
-    text_list[0]->set_color(c1);
-  } else if (game.keyboard.is_held(SDL_SCANCODE_K)) {
-    text_list[0]->set_color(c2);
+    index++;
+    draw();
   }
-  text_list[0]->tick();
-  text_list[1]->tick();
 }
 
-void Incantation::draw() {
-  text_list[0]->draw();
-  text_list[1]->draw();
-}
 
 uint32_t game_timer(uint32_t rate, void *game_ptr) {
   Game &game = *static_cast<Game*>(game_ptr);
