@@ -16,6 +16,10 @@ constexpr int SUBPIXELS_IN_PIXEL = 1 << 15;
 
 class KeyboardManager {
   public:
+  bool is_pressed(SDL_Scancode scan) {
+    return pressed.count(scan) >= 1;
+  }
+
   bool is_held(SDL_Scancode scan) {
     return held.count(scan) >= 1;
   }
@@ -23,12 +27,19 @@ class KeyboardManager {
   void handle_keyevent(const SDL_KeyboardEvent &env) {
     if(env.type == SDL_KEYDOWN && env.repeat == 0) {
       held.insert(env.keysym.scancode);
+      pressed.insert(env.keysym.scancode);
     }
     if(env.type == SDL_KEYUP) {
       held.erase(env.keysym.scancode);
     }
   }
+
+  void reset_pressed() {
+    pressed.clear();
+  }
+
   private:
+  std::unordered_set<SDL_Scancode> pressed;
   std::unordered_set<SDL_Scancode> held;
 };
 
@@ -187,7 +198,7 @@ class Incantation : public Sprite {
   int untyped_texW,untyped_texH;
   SDL_Rect undstrect;
 
-  std::string phrase = "This is an incantation";
+  std::string phrase = "This_is_an_incantation";
   uint32_t index;
   public:
   Incantation(Game &game, int pos_x, int pos_y) : Sprite(game, pos_x, pos_y) {
@@ -199,6 +210,7 @@ class Incantation : public Sprite {
       abort();
     }
     index = 0;
+    
   }
 
   void tick();
@@ -237,10 +249,116 @@ void Text::tick() {
 
 void Incantation::tick() {
 
-  if (game.keyboard.is_held(SDL_SCANCODE_J)) {
+if (game.keyboard.is_pressed(SDL_SCANCODE_A) && toupper(phrase[index]) == 'A') {
     index++;
     draw();
-  }
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_B) && toupper(phrase[index]) == 'B') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_C) && toupper(phrase[index]) == 'C') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_D) && toupper(phrase[index]) == 'D') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_E) && toupper(phrase[index]) == 'E') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_F) && toupper(phrase[index]) == 'F') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_G) && toupper(phrase[index]) == 'G') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_H) && toupper(phrase[index]) == 'H') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_I) && toupper(phrase[index]) == 'I') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_J) && toupper(phrase[index]) == 'J') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_K) && toupper(phrase[index]) == 'K') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_L) && toupper(phrase[index]) == 'L') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_M) && toupper(phrase[index]) == 'M') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_N) && toupper(phrase[index]) == 'N') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_O) && toupper(phrase[index]) == 'O') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_P) && toupper(phrase[index]) == 'P') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_Q) && toupper(phrase[index]) == 'Q') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_R) && toupper(phrase[index]) == 'R') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_S) && toupper(phrase[index]) == 'S') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_T) && toupper(phrase[index]) == 'T') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_U) && toupper(phrase[index]) == 'U') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_V) && toupper(phrase[index]) == 'V') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_W) && toupper(phrase[index]) == 'W') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_X) && toupper(phrase[index]) == 'X') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_Y) && toupper(phrase[index]) == 'Y') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_Z) && toupper(phrase[index]) == 'Z') {
+    index++;
+    draw();
+}
+else if (game.keyboard.is_pressed(SDL_SCANCODE_SPACE) && phrase[index] == '_') {
+    index++;
+    draw();
+}
+
+
 }
 
 
@@ -289,6 +407,7 @@ void Game::tick() {
   }
 
   sprite_list = std::move(next_sprite_list);
+  keyboard.reset_pressed();
 
   // ADDED TEMP!!!
   // Text needs to be refactored as a child of sprite.  
@@ -322,7 +441,6 @@ int main(int argc, char *argv[]) {
     printf("Could not create window: %s\n", SDL_GetError());
     return 1;
   }
-
 
   Game game(SDL_CreateRenderer(window, -1, 0));
   game.sprite_list.push_back(std::make_unique<Player>(Player(game, 0, 0)));
