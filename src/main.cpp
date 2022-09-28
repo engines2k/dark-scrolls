@@ -86,6 +86,7 @@ class Sprite {
   Game &game;
 };
 
+class Player;
 
 class Game {
   public:
@@ -97,7 +98,8 @@ class Game {
   int32_t tick_event_id;
   FrameCounter frame_counter;
   std::mutex frame_counter_lock;
-  std::vector<std::unique_ptr<Sprite>> sprite_list;
+  std::vector<std::shared_ptr<Sprite>> sprite_list;
+  std::shared_ptr<Player> player = NULL;
 
   //Text test_text;
 
@@ -183,7 +185,7 @@ class Player: public Sprite {
   static constexpr uint8_t BLUE = 222;
 };
 
-// this whole class needs to be cleaned up, probably (definitely)
+// this class is trash
 class Incantation : public Sprite {
   SDL_Color color_red = { 255, 0, 0 };
   SDL_Color color_grey = { 200, 200, 200 };
@@ -201,12 +203,10 @@ class Incantation : public Sprite {
   std::string phrase;
   uint32_t index;
   bool inc_btn_pressed;
-  // lines 206, 209, 219, 456: the player needs to be passed to the incantation to get the x and y pos, in order to make the incantation appear above the player. 
-  // need input on this. might be smart to give player an incantation member?
-  //std::unique_ptr<Sprite>::pointer &player;
+  std::shared_ptr<Sprite> player;
 
   public:
-  Incantation(std::string n_phrase, Game &game, int pos_x, int pos_y/*, std::unique_ptr<Sprite>::pointer n_player*/) : Sprite(game, pos_x, pos_y) {
+  Incantation(std::string n_phrase, Game &game, int pos_x, int pos_y) : Sprite(game, pos_x, pos_y) {
     char font_path[261];
     snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
     font = TTF_OpenFont(font_path, 25);
@@ -216,7 +216,6 @@ class Incantation : public Sprite {
     }
     index = 0;
     phrase = n_phrase;
-    // player = n_player;
   }
 
   void tick();
@@ -258,6 +257,7 @@ void Text::tick() {
 
 void Incantation::tick() {
   if (game.keyboard.is_pressed(SDL_SCANCODE_RETURN) && typed_surface == NULL) {
+    // if(index >= phrase.length()) despawn();
       inc_btn_pressed = true;
       draw();
   } else if (game.keyboard.is_pressed(SDL_SCANCODE_A) && toupper(phrase[index]) == 'A') {
@@ -407,7 +407,7 @@ void Game::tick() {
     sprite->draw();
   }
 
-  std::vector<std::unique_ptr<Sprite>> next_sprite_list;
+  std::vector<std::shared_ptr<Sprite>> next_sprite_list;
 
   for (auto &sprite: sprite_list) {
     if (sprite->is_spawned()) {
@@ -417,12 +417,6 @@ void Game::tick() {
 
   sprite_list = std::move(next_sprite_list);
   keyboard.reset_pressed();
-
-  // ADDED TEMP!!!
-  // Text needs to be refactored as a child of sprite.  
-  // test_text.draw();
-  // test_text.tick();
-  // test_text.draw();
 
   SDL_RenderPresent(renderer);
   auto frame_counter_lock = std::lock_guard(this->frame_counter_lock);
@@ -452,9 +446,11 @@ int main(int argc, char *argv[]) {
   }
 
   Game game(SDL_CreateRenderer(window, -1, 0));
-  game.sprite_list.push_back(std::make_unique<Player>(Player(game, 0, 0)));
-  game.sprite_list.push_back(std::make_unique<Text>(Text((char*)"Welcome to Dark Scrolls", game, 0, 0)));
-  game.sprite_list.push_back(std::make_unique<Incantation>(Incantation("This_is_an_incantation", game, 0, 100/*, game.sprite_list[0].get()*/)));
+  game.player = std::make_shared<Player>(Player(game, 0, 0));
+
+  game.sprite_list.push_back(game.player);
+  game.sprite_list.push_back(std::make_shared<Text>(Text((char*)"Welcome to Dark Scrolls", game, 0, 0)));
+  game.sprite_list.push_back(std::make_shared<Incantation>(Incantation("This_is_an_incantation", game, 0, 100)));
 
   game.tick_event_id = SDL_RegisterEvents(1);
 
