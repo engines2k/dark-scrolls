@@ -201,8 +201,8 @@ class Incantation : public Sprite {
   std::string phrase;
   uint32_t index;
   bool inc_btn_pressed;
-
-  //lines 206, 209, 219, 456: The player needs to be passed to the incantation. Kate, probably need your help on this. Might be smart to give player an Incantation member?
+  // lines 206, 209, 219, 456: the player needs to be passed to the incantation to get the x and y pos, in order to make the incantation appear above the player. 
+  // need input on this. might be smart to give player an incantation member?
   //std::unique_ptr<Sprite>::pointer &player;
 
   public:
