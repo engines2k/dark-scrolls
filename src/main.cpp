@@ -7,6 +7,8 @@
 #include <SDL2/SDL_ttf.h>
 #include <memory>
 #include <vector>
+
+#include <iostream>
 //could be <SDL.h>
 
 const int WIDTH = 800, HEIGHT = 600;
@@ -223,18 +225,18 @@ class Incantation : public Sprite {
     if(!inc_btn_pressed) return;
 
     if(index <= phrase.length()) {
-    const char *typed = phrase.substr(0, index).c_str();
-    typed_surface = TTF_RenderText_Solid(font, typed, color_red);
-    typed_texture = SDL_CreateTextureFromSurface(game.renderer, typed_surface);
-    SDL_QueryTexture(typed_texture, NULL, NULL, &typed_texW, &typed_texH);
-    dstrect = { pos_x, pos_y, typed_texW, typed_texH };
+      const char *typed = phrase.substr(0, index).c_str();
+      typed_surface = TTF_RenderText_Solid(font, typed, color_red);
+      typed_texture = SDL_CreateTextureFromSurface(game.renderer, typed_surface);
+      SDL_QueryTexture(typed_texture, NULL, NULL, &typed_texW, &typed_texH);
+      dstrect = { pos_x, pos_y, typed_texW, typed_texH };
 
-    const char *untyped = phrase.substr(index).c_str();
-    untyped_surface = TTF_RenderText_Solid(font, untyped, color_grey);
-    untyped_texture = SDL_CreateTextureFromSurface(game.renderer, untyped_surface);
-    SDL_QueryTexture(untyped_texture, NULL, NULL, &untyped_texW, &untyped_texH);
-    undstrect = { pos_x + typed_texW, pos_y, untyped_texW, untyped_texH };
-    if(index == 0) undstrect.x = pos_x;
+      const char *untyped = phrase.substr(index).c_str();
+      untyped_surface = TTF_RenderText_Solid(font, untyped, color_grey);
+      untyped_texture = SDL_CreateTextureFromSurface(game.renderer, untyped_surface);
+      SDL_QueryTexture(untyped_texture, NULL, NULL, &untyped_texW, &untyped_texH);
+      undstrect = { pos_x + typed_texW, pos_y, untyped_texW, untyped_texH };
+      if(index == 0) undstrect.x = pos_x;
     }
     SDL_RenderCopy(game.renderer, typed_texture, NULL, &dstrect);
     SDL_RenderCopy(game.renderer, untyped_texture, NULL, &undstrect);
@@ -256,117 +258,120 @@ void Text::tick() {
 }
 
 void Incantation::tick() {
-  if (game.keyboard.is_pressed(SDL_SCANCODE_RETURN) && typed_surface == NULL) {
-    // if(index >= phrase.length()) despawn();
-      inc_btn_pressed = true;
-      draw();
+  if (game.keyboard.is_pressed(SDL_SCANCODE_RETURN)) {
+      if(typed_surface == NULL) {
+        inc_btn_pressed = true;
+        draw(); 
+      }
+      else if(index >= phrase.length()) despawn();
+
   } else if (game.keyboard.is_pressed(SDL_SCANCODE_A) && toupper(phrase[index]) == 'A') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_B) && toupper(phrase[index]) == 'B') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_C) && toupper(phrase[index]) == 'C') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_D) && toupper(phrase[index]) == 'D') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_E) && toupper(phrase[index]) == 'E') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_F) && toupper(phrase[index]) == 'F') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_G) && toupper(phrase[index]) == 'G') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_H) && toupper(phrase[index]) == 'H') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_I) && toupper(phrase[index]) == 'I') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_J) && toupper(phrase[index]) == 'J') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_K) && toupper(phrase[index]) == 'K') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_L) && toupper(phrase[index]) == 'L') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_M) && toupper(phrase[index]) == 'M') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_N) && toupper(phrase[index]) == 'N') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_O) && toupper(phrase[index]) == 'O') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_P) && toupper(phrase[index]) == 'P') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_Q) && toupper(phrase[index]) == 'Q') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_R) && toupper(phrase[index]) == 'R') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_S) && toupper(phrase[index]) == 'S') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_T) && toupper(phrase[index]) == 'T') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_U) && toupper(phrase[index]) == 'U') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_V) && toupper(phrase[index]) == 'V') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_W) && toupper(phrase[index]) == 'W') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_X) && toupper(phrase[index]) == 'X') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_Y) && toupper(phrase[index]) == 'Y') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_Z) && toupper(phrase[index]) == 'Z') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_SPACE) && phrase[index] == '_') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
 
 }
