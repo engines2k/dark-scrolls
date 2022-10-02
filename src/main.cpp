@@ -227,10 +227,15 @@ class Incantation : public Sprite {
     if(!inc_btn_pressed) return;
 
     if(index <= phrase.length()) {
+
+  
       const char *typed = phrase.substr(0, index).c_str();
       typed_surface = TTF_RenderText_Solid(font, typed, color_red);
       typed_texture = SDL_CreateTextureFromSurface(game.renderer, typed_surface);
       SDL_QueryTexture(typed_texture, NULL, NULL, &typed_texW, &typed_texH);
+      this->pos_x = game.player->get_pos_x() / SUBPIXELS_IN_PIXEL;
+      this->pos_y = game.player->get_pos_y() / SUBPIXELS_IN_PIXEL -30; /* must be modified later to scale with player*/
+      // std::cout << game.player->get_pos_x() << std::endl;
       dstrect = { pos_x, pos_y, typed_texW, typed_texH };
 
       const char *untyped = phrase.substr(index).c_str();
@@ -265,7 +270,7 @@ void Incantation::tick() {
         inc_btn_pressed = true;
         draw(); 
       }
-      else if(index >= phrase.length()) despawn();
+      else if(index >= phrase.length()) {despawn(); game.player->despawn();}
 
   } else if (game.keyboard.is_pressed(SDL_SCANCODE_A) && toupper(phrase[index]) == 'A') {
     index++;
