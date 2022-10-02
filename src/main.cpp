@@ -5,8 +5,10 @@
 #include <cstdlib>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
 #include <memory>
 #include <vector>
+#include "level.hpp"
 //could be <SDL.h>
 
 const int WIDTH = 800, HEIGHT = 600;
@@ -89,7 +91,7 @@ class Sprite {
 
 class Game {
   public:
-  Game(SDL_Renderer *renderer): renderer(renderer) {
+  Game(SDL_Renderer *renderer): renderer(renderer), current_level(renderer) {
   }
 
   SDL_Renderer *renderer;
@@ -98,6 +100,8 @@ class Game {
   FrameCounter frame_counter;
   std::mutex frame_counter_lock;
   std::vector<std::unique_ptr<Sprite>> sprite_list;
+  Level current_level;
+  std::filesystem::path data_path = std::filesystem::path(_pgmptr).parent_path() / "data";
 
   //Text test_text;
 
@@ -137,7 +141,6 @@ public:
   void draw();
   void tick();
 };
-
 
 class Player: public Sprite {
   public:
@@ -399,8 +402,11 @@ uint32_t game_timer(uint32_t rate, void *game_ptr) {
 }
 
 void Game::tick() {
+  SDL_SetRenderTarget(renderer, nullptr);
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
+
+  current_level.draw();
 
   for (auto &sprite: sprite_list) {
     sprite->tick();
@@ -437,6 +443,13 @@ int main(int argc, char *argv[]) {
 
   if(TTF_Init() < 0) {
     printf("TTF_Init failed: %s\n", TTF_GetError());
+    return 1;
+  }
+
+  int sdl_img_flags = IMG_INIT_PNG;
+  if(IMG_Init(sdl_img_flags) != sdl_img_flags) {
+    printf("IMG_Init failed: %s\n", IMG_GetError());
+    return 1;
   }
 
   SDL_Window *window;
@@ -459,6 +472,8 @@ int main(int argc, char *argv[]) {
   game.tick_event_id = SDL_RegisterEvents(1);
 
   SDL_TimerID tick_timer = SDL_AddTimer(FRAME_RATE * 1000, game_timer, &game);
+
+  game.current_level = Level(game.renderer, game.data_path / "level/test_room.tmj");
   
   SDL_Event event;
   while(1) {

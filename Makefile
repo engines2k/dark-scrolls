@@ -19,6 +19,7 @@ DEPS := $(OBJS:.o=.d)
 
 # Every folder in ./src will need to be passed to GCC so that it can find header files
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+INC_DIRS := third_party/json
 # Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
@@ -27,7 +28,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CPPFLAGS := $(INC_FLAGS) -MMD -MP
 CFLAGS := -Wall --std=c++17 -g -Dmain=SDL_main
 CXXFLAGS := $(CFLAGS)
-LDFLAGS := -lmingw32 -mwindows -lSDL2main -lSDL2 -lSDL2_ttf
+LDFLAGS := -lmingw32 -mwindows -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image
 
 # The final build step.
 $(TARGET_EXEC): $(OBJS)
