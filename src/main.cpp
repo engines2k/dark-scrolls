@@ -9,6 +9,7 @@
 #include <memory>
 #include <vector>
 #include "level.hpp"
+#include <iostream>
 //could be <SDL.h>
 
 const int WIDTH = 800, HEIGHT = 600;
@@ -88,6 +89,7 @@ class Sprite {
   Game &game;
 };
 
+class Player;
 
 class Game {
   public:
@@ -99,9 +101,10 @@ class Game {
   int32_t tick_event_id;
   FrameCounter frame_counter;
   std::mutex frame_counter_lock;
-  std::vector<std::unique_ptr<Sprite>> sprite_list;
   Level current_level;
   std::filesystem::path data_path = std::filesystem::path(_pgmptr).parent_path() / "data";
+  std::vector<std::shared_ptr<Sprite>> sprite_list;
+  std::shared_ptr<Player> player = NULL;
 
   //Text test_text;
 
@@ -186,7 +189,7 @@ class Player: public Sprite {
   static constexpr uint8_t BLUE = 222;
 };
 
-// this whole class needs to be cleaned up, probably (definitely)
+// this class is trash
 class Incantation : public Sprite {
   SDL_Color color_red = { 255, 0, 0 };
   SDL_Color color_grey = { 200, 200, 200 };
@@ -204,12 +207,10 @@ class Incantation : public Sprite {
   std::string phrase;
   uint32_t index;
   bool inc_btn_pressed;
-  // lines 206, 209, 219, 456: the player needs to be passed to the incantation to get the x and y pos, in order to make the incantation appear above the player. 
-  // need input on this. might be smart to give player an incantation member?
-  //std::unique_ptr<Sprite>::pointer &player;
+  std::shared_ptr<Sprite> player;
 
   public:
-  Incantation(std::string n_phrase, Game &game, int pos_x, int pos_y/*, std::unique_ptr<Sprite>::pointer n_player*/) : Sprite(game, pos_x, pos_y) {
+  Incantation(std::string n_phrase, Game &game, int pos_x, int pos_y) : Sprite(game, pos_x, pos_y) {
     char font_path[261];
     snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
     font = TTF_OpenFont(font_path, 25);
@@ -219,7 +220,6 @@ class Incantation : public Sprite {
     }
     index = 0;
     phrase = n_phrase;
-    // player = n_player;
   }
 
   void tick();
@@ -227,18 +227,18 @@ class Incantation : public Sprite {
     if(!inc_btn_pressed) return;
 
     if(index <= phrase.length()) {
-    const char *typed = phrase.substr(0, index).c_str();
-    typed_surface = TTF_RenderText_Solid(font, typed, color_red);
-    typed_texture = SDL_CreateTextureFromSurface(game.renderer, typed_surface);
-    SDL_QueryTexture(typed_texture, NULL, NULL, &typed_texW, &typed_texH);
-    dstrect = { pos_x, pos_y, typed_texW, typed_texH };
+      const char *typed = phrase.substr(0, index).c_str();
+      typed_surface = TTF_RenderText_Solid(font, typed, color_red);
+      typed_texture = SDL_CreateTextureFromSurface(game.renderer, typed_surface);
+      SDL_QueryTexture(typed_texture, NULL, NULL, &typed_texW, &typed_texH);
+      dstrect = { pos_x, pos_y, typed_texW, typed_texH };
 
-    const char *untyped = phrase.substr(index).c_str();
-    untyped_surface = TTF_RenderText_Solid(font, untyped, color_grey);
-    untyped_texture = SDL_CreateTextureFromSurface(game.renderer, untyped_surface);
-    SDL_QueryTexture(untyped_texture, NULL, NULL, &untyped_texW, &untyped_texH);
-    undstrect = { pos_x + typed_texW, pos_y, untyped_texW, untyped_texH };
-    if(index == 0) undstrect.x = pos_x;
+      const char *untyped = phrase.substr(index).c_str();
+      untyped_surface = TTF_RenderText_Solid(font, untyped, color_grey);
+      untyped_texture = SDL_CreateTextureFromSurface(game.renderer, untyped_surface);
+      SDL_QueryTexture(untyped_texture, NULL, NULL, &untyped_texW, &untyped_texH);
+      undstrect = { pos_x + typed_texW, pos_y, untyped_texW, untyped_texH };
+      if(index == 0) undstrect.x = pos_x;
     }
     SDL_RenderCopy(game.renderer, typed_texture, NULL, &dstrect);
     SDL_RenderCopy(game.renderer, untyped_texture, NULL, &undstrect);
@@ -260,116 +260,120 @@ void Text::tick() {
 }
 
 void Incantation::tick() {
-  if (game.keyboard.is_pressed(SDL_SCANCODE_RETURN) && typed_surface == NULL) {
-      inc_btn_pressed = true;
-      draw();
+  if (game.keyboard.is_pressed(SDL_SCANCODE_RETURN)) {
+      if(typed_surface == NULL) {
+        inc_btn_pressed = true;
+        draw(); 
+      }
+      else if(index >= phrase.length()) despawn();
+
   } else if (game.keyboard.is_pressed(SDL_SCANCODE_A) && toupper(phrase[index]) == 'A') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_B) && toupper(phrase[index]) == 'B') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_C) && toupper(phrase[index]) == 'C') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_D) && toupper(phrase[index]) == 'D') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_E) && toupper(phrase[index]) == 'E') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_F) && toupper(phrase[index]) == 'F') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_G) && toupper(phrase[index]) == 'G') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_H) && toupper(phrase[index]) == 'H') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_I) && toupper(phrase[index]) == 'I') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_J) && toupper(phrase[index]) == 'J') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_K) && toupper(phrase[index]) == 'K') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_L) && toupper(phrase[index]) == 'L') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_M) && toupper(phrase[index]) == 'M') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_N) && toupper(phrase[index]) == 'N') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_O) && toupper(phrase[index]) == 'O') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_P) && toupper(phrase[index]) == 'P') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_Q) && toupper(phrase[index]) == 'Q') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_R) && toupper(phrase[index]) == 'R') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_S) && toupper(phrase[index]) == 'S') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_T) && toupper(phrase[index]) == 'T') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_U) && toupper(phrase[index]) == 'U') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_V) && toupper(phrase[index]) == 'V') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_W) && toupper(phrase[index]) == 'W') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_X) && toupper(phrase[index]) == 'X') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_Y) && toupper(phrase[index]) == 'Y') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_Z) && toupper(phrase[index]) == 'Z') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
   else if (game.keyboard.is_pressed(SDL_SCANCODE_SPACE) && phrase[index] == '_') {
-      index++;
-      draw();
+    index++;
+    draw();
   }
 
 }
@@ -413,7 +417,7 @@ void Game::tick() {
     sprite->draw();
   }
 
-  std::vector<std::unique_ptr<Sprite>> next_sprite_list;
+  std::vector<std::shared_ptr<Sprite>> next_sprite_list;
 
   for (auto &sprite: sprite_list) {
     if (sprite->is_spawned()) {
@@ -423,12 +427,6 @@ void Game::tick() {
 
   sprite_list = std::move(next_sprite_list);
   keyboard.reset_pressed();
-
-  // ADDED TEMP!!!
-  // Text needs to be refactored as a child of sprite.  
-  // test_text.draw();
-  // test_text.tick();
-  // test_text.draw();
 
   SDL_RenderPresent(renderer);
   auto frame_counter_lock = std::lock_guard(this->frame_counter_lock);
@@ -465,9 +463,11 @@ int main(int argc, char *argv[]) {
   }
 
   Game game(SDL_CreateRenderer(window, -1, 0));
-  game.sprite_list.push_back(std::make_unique<Player>(Player(game, 0, 0)));
-  game.sprite_list.push_back(std::make_unique<Text>(Text((char*)"Welcome to Dark Scrolls", game, 0, 0)));
-  game.sprite_list.push_back(std::make_unique<Incantation>(Incantation("This_is_an_incantation", game, 0, 100/*, game.sprite_list[0].get()*/)));
+  game.player = std::make_shared<Player>(Player(game, 0, 0));
+
+  game.sprite_list.push_back(game.player);
+  game.sprite_list.push_back(std::make_shared<Text>(Text((char*)"Welcome to Dark Scrolls", game, 0, 0)));
+  game.sprite_list.push_back(std::make_shared<Incantation>(Incantation("This_is_an_incantation", game, 0, 100)));
 
   game.tick_event_id = SDL_RegisterEvents(1);
 
