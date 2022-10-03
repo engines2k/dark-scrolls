@@ -149,7 +149,7 @@ class Player: public Sprite {
   public:
   Player(Game &game, int pos_x, int pos_y): Sprite(game, pos_x, pos_y) {}
 
-  bool is_immobile() {
+  bool is_immobile() const {
     return this->IMMOBILE_FLAG;
   }
 
