@@ -149,23 +149,33 @@ class Player: public Sprite {
   public:
   Player(Game &game, int pos_x, int pos_y): Sprite(game, pos_x, pos_y) {}
 
+  bool is_immobile() {
+    return this->IMMOBILE_FLAG;
+  }
+
+  void immobile(bool b) {
+    this->IMMOBILE_FLAG = b;
+  }
+
   virtual void tick() override {
-    int x_speed = 0;
-    int y_speed = 0;
-    if (game.keyboard.is_held(SDL_SCANCODE_W)) {
-      y_speed = -SPEED;
-    } else if (game.keyboard.is_held(SDL_SCANCODE_S)) {
-      y_speed = SPEED;
-    }
+    if(!is_immobile()) {
+      int x_speed = 0;
+      int y_speed = 0;
+      if (game.keyboard.is_held(SDL_SCANCODE_W)) {
+        y_speed = -SPEED;
+      } else if (game.keyboard.is_held(SDL_SCANCODE_S)) {
+        y_speed = SPEED;
+      }
 
-    if (game.keyboard.is_held(SDL_SCANCODE_A)) {
-      x_speed = -SPEED;
-    } else if (game.keyboard.is_held(SDL_SCANCODE_D)) {
-      x_speed = SPEED;
-    }
+      if (game.keyboard.is_held(SDL_SCANCODE_A)) {
+        x_speed = -SPEED;
+      } else if (game.keyboard.is_held(SDL_SCANCODE_D)) {
+        x_speed = SPEED;
+      }
 
-    pos_x += x_speed;
-    pos_y += y_speed;
+      pos_x += x_speed;
+      pos_y += y_speed; 
+    }
 
     //Suicide test code
     if (game.keyboard.is_held(SDL_SCANCODE_0)) {
@@ -181,7 +191,9 @@ class Player: public Sprite {
     SDL_SetRenderDrawColor(game.renderer, RED, GREEN, BLUE, 255);
     SDL_RenderFillRect(game.renderer, &my_rect);
   }
+
   private:
+  bool IMMOBILE_FLAG = false;
   static constexpr uint32_t SPEED = (300 * FRAME_RATE) * SUBPIXELS_IN_PIXEL;
   static constexpr SDL_Rect SHAPE = {.x = 0, .y = 0, .w = 30, .h = 30};
   static constexpr uint8_t RED = 126;
@@ -234,8 +246,7 @@ class Incantation : public Sprite {
       typed_texture = SDL_CreateTextureFromSurface(game.renderer, typed_surface);
       SDL_QueryTexture(typed_texture, NULL, NULL, &typed_texW, &typed_texH);
       this->pos_x = game.player->get_pos_x() / SUBPIXELS_IN_PIXEL;
-      this->pos_y = game.player->get_pos_y() / SUBPIXELS_IN_PIXEL -30; /* must be modified later to scale with player*/
-      // std::cout << game.player->get_pos_x() << std::endl;
+      this->pos_y = game.player->get_pos_y() / SUBPIXELS_IN_PIXEL -40; /* must be modified later to scale with player*/
       dstrect = { pos_x, pos_y, typed_texW, typed_texH };
 
       const char *untyped = phrase.substr(index).c_str();
@@ -244,6 +255,11 @@ class Incantation : public Sprite {
       SDL_QueryTexture(untyped_texture, NULL, NULL, &untyped_texW, &untyped_texH);
       undstrect = { pos_x + typed_texW, pos_y, untyped_texW, untyped_texH };
       if(index == 0) undstrect.x = pos_x;
+
+      // center align text
+      int offset_center = (dstrect.w + undstrect.w) / 2.05;
+      dstrect.x -= offset_center;
+      undstrect.x -= offset_center;
     }
     SDL_RenderCopy(game.renderer, typed_texture, NULL, &dstrect);
     SDL_RenderCopy(game.renderer, untyped_texture, NULL, &undstrect);
@@ -268,9 +284,14 @@ void Incantation::tick() {
   if (game.keyboard.is_pressed(SDL_SCANCODE_RETURN)) {
       if(typed_surface == NULL) {
         inc_btn_pressed = true;
-        draw(); 
+        draw();
+        game.player->immobile(true);
       }
-      else if(index >= phrase.length()) {despawn(); game.player->despawn();}
+      else if(index >= phrase.length()) {
+        despawn();
+        game.player->immobile(false);
+        game.player->despawn();
+      }
 
   } else if (game.keyboard.is_pressed(SDL_SCANCODE_A) && toupper(phrase[index]) == 'A') {
     index++;
