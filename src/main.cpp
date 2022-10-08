@@ -9,84 +9,21 @@
 #include <memory>
 #include <vector>
 #include "level.hpp"
+#include "keyboard_manager.hpp"
+#include "mob.hpp"
 #include <iostream>
 //could be <SDL.h>
+
 
 const int WIDTH = 800, HEIGHT = 600;
 
 constexpr double FRAME_RATE = 1.0 / 60.0;
 constexpr int SUBPIXELS_IN_PIXEL = 1 << 15;
 
-class KeyboardManager {
-  public:
-  bool is_pressed(SDL_Scancode scan) {
-    return pressed.count(scan) >= 1;
-  }
-
-  bool is_held(SDL_Scancode scan) {
-    return held.count(scan) >= 1;
-  }
-
-  void handle_keyevent(const SDL_KeyboardEvent &env) {
-    if(env.type == SDL_KEYDOWN && env.repeat == 0) {
-      held.insert(env.keysym.scancode);
-      pressed.insert(env.keysym.scancode);
-    }
-    if(env.type == SDL_KEYUP) {
-      held.erase(env.keysym.scancode);
-    }
-  }
-
-  void reset_pressed() {
-    pressed.clear();
-  }
-
-  private:
-  std::unordered_set<SDL_Scancode> pressed;
-  std::unordered_set<SDL_Scancode> held;
-};
 
 struct FrameCounter {
   uint64_t rendered_frames = 0;
   uint64_t scheduled_frames = 0;
-};
-
-class Game;
-
-static uint64_t NEXT_SPRITE_ID = 0;
-
-class Sprite {
-  public:
-  Sprite(Game &game, int x, int y): game(game) {
-    NEXT_SPRITE_ID++;
-    this->pos_x = x;
-    this->pos_y = y;
-  }
-
-  virtual void draw() = 0;
-  virtual void tick() {}
-  int get_pos_x() const {
-    return pos_x;
-  }
-  int get_pos_y() const {
-    return pos_y;
-  }
-  void despawn() {
-    spawn_flag = false;
-  }
-  bool is_spawned() const {
-    return spawn_flag;
-  }
-
-  virtual ~Sprite() {}
-
-  const int id = NEXT_SPRITE_ID;
-
-  protected:
-  int pos_x;
-  int pos_y;
-  bool spawn_flag = true;
-  Game &game;
 };
 
 class Player;
@@ -111,95 +48,42 @@ class Game {
   void tick();
 };
 
-class Text : public Sprite {
-  SDL_Surface *surface = NULL;
-  TTF_Font *font;
-  SDL_Texture *texture;
-  int texW,texH;
-  SDL_Rect dstrect;
-  SDL_Color color = { 255, 255, 255 };
-
-public:
-  char *text;
-  void set_color(SDL_Color n_color) {
-    color = n_color;
-  }
-
-  int get_w() {
-    return texW;
-  }
-
-  Text(char *n_text, Game &game, int pos_x, int pos_y, SDL_Color n_color = { 255, 255, 255 }) : Sprite(game, pos_x, pos_y) {
-    color = n_color;
-    text = n_text;
-    char font_path[261];
-    snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
-    font = TTF_OpenFont(font_path, 25);
-    if (font == nullptr) {
-      printf("Font error: %s\n", SDL_GetError());
-      abort();
-    }
-  }
-
-  void draw();
-  void tick();
-};
-
-class Player: public Sprite {
-  public:
-  Player(Game &game, int pos_x, int pos_y): Sprite(game, pos_x, pos_y) {}
-
-  bool is_immobile() const {
-    return this->IMMOBILE_FLAG;
-  }
-
-  void immobile(bool b) {
-    this->IMMOBILE_FLAG = b;
-  }
-
-  virtual void tick() override {
-    if(!is_immobile()) {
-      int x_speed = 0;
-      int y_speed = 0;
-      if (game.keyboard.is_held(SDL_SCANCODE_W)) {
-        y_speed = -SPEED;
-      } else if (game.keyboard.is_held(SDL_SCANCODE_S)) {
-        y_speed = SPEED;
-      }
-
-      if (game.keyboard.is_held(SDL_SCANCODE_A)) {
-        x_speed = -SPEED;
-      } else if (game.keyboard.is_held(SDL_SCANCODE_D)) {
-        x_speed = SPEED;
-      }
-
-      pos_x += x_speed;
-      pos_y += y_speed; 
+void Player::tick() {
+  Mob::tick();
+  if(!is_immobile()) {
+    int x_speed = 0;
+    int y_speed = 0;
+    if (game.keyboard.is_held(SDL_SCANCODE_W)) {
+      y_speed = -speed;
+    } else if (game.keyboard.is_held(SDL_SCANCODE_S)) {
+      y_speed = speed;
     }
 
-    //Suicide test code
-    if (game.keyboard.is_held(SDL_SCANCODE_0)) {
-      despawn(); 
+    if (game.keyboard.is_held(SDL_SCANCODE_A)) {
+      x_speed = -speed;
+    } else if (game.keyboard.is_held(SDL_SCANCODE_D)) {
+      x_speed = speed;
     }
+
+    pos_x += x_speed;
+    pos_y += y_speed; 
   }
 
-  virtual void draw() override {
-    SDL_Rect my_rect = SHAPE;
-    my_rect.x = pos_x / SUBPIXELS_IN_PIXEL;
-    my_rect.y = pos_y / SUBPIXELS_IN_PIXEL;
-
-    SDL_SetRenderDrawColor(game.renderer, RED, GREEN, BLUE, 255);
-    SDL_RenderFillRect(game.renderer, &my_rect);
+  //Suicide test code
+  if (game.keyboard.is_held(SDL_SCANCODE_0)) {
+    despawn(); 
   }
+}
 
-  private:
-  bool IMMOBILE_FLAG = false;
-  static constexpr uint32_t SPEED = (300 * FRAME_RATE) * SUBPIXELS_IN_PIXEL;
-  static constexpr SDL_Rect SHAPE = {.x = 0, .y = 0, .w = 30, .h = 30};
-  static constexpr uint8_t RED = 126;
-  static constexpr uint8_t GREEN = 219;
-  static constexpr uint8_t BLUE = 222;
-};
+void Player::draw() {
+  SDL_Rect my_rect = SHAPE;
+  my_rect.x = pos_x / mob_vars::SUBPIXELS_IN_PIXEL;
+  my_rect.y = pos_y / mob_vars::SUBPIXELS_IN_PIXEL;
+
+  SDL_SetRenderDrawColor(game.renderer, RED, GREEN, BLUE, 255);
+  SDL_RenderFillRect(game.renderer, &my_rect);
+}
+
 
 // this class is trash
 class Incantation : public Sprite {
@@ -474,6 +358,10 @@ int main(int argc, char *argv[]) {
   if(IMG_Init(sdl_img_flags) != sdl_img_flags) {
     printf("IMG_Init failed: %s\n", IMG_GetError());
     return 1;
+  }
+
+  if(Mob_Init(FRAME_RATE, SUBPIXELS_IN_PIXEL) < 0) {
+    printf("Mob_Init failed!");
   }
 
   SDL_Window *window;
