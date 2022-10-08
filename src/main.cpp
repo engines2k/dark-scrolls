@@ -19,7 +19,6 @@ const int WIDTH = 800, HEIGHT = 600;
 
 constexpr double FRAME_RATE = 1.0 / 60.0;
 
-
 struct FrameCounter {
   uint64_t rendered_frames = 0;
   uint64_t scheduled_frames = 0;
@@ -81,6 +80,7 @@ void Player::tick() {
       despawn(); 
     }
   }
+}
 
 void Player::draw() {
     SDL_Rect my_rect = SHAPE;
@@ -94,8 +94,9 @@ void Player::draw() {
 
 void Creep::draw() {
   SDL_Rect rect = shape;
-  rect.x = pos_x / mob_vars::SUBPIXELS_IN_PIXEL;
-  rect.y = pos_y / mob_vars::SUBPIXELS_IN_PIXEL;
+  Pos screen_pos = game.screen_pos(pos);
+  rect.x = screen_pos.pixel_x();
+  rect.y = screen_pos.pixel_y();
 
   SDL_SetRenderDrawColor(game.renderer, 255, 0, 0, 255);
   SDL_RenderFillRect(game.renderer, &rect);
@@ -104,14 +105,14 @@ void Creep::draw() {
 
 void Creep::tick() {
   Mob::tick();
-  if(pos_y == og_pos_y && returning)
+  if(pos.y == og_pos.y && returning)
     returning = !returning;
-  if(abs(og_pos_y - pos_y) / mob_vars::SUBPIXELS_IN_PIXEL >= 200)
+  if(abs(og_pos.y - pos.y) / mob_vars::SUBPIXELS_IN_PIXEL >= 200)
     returning = true;
-  if(abs(og_pos_y - pos_y) / mob_vars::SUBPIXELS_IN_PIXEL < 200 && !returning)
-    pos_y += speed;
+  if(abs(og_pos.y - pos.y) / mob_vars::SUBPIXELS_IN_PIXEL < 200 && !returning)
+    pos.y += speed;
   else 
-    pos_y += -speed;
+    pos.y += -speed;
 }
 
 // this class could use some work
@@ -157,7 +158,6 @@ class Incantation : public Sprite {
       typed_surface = TTF_RenderText_Solid(font, typed, color_red);
       typed_texture = SDL_CreateTextureFromSurface(game.renderer, typed_surface);
       SDL_QueryTexture(typed_texture, NULL, NULL, &typed_texW, &typed_texH);
-<<<<<<< HEAD
       this->pos = game.player->get_pos();
       this->pos += Translation {.x = 0, .y = SUBPIXELS_IN_PIXEL * -40 }; /* must be modified later to scale with player*/
 
@@ -320,7 +320,6 @@ void Incantation::tick() {
     index++;
     draw();
   }
-
 }
 
 uint32_t game_timer(uint32_t rate, void *game_ptr) {
@@ -437,7 +436,7 @@ int main(int argc, char *argv[]) {
   game.sprite_list.push_back(game.player);
   game.sprite_list.push_back(std::make_shared<Text>(Text((char*)"Welcome to Dark Scrolls", game, Pos {.layer = 0, .x = -32 * SUBPIXELS_IN_PIXEL, .y = -32 * SUBPIXELS_IN_PIXEL})));
   game.sprite_list.push_back(std::make_shared<Incantation>(Incantation("This_is_an_incantation", game, Pos {.layer = 0, .x = 0, .y = 100})));
-  game.sprite_list.push_back(std::make_shared<Creep>(Creep(game, Pos {.layer = 0, .x = 380 * mob_vars::SUBPIXELS_IN_PIXEL .y = 390 * mob_vars::SUBPIXELS_IN_PIXEL})));
+  game.sprite_list.push_back(std::make_shared<Creep>(Creep(game, Pos {.layer = 0, .x = 380 * mob_vars::SUBPIXELS_IN_PIXEL, .y = 390 * mob_vars::SUBPIXELS_IN_PIXEL})));
 
   game.tick_event_id = SDL_RegisterEvents(1);
 

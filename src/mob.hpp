@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL2/SDL.h>
+#include "pos.hpp"
 
 namespace mob_vars {
 
@@ -25,19 +26,15 @@ static uint64_t NEXT_SPRITE_ID = 0;
 
 class Sprite {
   public:
-  Sprite(Game &game, int x, int y): game(game) {
+  Sprite(Game &game, Pos pos): game(game) {
     NEXT_SPRITE_ID++;
-    this->pos_x = x;
-    this->pos_y = y;
+    this->pos = pos;
   }
 
   virtual void draw() = 0;
   virtual void tick() {}
-  int get_pos_x() const {
-    return pos_x;
-  }
-  int get_pos_y() const {
-    return pos_y;
+  Pos get_pos() const {
+    return pos;
   }
   void despawn() {
     spawn_flag = false;
@@ -51,8 +48,7 @@ class Sprite {
   const int id = NEXT_SPRITE_ID;
 
   protected:
-  int pos_x;
-  int pos_y;
+  Pos pos;
   bool spawn_flag = true;
   Game &game;
 };
@@ -76,7 +72,7 @@ public:
     return texW;
   }
 
-  Text(char *n_text, Game &game, int pos_x, int pos_y, SDL_Color n_color = { 255, 255, 255 }) : Sprite(game, pos_x, pos_y) {
+  Text(char *n_text, Game &game, Pos pos, SDL_Color n_color = { 255, 255, 255 }) : Sprite(game, pos) {
     color = n_color;
     text = n_text;
     char font_path[261];
@@ -94,7 +90,7 @@ public:
 
 class Mob: public Sprite {
   public:
-  Mob(Game &game, int pos_x, int pos_y): Sprite(game, pos_x, pos_y) {}
+  Mob(Game &game, Pos pos): Sprite(game, pos) {}
 
   int get_health() const  {
     return health;
@@ -121,7 +117,7 @@ class Mob: public Sprite {
 
 class Player: public Mob {
   public:
-  Player(Game &game, int pos_x, int pos_y): Mob(game, pos_x, pos_y) {
+  Player(Game &game, Pos pos): Mob(game, pos) {
     speed = (300 * mob_vars::FRAME_RATE) * mob_vars::SUBPIXELS_IN_PIXEL;
   }
 
@@ -149,10 +145,9 @@ class Player: public Mob {
 // mutual properties, like health and speed, etc. but I'm going to leave this for later.
 class Creep: public Mob {
   public:
-  Creep(Game &game, int pos_x, int pos_y): Mob(game, pos_x, pos_y) {
+  Creep(Game &game, Pos pos): Mob(game, pos) {
     speed = (200 * mob_vars::FRAME_RATE) * mob_vars::SUBPIXELS_IN_PIXEL;
-    this->og_pos_x = pos_x;
-    this->og_pos_y = pos_y;
+    this->og_pos = pos;
   }
 
   virtual void draw();
@@ -163,7 +158,7 @@ class Creep: public Mob {
   // perhaps make a separate enemy sprite list?
   static const bool creep = true;
   bool returning = false;
-  int og_pos_x, og_pos_y;
+  Pos og_pos;
   uint32_t speed;
   SDL_Rect shape = {.x = 160, .y = -160, .w = 30, .h = 30};
 };
