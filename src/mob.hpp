@@ -144,3 +144,26 @@ class Player: public Mob {
   static constexpr uint8_t GREEN = 219;
   static constexpr uint8_t BLUE = 222;
 };
+
+// Should probably share another inheritance with player for
+// mutual properties, like health and speed, etc. but I'm going to leave this for later.
+class Creep: public Mob {
+  public:
+  Creep(Game &game, int pos_x, int pos_y): Mob(game, pos_x, pos_y) {
+    speed = (200 * mob_vars::FRAME_RATE) * mob_vars::SUBPIXELS_IN_PIXEL;
+    this->og_pos_x = pos_x;
+    this->og_pos_y = pos_y;
+  }
+
+  virtual void draw();
+  virtual void tick();
+
+  private:
+  // to make it easy to check if sprites in the sprite list are creeps
+  // perhaps make a separate enemy sprite list?
+  static const bool creep = true;
+  bool returning = false;
+  int og_pos_x, og_pos_y;
+  uint32_t speed;
+  SDL_Rect shape = {.x = 160, .y = -160, .w = 30, .h = 30};
+};

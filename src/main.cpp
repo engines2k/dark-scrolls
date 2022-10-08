@@ -84,8 +84,29 @@ void Player::draw() {
   SDL_RenderFillRect(game.renderer, &my_rect);
 }
 
+void Creep::draw() {
+  SDL_Rect rect = shape;
+  rect.x = pos_x / mob_vars::SUBPIXELS_IN_PIXEL;
+  rect.y = pos_y / mob_vars::SUBPIXELS_IN_PIXEL;
 
-// this class is trash
+  SDL_SetRenderDrawColor(game.renderer, 255, 0, 0, 255);
+  SDL_RenderFillRect(game.renderer, &rect);
+}
+
+
+void Creep::tick() {
+  Mob::tick();
+  if(pos_y == og_pos_y && returning)
+    returning = !returning;
+  if(abs(og_pos_y - pos_y) / mob_vars::SUBPIXELS_IN_PIXEL >= 200)
+    returning = true;
+  if(abs(og_pos_y - pos_y) / mob_vars::SUBPIXELS_IN_PIXEL < 200 && !returning)
+    pos_y += speed;
+  else 
+    pos_y += -speed;
+}
+
+// this class could use some work
 class Incantation : public Sprite {
   SDL_Color color_red = { 255, 0, 0 };
   SDL_Color color_grey = { 200, 200, 200 };
@@ -123,7 +144,6 @@ class Incantation : public Sprite {
     if(!inc_btn_pressed) return;
 
     if(index <= phrase.length()) {
-
   
       const char *typed = phrase.substr(0, index).c_str();
       typed_surface = TTF_RenderText_Solid(font, typed, color_red);
@@ -168,13 +188,14 @@ void Incantation::tick() {
   if (game.keyboard.is_pressed(SDL_SCANCODE_RETURN)) {
       if(typed_surface == NULL) {
         inc_btn_pressed = true;
-        draw();
         game.player->immobile(true);
+        draw();
       }
       else if(index >= phrase.length()) {
         despawn();
         game.player->immobile(false);
-        game.player->despawn();
+        /* TEMP TEMP */
+        game.sprite_list[3]->despawn();
       }
 
   } else if (game.keyboard.is_pressed(SDL_SCANCODE_A) && toupper(phrase[index]) == 'A') {
@@ -382,6 +403,7 @@ int main(int argc, char *argv[]) {
   game.sprite_list.push_back(game.player);
   game.sprite_list.push_back(std::make_shared<Text>(Text((char*)"Welcome to Dark Scrolls", game, 0, 0)));
   game.sprite_list.push_back(std::make_shared<Incantation>(Incantation("This_is_an_incantation", game, 0, 100)));
+  game.sprite_list.push_back(std::make_shared<Creep>(Creep(game, 380 * mob_vars::SUBPIXELS_IN_PIXEL, 390 * mob_vars::SUBPIXELS_IN_PIXEL)));
 
   game.tick_event_id = SDL_RegisterEvents(1);
 
