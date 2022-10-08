@@ -20,9 +20,14 @@
          "imagewidth":16,
          "properties":[
                 {
-                 "name":"special_type",
+                 "name":"invisible",
+                 "type":"bool",
+                 "value":true
+                }, 
+                {
+                 "name":"spawn_tile",
                  "type":"string",
-                 "value":"player_spawn"
+                 "value":"player"
                 }]
         }],
  "tilewidth":16,

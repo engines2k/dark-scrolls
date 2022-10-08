@@ -15,7 +15,6 @@
 const int WIDTH = 800, HEIGHT = 600;
 
 constexpr double FRAME_RATE = 1.0 / 60.0;
-constexpr int SUBPIXELS_IN_PIXEL = 1 << 15;
 
 class KeyboardManager {
   public:
@@ -57,19 +56,15 @@ static uint64_t NEXT_SPRITE_ID = 0;
 
 class Sprite {
   public:
-  Sprite(Game &game, int x, int y): game(game) {
+  Sprite(Game &game, Pos pos): game(game) {
     NEXT_SPRITE_ID++;
-    this->pos_x = x;
-    this->pos_y = y;
+    this->pos = pos;
   }
 
   virtual void draw() = 0;
   virtual void tick() {}
-  int get_pos_x() const {
-    return pos_x;
-  }
-  int get_pos_y() const {
-    return pos_y;
+  Pos get_pos() const {
+    return pos;
   }
   void despawn() {
     spawn_flag = false;
@@ -83,8 +78,7 @@ class Sprite {
   const int id = NEXT_SPRITE_ID;
 
   protected:
-  int pos_x;
-  int pos_y;
+  Pos pos;
   bool spawn_flag = true;
   Game &game;
 };
@@ -109,6 +103,10 @@ class Game {
   //Text test_text;
 
   void tick();
+
+  Pos screen_pos(Pos pos) {
+    return pos + current_level.get_camera_offset();
+  }
 };
 
 class Text : public Sprite {
@@ -129,7 +127,7 @@ public:
     return texW;
   }
 
-  Text(char *n_text, Game &game, int pos_x, int pos_y, SDL_Color n_color = { 255, 255, 255 }) : Sprite(game, pos_x, pos_y) {
+  Text(char *n_text, Game &game, Pos pos, SDL_Color n_color = { 255, 255, 255 }) : Sprite(game, pos) {
     color = n_color;
     text = n_text;
     char font_path[261];
@@ -147,7 +145,7 @@ public:
 
 class Player: public Sprite {
   public:
-  Player(Game &game, int pos_x, int pos_y): Sprite(game, pos_x, pos_y) {}
+  Player(Game &game, Pos pos): Sprite(game, pos) {}
 
   virtual void tick() override {
     int x_speed = 0;
@@ -164,8 +162,13 @@ class Player: public Sprite {
       x_speed = SPEED;
     }
 
-    pos_x += x_speed;
-    pos_y += y_speed;
+    if (x_speed != 0 && y_speed != 0) {
+      x_speed = x_speed / sqrt(2);
+      y_speed = y_speed / sqrt(2);
+    }
+
+    pos.x += x_speed;
+    pos.y += y_speed;
 
     //Suicide test code
     if (game.keyboard.is_held(SDL_SCANCODE_0)) {
@@ -175,8 +178,9 @@ class Player: public Sprite {
 
   virtual void draw() override {
     SDL_Rect my_rect = SHAPE;
-    my_rect.x = pos_x / SUBPIXELS_IN_PIXEL;
-    my_rect.y = pos_y / SUBPIXELS_IN_PIXEL;
+    Pos screen_pos = game.screen_pos(pos);
+    my_rect.x = screen_pos.pixel_x();
+    my_rect.y = screen_pos.pixel_y();
 
     SDL_SetRenderDrawColor(game.renderer, RED, GREEN, BLUE, 255);
     SDL_RenderFillRect(game.renderer, &my_rect);
@@ -210,7 +214,7 @@ class Incantation : public Sprite {
   std::shared_ptr<Sprite> player;
 
   public:
-  Incantation(std::string n_phrase, Game &game, int pos_x, int pos_y) : Sprite(game, pos_x, pos_y) {
+  Incantation(std::string n_phrase, Game &game, Pos pos) : Sprite(game, pos) {
     char font_path[261];
     snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
     font = TTF_OpenFont(font_path, 25);
@@ -233,17 +237,20 @@ class Incantation : public Sprite {
       typed_surface = TTF_RenderText_Solid(font, typed, color_red);
       typed_texture = SDL_CreateTextureFromSurface(game.renderer, typed_surface);
       SDL_QueryTexture(typed_texture, NULL, NULL, &typed_texW, &typed_texH);
-      this->pos_x = game.player->get_pos_x() / SUBPIXELS_IN_PIXEL;
-      this->pos_y = game.player->get_pos_y() / SUBPIXELS_IN_PIXEL -30; /* must be modified later to scale with player*/
+      this->pos = game.player->get_pos();
+      this->pos += Translation {.x = 0, .y = SUBPIXELS_IN_PIXEL * -30 }; /* must be modified later to scale with player*/
+
+      Pos screen_pos = game.screen_pos(pos);
+
       // std::cout << game.player->get_pos_x() << std::endl;
-      dstrect = { pos_x, pos_y, typed_texW, typed_texH };
+      dstrect = { screen_pos.pixel_x(), screen_pos.pixel_y(), typed_texW, typed_texH };
 
       const char *untyped = phrase.substr(index).c_str();
       untyped_surface = TTF_RenderText_Solid(font, untyped, color_grey);
       untyped_texture = SDL_CreateTextureFromSurface(game.renderer, untyped_surface);
       SDL_QueryTexture(untyped_texture, NULL, NULL, &untyped_texW, &untyped_texH);
-      undstrect = { pos_x + typed_texW, pos_y, untyped_texW, untyped_texH };
-      if(index == 0) undstrect.x = pos_x;
+      undstrect = { screen_pos.pixel_x() + typed_texW, screen_pos.pixel_y(), untyped_texW, untyped_texH };
+      if(index == 0) undstrect.x = pos.pixel_x();
     }
     SDL_RenderCopy(game.renderer, typed_texture, NULL, &dstrect);
     SDL_RenderCopy(game.renderer, untyped_texture, NULL, &undstrect);
@@ -257,7 +264,8 @@ void Text::draw() {
   texW = 0;
   texH = 0;
   SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
-  dstrect = { pos_x, pos_y, texW, texH };
+  Pos screen_pos = game.screen_pos(pos);
+  dstrect = { screen_pos.pixel_x(), screen_pos.pixel_y(), texW, texH };
   SDL_RenderCopy(game.renderer, texture, NULL, &dstrect);
 }
 
@@ -383,7 +391,6 @@ void Incantation::tick() {
 
 }
 
-
 uint32_t game_timer(uint32_t rate, void *game_ptr) {
   Game &game = *static_cast<Game*>(game_ptr);
 
@@ -468,17 +475,37 @@ int main(int argc, char *argv[]) {
   }
 
   Game game(SDL_CreateRenderer(window, -1, 0));
-  game.player = std::make_shared<Player>(Player(game, 0, 0));
+  game.current_level = Level(game.renderer, game.data_path / "level/test_room.tmj");
+  for (unsigned layer_id = 0; layer_id < game.current_level.size(); layer_id++) {
+    for (unsigned y = 0; y < game.current_level[layer_id].size(); y++) {
+      for (unsigned x = 0; x < game.current_level[layer_id][y].size(); x++) {
+        Pos pos;
+        pos.layer = static_cast<int>(layer_id);
+        pos.y = static_cast<int>(y) * TILE_SUBPIXEL_SIZE;
+        pos.x = static_cast<int>(x) * TILE_SUBPIXEL_SIZE;
+        if (game.current_level[pos].props().spawn_type == SpriteSpawnType::PLAYER) {
+          Pos player_pos = pos;
+          player_pos.layer -= 1;
+          game.player = std::make_shared<Player>(Player(game, player_pos));
+          break;
+        }
+      }
+    }
+  }
+
+  if (!game.player) {
+    std::cerr << "Player not found in level" << std::endl;
+    abort();
+  }
 
   game.sprite_list.push_back(game.player);
-  game.sprite_list.push_back(std::make_shared<Text>(Text((char*)"Welcome to Dark Scrolls", game, 0, 0)));
-  game.sprite_list.push_back(std::make_shared<Incantation>(Incantation("This_is_an_incantation", game, 0, 100)));
+  game.sprite_list.push_back(std::make_shared<Text>(Text((char*)"Welcome to Dark Scrolls", game, Pos {.layer = 0, .x = -32 * SUBPIXELS_IN_PIXEL, .y = -32 * SUBPIXELS_IN_PIXEL})));
+  game.sprite_list.push_back(std::make_shared<Incantation>(Incantation("This_is_an_incantation", game, Pos {.layer = 0, .x = 0, .y = 100})));
 
   game.tick_event_id = SDL_RegisterEvents(1);
 
   SDL_TimerID tick_timer = SDL_AddTimer(FRAME_RATE * 1000, game_timer, &game);
 
-  game.current_level = Level(game.renderer, game.data_path / "level/test_room.tmj");
   
   SDL_Event event;
   while(1) {
