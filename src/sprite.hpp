@@ -1,3 +1,3 @@
 #pragma once
 
-enum class SpriteSpawnType { NONE, PLAYER };
+enum class SpriteSpawnType { NONE, PLAYER, CREEP };

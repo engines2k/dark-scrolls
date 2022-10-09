@@ -8,7 +8,7 @@
  "margin":0,
  "name":"special",
  "spacing":0,
- "tilecount":1,
+ "tilecount":2,
  "tiledversion":"1.9.2",
  "tileheight":16,
  "tilerendersize":"grid",
@@ -28,6 +28,23 @@
                  "name":"spawn_tile",
                  "type":"string",
                  "value":"player"
+                }]
+        }, 
+        {
+         "id":4,
+         "image":"..\/tileset_gfx\/creep_spawn.png",
+         "imageheight":16,
+         "imagewidth":16,
+         "properties":[
+                {
+                 "name":"invisible",
+                 "type":"bool",
+                 "value":true
+                }, 
+                {
+                 "name":"spawn_tile",
+                 "type":"string",
+                 "value":"creep"
                 }]
         }],
  "tilewidth":16,

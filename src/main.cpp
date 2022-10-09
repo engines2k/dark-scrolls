@@ -421,8 +421,24 @@ int main(int argc, char *argv[]) {
         if (game.current_level[pos].props().spawn_type == SpriteSpawnType::PLAYER) {
           Pos player_pos = pos;
           player_pos.layer -= 1;
-          game.player = std::make_shared<Player>(Player(game, player_pos));
+          game.player = std::make_shared<Player>(game, player_pos);
           break;
+        }
+      }
+    }
+  }
+
+  for (unsigned layer_id = 0; layer_id < game.current_level.size(); layer_id++) {
+    for (unsigned y = 0; y < game.current_level[layer_id].size(); y++) {
+      for (unsigned x = 0; x < game.current_level[layer_id][y].size(); x++) {
+        Pos pos;
+        pos.layer = static_cast<int>(layer_id);
+        pos.y = static_cast<int>(y) * TILE_SUBPIXEL_SIZE;
+        pos.x = static_cast<int>(x) * TILE_SUBPIXEL_SIZE;
+        Pos sprite_pos = pos;
+        sprite_pos.layer -= 1;
+        if (game.current_level[pos].props().spawn_type == SpriteSpawnType::CREEP) {
+          game.sprite_list.push_back(std::make_shared<Creep>(game, sprite_pos));
         }
       }
     }
@@ -436,7 +452,6 @@ int main(int argc, char *argv[]) {
   game.sprite_list.push_back(game.player);
   game.sprite_list.push_back(std::make_shared<Text>(Text((char*)"Welcome to Dark Scrolls", game, Pos {.layer = 0, .x = -32 * SUBPIXELS_IN_PIXEL, .y = -32 * SUBPIXELS_IN_PIXEL})));
   game.sprite_list.push_back(std::make_shared<Incantation>(Incantation("This_is_an_incantation", game, Pos {.layer = 0, .x = 0, .y = 100})));
-  game.sprite_list.push_back(std::make_shared<Creep>(Creep(game, Pos {.layer = 0, .x = 380 * mob_vars::SUBPIXELS_IN_PIXEL, .y = 390 * mob_vars::SUBPIXELS_IN_PIXEL})));
 
   game.tick_event_id = SDL_RegisterEvents(1);
 

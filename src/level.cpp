@@ -39,6 +39,8 @@ Tile::Tile(SDL_Renderer* renderer, const std::filesystem::path& tileset_loc, uin
     } else if (name == "spawn_tile") {
       if (value == "player") {
         this->properties.spawn_type = SpriteSpawnType::PLAYER;
+      } else if (value == "creep") {
+        this->properties.spawn_type = SpriteSpawnType::CREEP;
       }
     }
   }
