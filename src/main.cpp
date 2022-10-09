@@ -55,6 +55,7 @@ void Player::tick() {
   if(!is_immobile()) {
     int x_speed = 0;
     int y_speed = 0;
+
     if (game.keyboard.is_held(SDL_SCANCODE_W)) {
       y_speed = -speed;
     } else if (game.keyboard.is_held(SDL_SCANCODE_S)) {
@@ -62,9 +63,11 @@ void Player::tick() {
     }
 
     if (game.keyboard.is_held(SDL_SCANCODE_A)) {
+      facing_left = true;
       x_speed = -speed;
     } else if (game.keyboard.is_held(SDL_SCANCODE_D)) {
       x_speed = speed;
+      facing_left = false;
     }
 
     if (x_speed != 0 && y_speed != 0) {
@@ -75,6 +78,12 @@ void Player::tick() {
     pos.x += x_speed;
     pos.y += y_speed;
 
+    // set moving bool for 'animation' in draw method
+    if(abs((x_speed)) + abs(y_speed) != 0)
+      moving = true;
+    else moving = false;
+
+
     //Suicide test code
     if (game.keyboard.is_held(SDL_SCANCODE_0)) {
       despawn(); 
@@ -83,14 +92,28 @@ void Player::tick() {
 }
 
 void Player::draw() {
+
     SDL_Rect my_rect = SHAPE;
+    SDL_RendererFlip flip;
+    if(facing_left)
+      //flip the sprite to face player left 
+      flip = SDL_FLIP_HORIZONTAL;
+    else 
+      flip = SDL_FLIP_NONE;
+
     Pos screen_pos = game.screen_pos(pos);
     my_rect.x = screen_pos.pixel_x();
     my_rect.y = screen_pos.pixel_y();
 
-    surface = IMG_Load("player000.png");
+    //SDL_QueryTexture(texture, NULL, NULL, &my_rect.w, &my_rect.h);
+
+    if(SDL_GetTicks() % 1000 < 500 && moving)
+      surface = IMG_Load("player001.png");
+    else
+      surface = IMG_Load("player000.png");
+
     texture = SDL_CreateTextureFromSurface(game.renderer, surface);
-    SDL_RenderCopy(game.renderer, texture, NULL, &my_rect);
+    SDL_RenderCopyEx(game.renderer, texture, NULL, &my_rect, 0, NULL, flip);
   }
 
 void Creep::draw() {
