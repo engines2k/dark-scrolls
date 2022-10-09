@@ -88,8 +88,9 @@ void Player::draw() {
     my_rect.x = screen_pos.pixel_x();
     my_rect.y = screen_pos.pixel_y();
 
-    SDL_SetRenderDrawColor(game.renderer, RED, GREEN, BLUE, 255);
-    SDL_RenderFillRect(game.renderer, &my_rect);
+    surface = IMG_Load("player000.png");
+    texture = SDL_CreateTextureFromSurface(game.renderer, surface);
+    SDL_RenderCopy(game.renderer, texture, NULL, &my_rect);
   }
 
 void Creep::draw() {
