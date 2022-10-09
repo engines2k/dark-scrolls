@@ -108,9 +108,9 @@ void Player::draw() {
     //SDL_QueryTexture(texture, NULL, NULL, &my_rect.w, &my_rect.h);
 
     if(SDL_GetTicks() % 1000 < 500 && moving)
-      surface = IMG_Load("player001.png");
+      surface = IMG_Load("img/player001.png");
     else
-      surface = IMG_Load("player000.png");
+      surface = IMG_Load("img/player000.png");
 
     texture = SDL_CreateTextureFromSurface(game.renderer, surface);
     SDL_RenderCopyEx(game.renderer, texture, NULL, &my_rect, 0, NULL, flip);
