@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 #include <memory>
 #include <vector>
 #include "level.hpp"
@@ -79,9 +80,10 @@ void Player::tick() {
     pos.y += y_speed;
 
     // set moving bool for 'animation' in draw method
-    if(abs((x_speed)) + abs(y_speed) != 0)
+    if(abs((x_speed)) + abs(y_speed) != 0) {
       moving = true;
-    else moving = false;
+      Mix_PlayChannel(-1, walk_sound, 1);
+    } else moving = false;
 
 
     //Suicide test code
@@ -420,6 +422,11 @@ int main(int argc, char *argv[]) {
   if(Mob_Init(FRAME_RATE, SUBPIXELS_IN_PIXEL) < 0) {
     printf("Mob_Init failed!");
   }
+
+ if( Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1 )
+    {
+        return false;    
+    }
 
   SDL_Window *window;
 

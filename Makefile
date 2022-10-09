@@ -28,7 +28,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CPPFLAGS := $(INC_FLAGS) -MMD -MP
 CFLAGS := -Wall --std=c++17 -g -Dmain=SDL_main
 CXXFLAGS := $(CFLAGS)
-LDFLAGS := -lmingw32 -mwindows -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image
+LDFLAGS := -lmingw32 -mwindows -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image -lSDL2_mixer
 
 # The final build step.
 $(TARGET_EXEC): $(OBJS)
