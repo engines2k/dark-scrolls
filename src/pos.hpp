@@ -57,3 +57,28 @@ inline Pos& Pos::operator+=(const Translation& trans) {
   y += trans.y;
   return *this;
 }
+
+class BoundingBox {
+  public:
+    BoundingBox(Pos corner, int width, int height) {
+      this->left_corner = corner;
+      this->width = width;
+      this->height = height;
+    }
+
+    bool collides_with(const BoundingBox& other) {
+      int this_x = this->left_corner.x;
+      int this_y = this->left_corner.y;
+      int other_x = other.left_corner.x;
+      int other_y = other.left_corner.y;
+
+      return this->left_corner.layer == other.left_corner.layer &&
+        this_x < other_x + other.width &&
+        this_x + this->width > other_x &&
+        this_y < other_y + other.height &&
+        this_y + this->height > other_y;
+    }
+    Pos left_corner;
+    int width;
+    int height;
+};

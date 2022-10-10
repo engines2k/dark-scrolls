@@ -1,12 +1,15 @@
 #pragma once
 #include <nlohmann/json.hpp>
 #include <SDL2/SDL.h>
-#include "sprite.hpp"
 #include "pos.hpp"
+
+enum class SpriteSpawnType { NONE, PLAYER, CREEP };
+enum class TileCollideType { FLOOR, WALL };
 
 struct TileProperties {
   bool invisible = false;
   SpriteSpawnType spawn_type = SpriteSpawnType::NONE;
+  TileCollideType collide_type = TileCollideType::FLOOR;
 };
 
 class Tile {

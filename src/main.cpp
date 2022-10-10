@@ -10,6 +10,7 @@
 #include <vector>
 #include "level.hpp"
 #include "keyboard_manager.hpp"
+#include "game.hpp"
 #include "mob.hpp"
 #include <iostream>
 //could be <SDL.h>
@@ -19,61 +20,29 @@ const int WIDTH = 800, HEIGHT = 600;
 
 constexpr double FRAME_RATE = 1.0 / 60.0;
 
-struct FrameCounter {
-  uint64_t rendered_frames = 0;
-  uint64_t scheduled_frames = 0;
-};
-
-class Player;
-
-class Game {
-  public:
-  Game(SDL_Renderer *renderer): renderer(renderer), current_level(renderer) {
-  }
-
-  SDL_Renderer *renderer;
-  KeyboardManager keyboard;
-  int32_t tick_event_id;
-  FrameCounter frame_counter;
-  std::mutex frame_counter_lock;
-  Level current_level;
-  std::filesystem::path data_path = std::filesystem::path(_pgmptr).parent_path() / "data";
-  std::vector<std::shared_ptr<Sprite>> sprite_list;
-  std::shared_ptr<Player> player = NULL;
-
-  //Text test_text;
-
-  void tick();
-
-  Pos screen_pos(Pos pos) {
-    return pos + current_level.get_camera_offset();
-  }
-};
 
 void Player::tick() {
   Mob::tick();
   if(!is_immobile()) {
-    int x_speed = 0;
-    int y_speed = 0;
+    Translation vel = Translation {.x = 0, .y = 0};
     if (game.keyboard.is_held(SDL_SCANCODE_W)) {
-      y_speed = -speed;
+      vel.y = -speed;
     } else if (game.keyboard.is_held(SDL_SCANCODE_S)) {
-      y_speed = speed;
+      vel.y = speed;
     }
 
     if (game.keyboard.is_held(SDL_SCANCODE_A)) {
-      x_speed = -speed;
+      vel.x = -speed;
     } else if (game.keyboard.is_held(SDL_SCANCODE_D)) {
-      x_speed = speed;
+      vel.x = speed;
     }
 
-    if (x_speed != 0 && y_speed != 0) {
-      x_speed = x_speed / sqrt(2);
-      y_speed = y_speed / sqrt(2);
+    if (vel.x != 0 && vel.y != 0) {
+      vel.x = vel.x / sqrt(2);
+      vel.y = vel.y / sqrt(2);
     }
 
-    pos.x += x_speed;
-    pos.y += y_speed;
+    move(vel);
 
     //Suicide test code
     if (game.keyboard.is_held(SDL_SCANCODE_0)) {

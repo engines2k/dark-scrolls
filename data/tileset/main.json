@@ -65,19 +65,37 @@
          "id":8,
          "image":"..\/tileset_gfx\/wall_left.png",
          "imageheight":16,
-         "imagewidth":16
+         "imagewidth":16,
+         "properties":[
+                {
+                 "name":"collide_type",
+                 "type":"string",
+                 "value":"wall"
+                }]
         }, 
         {
          "id":9,
          "image":"..\/tileset_gfx\/wall_mid.png",
          "imageheight":16,
-         "imagewidth":16
+         "imagewidth":16,
+         "properties":[
+                {
+                 "name":"collide_type",
+                 "type":"string",
+                 "value":"wall"
+                }]
         }, 
         {
          "id":10,
          "image":"..\/tileset_gfx\/wall_right.png",
          "imageheight":16,
-         "imagewidth":16
+         "imagewidth":16,
+         "properties":[
+                {
+                 "name":"collide_type",
+                 "type":"string",
+                 "value":"wall"
+                }]
         }],
  "tilewidth":16,
  "type":"tileset",

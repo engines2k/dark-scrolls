@@ -1,24 +1,17 @@
 #pragma once
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include "pos.hpp"
+#include "level.hpp"
 
 namespace mob_vars {
 
-double FRAME_RATE;
-int SUBPIXELS_IN_PIXEL;
+extern double FRAME_RATE;
+extern int SUBPIXELS_IN_PIXEL;
 
 }
 
-int Mob_Init(const double frames, const int subpixels) {
-  // if(frames < 0 || subpixels < 0) return -1;
-
-  if(!mob_vars::FRAME_RATE && !mob_vars::SUBPIXELS_IN_PIXEL) {
-    mob_vars::FRAME_RATE = frames;
-    mob_vars::SUBPIXELS_IN_PIXEL = subpixels;
-    return 0;
-  } else return -2;
-}
-
+int Mob_Init(const double frames, const int subpixels);
 
 class Game;
 
@@ -36,11 +29,22 @@ class Sprite {
   Pos get_pos() const {
     return pos;
   }
+  void set_pos(Pos pos) {
+    this->pos = pos;
+  }
   void despawn() {
     spawn_flag = false;
   }
   bool is_spawned() const {
     return spawn_flag;
+  }
+  void move(Translation trans) {
+    Translation x_axis = trans;
+    x_axis.y = 0;
+    Translation y_axis = trans;
+    y_axis.x = 0;
+    move_single_axis(x_axis);
+    move_single_axis(y_axis);
   }
 
   virtual ~Sprite() {}
@@ -51,6 +55,9 @@ class Sprite {
   Pos pos;
   bool spawn_flag = true;
   Game &game;
+  BoundingBox hitbox = BoundingBox(Pos {.x = 0, .y = 0}, 0, 0);
+  private:
+  void move_single_axis(Translation trans);
 };
 
 // This class is probably deprecated. But it survives for now.
@@ -119,6 +126,8 @@ class Player: public Mob {
   public:
   Player(Game &game, Pos pos): Mob(game, pos) {
     speed = (300 * mob_vars::FRAME_RATE) * mob_vars::SUBPIXELS_IN_PIXEL;
+    hitbox.width = SHAPE.w * SUBPIXELS_IN_PIXEL;
+    hitbox.height = SHAPE.h * SUBPIXELS_IN_PIXEL;
   }
 
   bool is_immobile() const {

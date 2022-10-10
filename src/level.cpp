@@ -42,6 +42,10 @@ Tile::Tile(SDL_Renderer* renderer, const std::filesystem::path& tileset_loc, uin
       } else if (value == "creep") {
         this->properties.spawn_type = SpriteSpawnType::CREEP;
       }
+    } else if (name == "collide_type") {
+      if (value == "wall") {
+        this->properties.collide_type = TileCollideType::WALL;
+      }
     }
   }
 
