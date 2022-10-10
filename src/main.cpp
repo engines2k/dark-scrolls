@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 #include <memory>
 #include <vector>
 #include "level.hpp"
@@ -33,8 +34,10 @@ void Player::tick() {
 
     if (game.keyboard.is_held(SDL_SCANCODE_A)) {
       vel.x = -speed;
+      facing_left = true;
     } else if (game.keyboard.is_held(SDL_SCANCODE_D)) {
       vel.x = speed;
+      facing_left = false;
     }
 
     if (vel.x != 0 && vel.y != 0) {
@@ -44,6 +47,13 @@ void Player::tick() {
 
     move(vel);
 
+    // set moving bool for 'animation' in draw method
+    if(abs((vel.x)) + abs(vel.y) != 0) {
+      moving = true;
+      Mix_PlayChannel(-1, walk_sound, 1);
+    } else moving = false;
+
+
     //Suicide test code
     if (game.keyboard.is_held(SDL_SCANCODE_0)) {
       despawn(); 
@@ -52,13 +62,28 @@ void Player::tick() {
 }
 
 void Player::draw() {
+
     SDL_Rect my_rect = SHAPE;
+    SDL_RendererFlip flip;
+    if(facing_left)
+      //flip the sprite to face player left 
+      flip = SDL_FLIP_HORIZONTAL;
+    else 
+      flip = SDL_FLIP_NONE;
+
     Pos screen_pos = game.screen_pos(pos);
     my_rect.x = screen_pos.pixel_x();
     my_rect.y = screen_pos.pixel_y();
 
-    SDL_SetRenderDrawColor(game.renderer, RED, GREEN, BLUE, 255);
-    SDL_RenderFillRect(game.renderer, &my_rect);
+    //SDL_QueryTexture(texture, NULL, NULL, &my_rect.w, &my_rect.h);
+
+    if(SDL_GetTicks() % 1000 < 500 && moving)
+      surface = IMG_Load("img/player001.png");
+    else
+      surface = IMG_Load("img/player000.png");
+
+    texture = SDL_CreateTextureFromSurface(game.renderer, surface);
+    SDL_RenderCopyEx(game.renderer, texture, NULL, &my_rect, 0, NULL, flip);
   }
 
 void Creep::draw() {
@@ -365,6 +390,11 @@ int main(int argc, char *argv[]) {
   if(Mob_Init(FRAME_RATE, SUBPIXELS_IN_PIXEL) < 0) {
     printf("Mob_Init failed!");
   }
+
+ if( Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1 )
+    {
+        return false;    
+    }
 
   SDL_Window *window;
 

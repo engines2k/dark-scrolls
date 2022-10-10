@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include "pos.hpp"
 #include "level.hpp"
 
@@ -124,10 +125,12 @@ class Mob: public Sprite {
 
 class Player: public Mob {
   public:
+
   Player(Game &game, Pos pos): Mob(game, pos) {
-    speed = (300 * mob_vars::FRAME_RATE) * mob_vars::SUBPIXELS_IN_PIXEL;
     hitbox.width = SHAPE.w * SUBPIXELS_IN_PIXEL;
     hitbox.height = SHAPE.h * SUBPIXELS_IN_PIXEL;
+    speed = (170 * mob_vars::FRAME_RATE) * mob_vars::SUBPIXELS_IN_PIXEL;
+    walk_sound = Mix_LoadWAV("img/crash.wav");
   }
 
   bool is_immobile() const {
@@ -143,8 +146,13 @@ class Player: public Mob {
 
   private:
   bool IMMOBILE_FLAG = false;
+  bool moving = false;
+  bool facing_left = false;
   uint32_t speed;
-  static constexpr SDL_Rect SHAPE = {.x = 0, .y = 0, .w = 30, .h = 30};
+  SDL_Surface *surface;
+  SDL_Texture *texture;
+  Mix_Chunk *walk_sound;
+  static constexpr SDL_Rect SHAPE = {.x = 0, .y = 0, .w = 100, .h = 100};
   static constexpr uint8_t RED = 126;
   static constexpr uint8_t GREEN = 219;
   static constexpr uint8_t BLUE = 222;
