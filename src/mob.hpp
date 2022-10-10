@@ -149,8 +149,8 @@ class Player: public Mob {
   bool moving = false;
   bool facing_left = false;
   uint32_t speed;
-  SDL_Surface *surface;
-  SDL_Texture *texture;
+  SDL_Surface *surface = nullptr;
+  SDL_Texture *texture = nullptr;
   Mix_Chunk *walk_sound;
   static constexpr SDL_Rect SHAPE = {.x = 0, .y = 0, .w = 100, .h = 100};
   static constexpr uint8_t RED = 126;

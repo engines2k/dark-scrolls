@@ -77,11 +77,13 @@ void Player::draw() {
 
     //SDL_QueryTexture(texture, NULL, NULL, &my_rect.w, &my_rect.h);
 
+    SDL_FreeSurface(surface);
     if(SDL_GetTicks() % 1000 < 500 && moving)
       surface = IMG_Load("img/player001.png");
     else
       surface = IMG_Load("img/player000.png");
 
+    SDL_DestroyTexture(texture);
     texture = SDL_CreateTextureFromSurface(game.renderer, surface);
     SDL_RenderCopyEx(game.renderer, texture, NULL, &my_rect, 0, NULL, flip);
   }
@@ -174,6 +176,12 @@ class Incantation : public Sprite {
     }
     SDL_RenderCopy(game.renderer, typed_texture, NULL, &dstrect);
     SDL_RenderCopy(game.renderer, untyped_texture, NULL, &undstrect);
+
+    SDL_FreeSurface(typed_surface);
+    SDL_FreeSurface(untyped_surface);
+
+    SDL_DestroyTexture(typed_texture);
+    SDL_DestroyTexture(untyped_texture);
   }
 };
 
@@ -187,6 +195,9 @@ void Text::draw() {
   Pos screen_pos = game.screen_pos(pos);
   dstrect = { screen_pos.pixel_x(), screen_pos.pixel_y(), texW, texH };
   SDL_RenderCopy(game.renderer, texture, NULL, &dstrect);
+
+  SDL_FreeSurface(surface);
+  SDL_DestroyTexture(texture);
 }
 
 void Text::tick() {
