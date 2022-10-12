@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_set>
 #include <SDL2/SDL.h>
+#include <utility>
 
 class KeyboardManager {
   public:
@@ -24,6 +25,10 @@ class KeyboardManager {
 
   void reset_pressed() {
     pressed.clear();
+  }
+
+  const std::unordered_set<SDL_Scancode>& get_pressed() const {
+    return pressed;
   }
 
   private:
