@@ -135,7 +135,8 @@ class Incantation : public Sprite {
   public:
   Incantation(std::string n_phrase, Game &game, Pos pos) : Sprite(game, pos) {
     char font_path[261];
-    snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
+    // snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
+    snprintf(font_path, 261, ".\\data\\font\\alagard.ttf");
     font = TTF_OpenFont(font_path, 25);
     if (font == nullptr) {
       printf("Font error: %s\n", SDL_GetError());
@@ -361,7 +362,7 @@ int main(int argc, char *argv[]) {
   }
 
   game.sprite_list.push_back(game.player);
-  game.sprite_list.push_back(std::make_shared<Text>(Text((char*)"Welcome to Dark Scrolls", game, Pos {.layer = 0, .x = -32 * SUBPIXELS_IN_PIXEL, .y = -32 * SUBPIXELS_IN_PIXEL})));
+  game.sprite_list.push_back(std::make_shared<Text>(Text((char*)"Welcome to Dark Scrolls", game, Pos {.layer = 0, .x = 220 * SUBPIXELS_IN_PIXEL, .y = -27 * SUBPIXELS_IN_PIXEL})));
   game.sprite_list.push_back(std::make_shared<Incantation>(Incantation("This_is_an_incantation", game, Pos {.layer = 0, .x = 0, .y = 100})));
 
   game.tick_event_id = SDL_RegisterEvents(1);
