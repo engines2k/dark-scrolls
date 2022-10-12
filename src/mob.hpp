@@ -64,6 +64,7 @@ class Sprite {
 // This class is probably deprecated. But it survives for now.
 class Text : public Sprite {
   SDL_Surface *surface = NULL;
+  SDL_Texture *texture = NULL;
   TTF_Font *font;
 
   int texW,texH;
