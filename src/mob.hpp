@@ -65,7 +65,7 @@ class Sprite {
 class Text : public Sprite {
   SDL_Surface *surface = NULL;
   TTF_Font *font;
-  SDL_Texture *texture;
+
   int texW,texH;
   SDL_Rect dstrect;
   SDL_Color color = { 255, 255, 255 };
@@ -84,7 +84,8 @@ public:
     color = n_color;
     text = n_text;
     char font_path[261];
-    snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
+    //snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
+    snprintf(font_path, 261, ".\\data\\font\\alagard.ttf");
     font = TTF_OpenFont(font_path, 25);
     if (font == nullptr) {
       printf("Font error: %s\n", SDL_GetError());
@@ -152,7 +153,7 @@ class Player: public Mob {
   SDL_Surface *surface = nullptr;
   SDL_Texture *texture = nullptr;
   Mix_Chunk *walk_sound;
-  static constexpr SDL_Rect SHAPE = {.x = 0, .y = 0, .w = 100, .h = 100};
+  static constexpr SDL_Rect SHAPE = {.x = 0, .y = 0, .w = 37, .h = 37};
   static constexpr uint8_t RED = 126;
   static constexpr uint8_t GREEN = 219;
   static constexpr uint8_t BLUE = 222;
