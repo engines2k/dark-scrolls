@@ -11,12 +11,28 @@ struct Pos {
   int x;
   int y;
 
+  int tile_scaled_x() const {
+    return tile_x() * TILE_SUBPIXEL_SIZE;
+  }
+
+  int tile_scaled_y() const {
+    return tile_y() * TILE_SUBPIXEL_SIZE;
+  }
+
+  int pixel_scaled_x() const {
+    return pixel_x() * SUBPIXELS_IN_PIXEL;
+  }
+
+  int pixel_scaled_y() const {
+    return pixel_y() * SUBPIXELS_IN_PIXEL; 
+  }
+
   int tile_x() const {
-    return x / SUBPIXELS_IN_PIXEL / TILE_SIZE;
+    return x / TILE_SUBPIXEL_SIZE;
   }
 
   int tile_y() const {
-    return y / SUBPIXELS_IN_PIXEL / TILE_SIZE;
+    return y / TILE_SUBPIXEL_SIZE;
   }
 
   int pixel_x() const {
