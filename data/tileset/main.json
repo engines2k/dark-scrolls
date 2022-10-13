@@ -105,7 +105,7 @@
         }, 
         {
          "id":11,
-         "image":"..\/..\/..\/ds_resources\/floor_stone.png",
+         "image":"..\/tileset_gfx\/floor_stone.png",
          "imageheight":32,
          "imagewidth":32
         }, 
