@@ -52,12 +52,14 @@ Tile::Tile(SDL_Renderer* renderer, const std::filesystem::path& tileset_loc, uin
   this->renderer = renderer;
   this->texture = tex;
   this->id = id;
+  backup_texture();
 }
 Tile::Tile(SDL_Renderer* renderer, SDL_Texture* texture, uint32_t id, TileProperties properties) {
   this->texture = texture;
   this->renderer = renderer;
   this->id = id;
   this->properties = properties;
+  backup_texture();
 }
 Tile Tile::horizontal_flip() {
   SDL_Texture* fliped = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 32, 32);
@@ -85,6 +87,7 @@ Tile::Tile(const Tile& other) noexcept {
   this->properties = other.properties;
   this->renderer = other.renderer;
   this->id = other.id;
+  this->texture_backup = other.texture_backup;
 
   this->texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 32, 32);
   SDL_SetTextureBlendMode(this->texture, SDL_BLENDMODE_BLEND);
@@ -92,6 +95,19 @@ Tile::Tile(const Tile& other) noexcept {
   SDL_SetRenderTarget(renderer, this->texture);
   SDL_RenderCopy(renderer, other.texture, nullptr, nullptr);
   SDL_SetRenderTarget(renderer, old_render_target);
+}
+
+void Tile::backup_texture() {
+  SDL_SetRenderTarget(renderer, texture);
+  texture_backup.resize(32 * 32);
+  SDL_Rect backup_zone = {.x = 0, .y = 0, .w = 32, .h = 32};
+  SDL_RenderReadPixels(renderer, &backup_zone, SDL_PIXELFORMAT_RGBA8888, &texture_backup.front(), 32 * 4);
+}
+
+void Tile::reload_texture() {
+  SDL_DestroyTexture(texture);
+  texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, 32, 32);
+  SDL_UpdateTexture(texture, nullptr, &texture_backup.front(), 32 * 4);
 }
 
 Layer::Layer(std::vector<std::vector<std::shared_ptr<Tile>>> tiles) {
@@ -191,5 +207,11 @@ void Level::load_tileset(const json& tileset, const std::filesystem::path& tiles
       }
       tilemap.insert(std::pair(new_tile.get_id(), std::make_shared<Tile>(std::move(new_tile))));
     }
+  }
+}
+
+void Level::reload_texture() {
+  for (auto& tile_pair: tilemap) {
+    tile_pair.second->reload_texture();
   }
 }

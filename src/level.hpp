@@ -59,6 +59,7 @@ class Tile {
 
       this->renderer = other.renderer;
       this->texture = other.texture;
+      this->texture_backup = std::move(other.texture_backup);
       this->id = other.id;
       this->properties = other.properties;
 
@@ -66,14 +67,19 @@ class Tile {
       return *this;
     }
 
+    void reload_texture();
+
     ~Tile() {
       if (texture) {
         SDL_DestroyTexture(texture);
       }
     }
   private:
+    void backup_texture();
+
     SDL_Renderer* renderer;
     SDL_Texture* texture;
+    std::vector<uint32_t> texture_backup;
     uint32_t id;
     TileProperties properties;
 };
@@ -165,6 +171,8 @@ class Level {
     Translation get_camera_offset() {
       return camera_offset;
     }
+
+    void reload_texture();
 
   private:
     void load_tileset(const nlohmann::json& tileset, const std::filesystem::path& tileset_loc, uint32_t first_tid, uint32_t end_tid);

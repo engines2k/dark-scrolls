@@ -385,6 +385,10 @@ int main(int argc, char *argv[]) {
             game.tick();
           }
           break;
+        case SDL_RENDER_TARGETS_RESET:
+        case SDL_RENDER_DEVICE_RESET:
+          game.current_level.reload_texture();
+          break;
       }
     } else {
       printf("Event error: %s\n", SDL_GetError());
