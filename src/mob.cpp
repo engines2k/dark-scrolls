@@ -14,7 +14,7 @@ int Mob_Init(const double frames, const int subpixels) {
     mob_vars::FRAME_RATE = frames;
     mob_vars::SUBPIXELS_IN_PIXEL = subpixels;
     return 0;
-  } else return -2;
+  } else return -1;
 }
 
 void Sprite::move_single_axis(Translation trans) {

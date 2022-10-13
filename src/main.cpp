@@ -213,10 +213,8 @@ void Incantation::tick() {
         draw();
       }
       else if(index >= phrase.length()) {
+        game.player->immobile(false); // causes a seg fault for some reason
         despawn();
-        game.player->immobile(false);
-        /* TEMP TEMP */
-        game.sprite_list[3]->despawn();
       }
 
   } 
@@ -322,7 +320,7 @@ int main(int argc, char *argv[]) {
   }
 
   Game game(SDL_CreateRenderer(window, -1, 0));
-  game.current_level = Level(game.renderer, game.data_path / "level/test_room.tmj");
+  game.current_level = Level(game.renderer, game.data_path / "level/test_room_2.tmj");
   for (unsigned layer_id = 0; layer_id < game.current_level.size(); layer_id++) {
     for (unsigned y = 0; y < game.current_level[layer_id].size(); y++) {
       for (unsigned x = 0; x < game.current_level[layer_id][y].size(); x++) {

@@ -8,16 +8,22 @@
  "margin":0,
  "name":"main",
  "spacing":0,
- "tilecount":11,
+ "tilecount":16,
  "tiledversion":"1.9.2",
- "tileheight":16,
+ "tileheight":128,
  "tilerendersize":"grid",
  "tiles":[
         {
          "id":0,
          "image":"..\/tileset_gfx\/floor_2.png",
          "imageheight":16,
-         "imagewidth":16
+         "imagewidth":16,
+         "properties":[
+                {
+                 "name":"collision_type",
+                 "type":"string",
+                 "value":""
+                }]
         }, 
         {
          "id":1,
@@ -96,8 +102,62 @@
                  "type":"string",
                  "value":"wall"
                 }]
+        }, 
+        {
+         "id":11,
+         "image":"..\/..\/..\/ds_resources\/floor_stone.png",
+         "imageheight":32,
+         "imagewidth":32
+        }, 
+        {
+         "id":12,
+         "image":"..\/..\/..\/ds_resources\/wall_1.png",
+         "imageheight":32,
+         "imagewidth":32,
+         "properties":[
+                {
+                 "name":"collide_type",
+                 "type":"string",
+                 "value":"wall"
+                }]
+        }, 
+        {
+         "id":13,
+         "image":"..\/..\/..\/ds_resources\/wall_2.png",
+         "imageheight":32,
+         "imagewidth":32,
+         "properties":[
+                {
+                 "name":"collide_type",
+                 "type":"string",
+                 "value":"wall"
+                }]
+        }, 
+        {
+         "id":15,
+         "image":"..\/..\/..\/ds_resources\/wall_pillar.png",
+         "imageheight":128,
+         "imagewidth":128,
+         "properties":[
+                {
+                 "name":"collide_type",
+                 "type":"string",
+                 "value":"wall"
+                }]
+        }, 
+        {
+         "id":16,
+         "image":"..\/..\/..\/ds_resources\/wall_pillar_2.png",
+         "imageheight":128,
+         "imagewidth":128,
+         "properties":[
+                {
+                 "name":"collide_type",
+                 "type":"string",
+                 "value":"wall"
+                }]
         }],
- "tilewidth":16,
+ "tilewidth":128,
  "type":"tileset",
  "version":"1.9"
 }
