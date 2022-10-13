@@ -180,7 +180,9 @@ class Incantation : public Sprite {
     SDL_RenderCopy(game.renderer, untyped_texture, NULL, &undstrect);
 
     SDL_FreeSurface(typed_surface);
+    typed_surface = nullptr;
     SDL_FreeSurface(untyped_surface);
+    untyped_surface = nullptr;
 
     SDL_DestroyTexture(typed_texture);
     SDL_DestroyTexture(untyped_texture);
