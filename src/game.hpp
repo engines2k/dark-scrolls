@@ -1,7 +1,9 @@
 #pragma once
-#include "mob.hpp"
+#include "player.hpp"
 #include "keyboard_manager.hpp"
 #include <mutex>
+
+constexpr double FRAME_RATE = 1.0 / 60.0;
 
 struct FrameCounter {
   uint64_t rendered_frames = 0;

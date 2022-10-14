@@ -1,22 +1,5 @@
 #include "game.hpp"
-#include <iostream>
-
-namespace mob_vars {
-
-double FRAME_RATE;
-int SUBPIXELS_IN_PIXEL;
-
-}
-
-int Mob_Init(const double frames, const int subpixels) {
-  // if(frames < 0 || subpixels < 0) return -1;
-
-  if(!mob_vars::FRAME_RATE && !mob_vars::SUBPIXELS_IN_PIXEL) {
-    mob_vars::FRAME_RATE = frames;
-    mob_vars::SUBPIXELS_IN_PIXEL = subpixels;
-    return 0;
-  } else return -1;
-}
+#include "pos.hpp"
 
 void Sprite::move_single_axis(Translation trans) {
   if (trans.x == 0 && trans.y == 0) {
