@@ -169,7 +169,7 @@ class Incantation : public Sprite {
       untyped_texture = SDL_CreateTextureFromSurface(game.renderer, untyped_surface);
       SDL_QueryTexture(untyped_texture, NULL, NULL, &untyped_texW, &untyped_texH);
       undstrect = { screen_pos.pixel_x() + typed_texW, screen_pos.pixel_y(), untyped_texW, untyped_texH };
-      if(index == 0) undstrect.x = pos.pixel_x();
+      // if(index == 0) undstrect.x = pos.pixel_x();
 
       // center align text
       int offset_center = (dstrect.w + undstrect.w) / 2.05;
@@ -209,19 +209,16 @@ void Text::tick() {
 
 void Incantation::tick() {
   if (game.keyboard.is_pressed(SDL_SCANCODE_RETURN)) {
-      if(typed_surface == NULL) {
+      if(index >= phrase.length()) {
+        game.player->immobile(false);
+        despawn();
+      } else if(typed_surface == NULL) {
         inc_btn_pressed = true;
         game.player->immobile(true);
         draw();
       }
-      else if(index >= phrase.length()) {
-        game.player->immobile(false); // causes a seg fault for some reason
-        despawn();
-      }
 
-  } 
-
-  for (auto key: game.keyboard.get_pressed()) {
+  } else for (auto key: game.keyboard.get_pressed()) {
     if (scancode_to_char(key) == toupper(phrase[index])) {
       index++;
       draw();
