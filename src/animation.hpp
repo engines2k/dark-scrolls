@@ -9,21 +9,21 @@ class Game;
 
 class AnimationFrame {
 	public:
+	const char *frame_path;
+	const char *sound_path;
 	SDL_Surface *surface;
-	Mix_Chunk *sound;
-
-	AnimationFrame(std::string filepath);
-
+	AnimationFrame(const char *fpath, const char *spath);
 	~AnimationFrame();
 };
 
 class Animation {
-	public:
-	std::vector<AnimationFrame> frames;
-	int start_frame;
 	Game &game;
+	std::vector<std::shared_ptr<AnimationFrame>> frames;
+	int animation_l;
+	public:
 
 	Animation(Game &game, int nframes);
-	AnimationFrame get_frame(int x);
-	void set_frame(int key, AnimationFrame aframe);
+	const char* frame_path(int f);
+	void set_frame(int key, const char *filepath, const char *spath);
+	const char* sound_path(int af);
 };

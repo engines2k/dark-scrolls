@@ -5,14 +5,19 @@
 #include "pos.hpp"
 #include "game.hpp"
 #include "mob.hpp"
+#include "animation.hpp"
 
 Player::Player(Game &game, Pos pos): Mob(game, pos) {
+  Animation a(game, 1);
+  a.set_frame(0, "img/player001.png", "NOSOUND");
+  animations.push_back(a);
+
   hitbox.width = SHAPE.w * SUBPIXELS_IN_PIXEL;
   hitbox.height = SHAPE.h * SUBPIXELS_IN_PIXEL;
   speed = (170 * FRAME_RATE) * SUBPIXELS_IN_PIXEL;
   //hmm
   walk_sound = Mix_LoadWAV("img/crash.wav");
-  if(walk_sound = nullptr){
+  if(walk_sound == nullptr){
     printf("Sound error: %s\n", SDL_GetError());
     abort();
   }
@@ -75,8 +80,10 @@ void Player::draw() {
     //SDL_QueryTexture(texture, NULL, NULL, &my_rect.w, &my_rect.h);
 
     SDL_FreeSurface(surface);
-    if(SDL_GetTicks() % 1000 < 500 && moving)
-      surface = IMG_Load("img/player001.png");
+    if(SDL_GetTicks() % 1000 < 500 && moving) {
+      const char *surfacepath = animations[0].frame_path(0);
+      surface = IMG_Load(surfacepath);
+    }
     else
       surface = IMG_Load("img/player000.png");
 

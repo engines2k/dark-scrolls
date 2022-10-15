@@ -3,18 +3,33 @@
 #include <SDL2/SDL_mixer.h>
 #include "game.hpp"
 #include "animation.hpp"
-#include <string>
 
-Animation::Animation(Game &game, int nframes) : game(game) {
-}
 
-void Animation::set_frame(int fnum, AnimationFrame aframe) {
-}
-
-AnimationFrame::AnimationFrame(std::string filepath) {
-	surface = IMG_Load(filepath.c_str());
+AnimationFrame::AnimationFrame(const char *fpath, const char *spath)
+{
+	frame_path = fpath;
+	sound_path = spath;
 }
 AnimationFrame::~AnimationFrame() {
-	// if(surface != NULL) SDL_FreeSurface(surface);
-	// if(sound != NULL) Mix_FreeChunk(sound);
 }
+
+Animation::Animation(Game &game, int nframes) : game(game)
+{
+	for(int i=0;i<animation_l;i++)
+		frames.push_back(std::make_shared<AnimationFrame>("NOFRAME", "NOSOUND"));
+}
+
+const char* Animation::sound_path(int af) {
+	return frames[af]->sound_path;
+}
+
+const char* Animation::frame_path(int af) {
+	return frames[af]->frame_path;
+}
+
+void Animation::set_frame(int af, const char *fpath, const char *spath)
+{
+	if(frames[af]->surface != NULL) printf("Frame %d was already set! Replacing.", af);
+	frames[af] = std::make_shared<AnimationFrame>(fpath, spath);
+}
+
