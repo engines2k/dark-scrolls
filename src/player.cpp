@@ -10,8 +10,14 @@ Player::Player(Game &game, Pos pos): Mob(game, pos) {
   hitbox.width = SHAPE.w * SUBPIXELS_IN_PIXEL;
   hitbox.height = SHAPE.h * SUBPIXELS_IN_PIXEL;
   speed = (170 * FRAME_RATE) * SUBPIXELS_IN_PIXEL;
+  //hmm
   walk_sound = Mix_LoadWAV("img/crash.wav");
+  if(walk_sound = nullptr){
+    printf("Sound error: %s\n", SDL_GetError());
+    abort();
+  }
 }
+
 
 void Player::tick() {
   Mob::tick();

@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include <string>
 #include "sprite.hpp"
 
@@ -32,6 +33,8 @@ public:
 };
 
 class Incantation : public Sprite {
+  Mix_Chunk *type_sound;
+  Mix_Chunk *type_finish_sound;
   SDL_Color color_red = { 255, 0, 0 };
   SDL_Color color_grey = { 200, 200, 200 };
   SDL_Surface *typed_surface = NULL;
@@ -51,7 +54,8 @@ class Incantation : public Sprite {
   std::shared_ptr<Sprite> player;
 
   public:
-  Incantation(std::string n_phrase, Game &game, Pos pos) : Sprite(game, pos) {
+  Incantation(std::string n_phrase, Game &game, Pos pos) : Sprite(game, pos) 
+  {
     char font_path[261];
     // snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
     snprintf(font_path, 261, ".\\data\\font\\alagard.ttf");
@@ -60,6 +64,18 @@ class Incantation : public Sprite {
       printf("Font error: %s\n", SDL_GetError());
       abort();
     }
+
+    type_sound = Mix_LoadWAV("img/type.wav");
+    if(type_sound == nullptr){
+      printf("Sound error: %s\n", SDL_GetError());
+      abort();
+    }
+    type_finish_sound = Mix_LoadWAV("img/type_finish.wav");
+    if(type_finish_sound == nullptr){
+      printf("Sound error: %s\n", SDL_GetError());
+      abort();
+    }
+
     index = 0;
     phrase = n_phrase;
   }

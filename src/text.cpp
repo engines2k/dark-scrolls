@@ -39,16 +39,18 @@ void Text::tick() {
 void Incantation::tick() {
   if (game.keyboard.is_pressed(SDL_SCANCODE_RETURN)) {
       if(index >= phrase.length()) {
+        Mix_PlayChannel(-1, type_finish_sound, 0);
         game.player->immobile(false);
         despawn();
       } else if(typed_surface == NULL) {
         inc_btn_pressed = true;
-        game.player->immobile(true);
         draw();
+        game.player->immobile(true);
       }
 
   } else for (auto key: game.keyboard.get_pressed()) {
     if (scancode_to_char(key) == toupper(phrase[index])) {
+      Mix_PlayChannel(-1, type_sound, 0);
       index++;
       draw();
     }
