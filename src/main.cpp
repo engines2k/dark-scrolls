@@ -158,6 +158,9 @@ int main(int argc, char *argv[]) {
 
   SDL_TimerID tick_timer = SDL_AddTimer(FRAME_RATE * 1000, game_timer, &game);
 
+  //music
+  Mix_Music *m = Mix_LoadMUS("img/music.wav");
+  Mix_PlayMusic(m, 100);
   
   SDL_Event event;
   while(1) {
