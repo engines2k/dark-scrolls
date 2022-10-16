@@ -69,7 +69,7 @@ void Incantation::draw() {
       typed_texture = SDL_CreateTextureFromSurface(game.renderer, typed_surface);
       SDL_QueryTexture(typed_texture, NULL, NULL, &typed_texW, &typed_texH);
       this->pos = game.player->get_pos();
-      this->pos += Translation {.x = 0, .y = SUBPIXELS_IN_PIXEL * -40 }; /* must be modified later to scale with player*/
+      this->pos += Translation {.x = SUBPIXELS_IN_PIXEL * 40, .y = SUBPIXELS_IN_PIXEL * -40 }; /* must be modified later to scale with player*/
 
       Pos screen_pos = game.screen_pos(pos);
 
