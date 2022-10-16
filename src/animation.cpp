@@ -4,32 +4,55 @@
 #include "game.hpp"
 #include "animation.hpp"
 
+#include <iostream>
 
-AnimationFrame::AnimationFrame(const char *fpath, const char *spath)
+AnimationFrame::AnimationFrame(int fn, const char *fpath, const char *spath)
 {
 	frame_path = fpath;
-	sound_path = spath;
+	sound = spath;
 }
 AnimationFrame::~AnimationFrame() {
 }
 
 Animation::Animation(Game &game, int nframes) : game(game)
 {
-	for(int i=0;i<animation_l;i++)
-		frames.push_back(std::make_shared<AnimationFrame>("NOFRAME", "NOSOUND"));
+	current_frame_index = 0;
+	start_tick = game.frame_counter.rendered_frames;
+	animation_l = nframes;
 }
 
-const char* Animation::sound_path(int af) {
-	return frames[af]->sound_path;
+Animation::Animation(const Animation &a) : game(a.game) {
+	current_frame_index = 0;
+	start_tick = game.frame_counter.rendered_frames;
+	frames = a.frames;
+	animation_l = a.animation_l;
 }
 
-const char* Animation::frame_path(int af) {
-	return frames[af]->frame_path;
+SDL_Texture* Animation::play() {
+	int frame_index = ((int)game.frame_counter.rendered_frames - start_tick) % animation_l;
+	if(frames.find(frame_index) != frames.end()) {
+		current_frame_index = frame_index;
+		const char *p = frames[current_frame_index]->sound;
+		
+		Mix_Chunk *s = Mix_LoadWAV(p);
+	 //    if(s == nullptr && p != "NOSOUND"){
+		// 	printf("Sound error: %s\n", SDL_GetError());
+		// 	abort();
+		// }
+		Mix_PlayChannel(-1, s, 0);
+	}
+
+    SDL_Surface *surface = IMG_Load(frames[current_frame_index]->frame_path);
+    SDL_Texture *tex = SDL_CreateTextureFromSurface(game.renderer, surface);
+	return tex;
 }
 
-void Animation::set_frame(int af, const char *fpath, const char *spath)
+
+void Animation::set_frame(int fn, const char *fpath, const char *spath)
 {
-	if(frames[af]->surface != NULL) printf("Frame %d was already set! Replacing.", af);
-	frames[af] = std::make_shared<AnimationFrame>(fpath, spath);
+	frames.emplace(fn, std::make_shared<AnimationFrame>(fn, fpath, spath));
 }
 
+void Animation::reset() {
+	current_frame_index = 0;
+}

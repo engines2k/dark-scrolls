@@ -8,37 +8,39 @@
 #include "animation.hpp"
 
 Player::Player(Game &game, Pos pos): Mob(game, pos) {
-  Animation a(game, 1);
+  Animation a(game, 30);
+
   a.set_frame(0, "img/player001.png", "NOSOUND");
+  a.set_frame(5, "img/player002.png", "img/walk.wav");
+  a.set_frame(18, "img/player003.png", "NOSOUND");
   animations.push_back(a);
+
+  Animation b(animations[0]);
 
   hitbox.width = SHAPE.w * SUBPIXELS_IN_PIXEL;
   hitbox.height = SHAPE.h * SUBPIXELS_IN_PIXEL;
   speed = (170 * FRAME_RATE) * SUBPIXELS_IN_PIXEL;
-  //hmm
-  walk_sound = Mix_LoadWAV("img/crash.wav");
-  if(walk_sound == nullptr){
-    printf("Sound error: %s\n", SDL_GetError());
-    abort();
-  }
+  speed_mod = 0;
+  
 }
 
 
 void Player::tick() {
   Mob::tick();
+  int mspeed = speed + int(speed_mod * FRAME_RATE * SUBPIXELS_IN_PIXEL);
   if(!is_immobile()) {
     Translation vel = Translation {.x = 0, .y = 0};
     if (game.keyboard.is_held(SDL_SCANCODE_W)) {
-      vel.y = -speed;
+      vel.y = -mspeed;
     } else if (game.keyboard.is_held(SDL_SCANCODE_S)) {
-      vel.y = speed;
+      vel.y = mspeed;
     }
 
     if (game.keyboard.is_held(SDL_SCANCODE_A)) {
-      vel.x = -speed;
+      vel.x = -mspeed;
       facing_left = true;
     } else if (game.keyboard.is_held(SDL_SCANCODE_D)) {
-      vel.x = speed;
+      vel.x = mspeed;
       facing_left = false;
     }
 
@@ -52,7 +54,7 @@ void Player::tick() {
     // set moving bool for 'animation' in draw method
     if(abs((vel.x)) + abs(vel.y) != 0) {
       moving = true;
-      Mix_PlayChannel(-1, walk_sound, 1);
+      // Mix_PlayChannel(-1, walk_sound, 1);
     } else moving = false;
 
 
@@ -77,17 +79,16 @@ void Player::draw() {
     my_rect.x = screen_pos.pixel_x();
     my_rect.y = screen_pos.pixel_y();
 
-    //SDL_QueryTexture(texture, NULL, NULL, &my_rect.w, &my_rect.h);
-
-    SDL_FreeSurface(surface);
-    if(SDL_GetTicks() % 1000 < 500 && moving) {
-      const char *surfacepath = animations[0].frame_path(0);
-      surface = IMG_Load(surfacepath);
-    }
-    else
-      surface = IMG_Load("img/player000.png");
-
     SDL_DestroyTexture(texture);
-    texture = SDL_CreateTextureFromSurface(game.renderer, surface);
+
+    if(moving)
+      texture = animations[0].play();
+    else {
+      // display first frame
+      animations[0].reset();
+      SDL_Surface *surface = IMG_Load("img/player000.png");
+      texture = SDL_CreateTextureFromSurface(game.renderer, surface);
+    }
+
     SDL_RenderCopyEx(game.renderer, texture, NULL, &my_rect, 0, NULL, flip);
   }

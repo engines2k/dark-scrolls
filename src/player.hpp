@@ -7,6 +7,8 @@ class Game;
 
 class Player: public Mob {
   public:
+  float speed_mod;
+
   Player(Game &game, Pos pos);
 
   bool is_immobile() const {
@@ -26,6 +28,7 @@ class Player: public Mob {
   bool moving = false;
   bool facing_left = false;
   uint32_t speed;
+
   SDL_Surface *surface = nullptr;
   SDL_Texture *texture = nullptr;
   Mix_Chunk *walk_sound;

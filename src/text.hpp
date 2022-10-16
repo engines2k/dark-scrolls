@@ -35,6 +35,7 @@ public:
 class Incantation : public Sprite {
   Mix_Chunk *type_sound;
   Mix_Chunk *type_finish_sound;
+  Mix_Chunk *type_init_sound;
   SDL_Color color_red = { 255, 0, 0 };
   SDL_Color color_grey = { 200, 200, 200 };
   SDL_Surface *typed_surface = NULL;
@@ -72,6 +73,12 @@ class Incantation : public Sprite {
     }
     type_finish_sound = Mix_LoadWAV("img/type_finish.wav");
     if(type_finish_sound == nullptr){
+      printf("Sound error: %s\n", SDL_GetError());
+      abort();
+    }
+
+    type_init_sound = Mix_LoadWAV("img/type_init.wav");
+    if(type_init_sound == nullptr){
       printf("Sound error: %s\n", SDL_GetError());
       abort();
     }

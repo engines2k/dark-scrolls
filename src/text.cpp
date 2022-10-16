@@ -41,9 +41,11 @@ void Incantation::tick() {
       if(index >= phrase.length()) {
         Mix_PlayChannel(-1, type_finish_sound, 0);
         game.player->immobile(false);
+        game.player->speed_mod = 80;
         despawn();
       } else if(typed_surface == NULL) {
         inc_btn_pressed = true;
+        Mix_PlayChannel(-1, type_init_sound, 0);
         draw();
         game.player->immobile(true);
       }
@@ -86,6 +88,7 @@ void Incantation::draw() {
       dstrect.x -= offset_center;
       undstrect.x -= offset_center;
     }
+    
     SDL_RenderCopy(game.renderer, typed_texture, NULL, &dstrect);
     SDL_RenderCopy(game.renderer, untyped_texture, NULL, &undstrect);
 

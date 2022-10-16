@@ -9,21 +9,22 @@ class Game;
 
 class AnimationFrame {
 	public:
-	const char *frame_path;
-	const char *sound_path;
-	SDL_Surface *surface;
-	AnimationFrame(const char *fpath, const char *spath);
+	int frame_number;
+	const char *frame_path, *sound;
+	SDL_Texture *texture;
+	AnimationFrame(int fn, const char *fpath, const char *spath);
 	~AnimationFrame();
 };
 
 class Animation {
-	Game &game;
-	std::vector<std::shared_ptr<AnimationFrame>> frames;
-	int animation_l;
 	public:
-
+	int32_t start_tick, current_frame_index;
+	Game &game;
+	std::map<int, std::shared_ptr<AnimationFrame>> frames;
+	int animation_l;
 	Animation(Game &game, int nframes);
-	const char* frame_path(int f);
-	void set_frame(int key, const char *filepath, const char *spath);
-	const char* sound_path(int af);
+	Animation(const Animation &a);
+	SDL_Texture * play();
+	void set_frame(int fn, const char *fpath, const char *spath);
+	void reset();
 };
