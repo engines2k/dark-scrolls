@@ -19,7 +19,7 @@ Player::Player(Game &game, Pos pos): Mob(game, pos) {
 
   hitbox.width = SHAPE.w * SUBPIXELS_IN_PIXEL;
   hitbox.height = SHAPE.h * SUBPIXELS_IN_PIXEL;
-  speed = (170 * FRAME_RATE) * SUBPIXELS_IN_PIXEL;
+  speed = (140 * FRAME_RATE) * SUBPIXELS_IN_PIXEL;
   speed_mod = 0;
   
 }

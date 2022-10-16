@@ -41,7 +41,7 @@ void Incantation::tick() {
       if(index >= phrase.length()) {
         Mix_PlayChannel(-1, type_finish_sound, 0);
         game.player->immobile(false);
-        game.player->speed_mod = 80;
+        game.player->speed_mod = 60;
         despawn();
       } else if(typed_surface == NULL) {
         inc_btn_pressed = true;
