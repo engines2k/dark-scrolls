@@ -8,6 +8,11 @@ void Sprite::move_single_axis(Translation trans) {
   pos += trans;
   Pos collide_visit = pos;
 
+  //FIXME: Hack to make the code work as before
+  if (reactors.empty()) {
+    return;
+  }
+  ReactorCollideBox hitbox = reactors[0];
   int end_x = pos.x + hitbox.width;
   int end_y = pos.y + hitbox.height;
 

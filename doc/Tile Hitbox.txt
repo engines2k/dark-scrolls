@@ -1,0 +1,18 @@
+Tile hitboxes are a custom property on the tile called hitboxes.
+The property "hitboxes" shall be a string that can be parsed as an JSON array of the following object:
+{
+  type: string?, // what to do when a collision is detected
+  start_x: int?, // where the hitbox's x coordinate begins
+  end_x: int?, // where the hitbox's x coordinate ends
+  start_y: int?, // where the hitbox's y coordinate begins
+  end_y: int?, // where the hitbox's y coordinate ends
+}
+
+If any optional field is missing it is filled it according to this object:
+{
+  type: "wall",
+  start_x: 0,
+  end_x: 31,
+  start_y: 0,
+  end_y: 31,
+}

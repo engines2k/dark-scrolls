@@ -17,8 +17,17 @@ Player::Player(Game &game, Pos pos): Mob(game, pos) {
 
   Animation b(animations[0]);
 
-  hitbox.width = SHAPE.w * SUBPIXELS_IN_PIXEL;
-  hitbox.height = SHAPE.h * SUBPIXELS_IN_PIXEL;
+  int hitbox_width = SHAPE.w * SUBPIXELS_IN_PIXEL;
+  int hitbox_height = SHAPE.h * SUBPIXELS_IN_PIXEL;
+
+  ReactorCollideBox hitbox(
+      ReactorCollideType::WALL | ReactorCollideType::HURT,
+      hitbox_width,
+      hitbox_height
+  );
+
+  reactors.push_back(std::move(hitbox));
+
   speed = (140 * FRAME_RATE) * SUBPIXELS_IN_PIXEL;
   speed_mod = 0;
   

@@ -1,5 +1,7 @@
 #pragma once
 #include "pos.hpp"
+#include "collide.hpp"
+#include <vector>
 
 static uint64_t NEXT_SPRITE_ID = 0;
 
@@ -43,7 +45,7 @@ class Sprite {
   Pos pos;
   bool spawn_flag = true;
   Game &game;
-  BoundingBox hitbox = BoundingBox(Pos {.x = 0, .y = 0}, 0, 0);
+  std::vector<ReactorCollideBox> reactors;
   private:
   void move_single_axis(Translation trans);
 };
