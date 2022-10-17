@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include "mob.hpp"
+#include "animation.hpp"
 
 class Game;
 
@@ -14,13 +15,13 @@ class Creep: public Mob {
   virtual void tick();
 
   private:
-  // to make it easy to check if sprites in the sprite list are creeps
-  // perhaps make a separate enemy sprite list?
-  static const bool creep = true;
+  std::vector<Animation> animations;
+  SDL_Surface *surface = nullptr;
+  SDL_Texture *texture = nullptr;
   bool returning = false;
   Pos og_pos;
   uint32_t speed;
-  SDL_Rect shape = {.x = 160, .y = -160, .w = 30, .h = 30};
+  SDL_Rect shape = {.x = 160, .y = -160, .w = 54, .h = 54};
 };
 
 

@@ -8,14 +8,12 @@
 #include "animation.hpp"
 
 Player::Player(Game &game, Pos pos): Mob(game, pos) {
-  Animation a(game, 30);
+  Animation walk(game, 30);
 
-  a.set_frame(0, "img/player001.png", "NOSOUND");
-  a.set_frame(5, "img/player002.png", "img/walk.wav");
-  a.set_frame(18, "img/player003.png", "NOSOUND");
-  animations.push_back(a);
-
-  Animation b(animations[0]);
+  walk.set_frame(0, "img/player001.png", "NOSOUND");
+  walk.set_frame(5, "img/player002.png", "img/walk.wav");
+  walk.set_frame(18, "img/player003.png", "NOSOUND");
+  animations.push_back(walk);
 
   int hitbox_width = SHAPE.w * SUBPIXELS_IN_PIXEL;
   int hitbox_height = SHAPE.h * SUBPIXELS_IN_PIXEL;
