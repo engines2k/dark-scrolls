@@ -22,6 +22,7 @@ Tile::Tile(SDL_Renderer* renderer, const std::filesystem::path& tileset_loc, uin
   SDL_Texture* big_tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 32, 32);
   SDL_SetTextureBlendMode(big_tex, SDL_BLENDMODE_BLEND);
   SDL_SetRenderTarget(renderer, big_tex);
+  SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_NONE);
   SDL_RenderCopy(renderer, tex, nullptr, nullptr);
   SDL_DestroyTexture(tex);
   tex = big_tex;
@@ -65,21 +66,27 @@ Tile Tile::horizontal_flip() {
   SDL_Texture* fliped = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 32, 32);
   SDL_SetTextureBlendMode(fliped, SDL_BLENDMODE_BLEND);
   SDL_SetRenderTarget(renderer, fliped);
+  SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
   SDL_RenderCopyEx(renderer, texture, nullptr, nullptr, 0, nullptr, SDL_FLIP_HORIZONTAL);
+  SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   return Tile(renderer, fliped, id | 0x80000000, properties);
 }
 Tile Tile::vertical_flip() {
   SDL_Texture* fliped = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 32, 32);
   SDL_SetTextureBlendMode(fliped, SDL_BLENDMODE_BLEND);
   SDL_SetRenderTarget(renderer, fliped);
+  SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
   SDL_RenderCopyEx(renderer, texture, nullptr, nullptr, 0, nullptr, SDL_FLIP_VERTICAL);
+  SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   return Tile(renderer, fliped, id | 0x40000000, properties);
 }
 Tile Tile::diagonal_flip() {
   SDL_Texture* fliped = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 32, 32);
   SDL_SetTextureBlendMode(fliped, SDL_BLENDMODE_BLEND);
   SDL_SetRenderTarget(renderer, fliped);
+  SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
   SDL_RenderCopyEx(renderer, texture, nullptr, nullptr, 90, nullptr, SDL_FLIP_VERTICAL);
+  SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   return Tile(renderer, fliped, id | 0x20000000, properties);
 }
 
@@ -93,7 +100,9 @@ Tile::Tile(const Tile& other) noexcept {
   SDL_SetTextureBlendMode(this->texture, SDL_BLENDMODE_BLEND);
   SDL_Texture* old_render_target = SDL_GetRenderTarget(renderer);
   SDL_SetRenderTarget(renderer, this->texture);
+  SDL_SetTextureBlendMode(other.texture, SDL_BLENDMODE_NONE);
   SDL_RenderCopy(renderer, other.texture, nullptr, nullptr);
+  SDL_SetTextureBlendMode(other.texture, SDL_BLENDMODE_BLEND);
   SDL_SetRenderTarget(renderer, old_render_target);
 }
 
