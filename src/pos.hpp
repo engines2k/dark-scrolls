@@ -49,6 +49,15 @@ struct Pos {
     return new_pos;
   }
   Pos& operator+=(const Translation& trans);
+
+  bool operator==(const Pos& other) {
+    return this->layer == other.layer &&
+      this->x == other.x &&
+      this->y == other.y;
+  }
+  bool operator!=(const Pos& other) {
+    return !(*this == other);
+  }
 };
 
 struct Translation {

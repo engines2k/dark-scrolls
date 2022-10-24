@@ -1,6 +1,7 @@
 #pragma once
 #include "player.hpp"
 #include "keyboard_manager.hpp"
+#include "collide.hpp"
 #include <mutex>
 
 constexpr double FRAME_RATE = 1.0 / 60.0;
@@ -15,6 +16,8 @@ class Player;
 class Game {
   public:
   Game(SDL_Renderer *renderer): renderer(renderer), current_level(renderer) {
+    // FIXME: Figure out how to determine max collide layers
+    collide_layers.resize(1);
   }
 
   SDL_Renderer *renderer;
@@ -26,6 +29,7 @@ class Game {
   std::filesystem::path data_path = std::filesystem::path(_pgmptr).parent_path() / "data";
   std::vector<std::shared_ptr<Sprite>> sprite_list;
   std::shared_ptr<Player> player = NULL;
+  std::vector<CollideLayer> collide_layers;
 
   //Text test_text;
 

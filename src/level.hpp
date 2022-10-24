@@ -2,14 +2,14 @@
 #include <nlohmann/json.hpp>
 #include <SDL2/SDL.h>
 #include "pos.hpp"
+#include "collide.hpp"
 
 enum class SpriteSpawnType { NONE, PLAYER, CREEP };
-enum class TileCollideType { FLOOR, WALL };
 
 struct TileProperties {
   bool invisible = false;
   SpriteSpawnType spawn_type = SpriteSpawnType::NONE;
-  TileCollideType collide_type = TileCollideType::FLOOR;
+  TileCollideData colliders;
 };
 
 class Tile {
@@ -84,6 +84,7 @@ class Tile {
     TileProperties properties;
 };
 
+// TODO: Rename to TileLayer
 class Layer {
   public:
     Layer(std::vector<std::vector<std::shared_ptr<Tile>>> tiles);
@@ -171,6 +172,8 @@ class Level {
     Translation get_camera_offset() {
       return camera_offset;
     }
+
+    void add_colliders(std::vector<CollideLayer>& layers);
 
     void reload_texture();
 

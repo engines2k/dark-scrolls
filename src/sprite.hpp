@@ -2,12 +2,13 @@
 #include "pos.hpp"
 #include "collide.hpp"
 #include <vector>
+#include <memory>
 
 static uint64_t NEXT_SPRITE_ID = 0;
 
 class Game;
 
-class Sprite {
+class Sprite: public std::enable_shared_from_this<Sprite> {
   public:
   Sprite(Game &game, Pos pos): game(game) {
     NEXT_SPRITE_ID++;
@@ -16,6 +17,8 @@ class Sprite {
 
   virtual void draw() = 0;
   virtual void tick() {}
+  virtual void add_colliders() {}
+
   Pos get_pos() const {
     return pos;
   }

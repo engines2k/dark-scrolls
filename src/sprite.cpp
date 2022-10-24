@@ -1,57 +1,38 @@
 #include "game.hpp"
 #include "pos.hpp"
+#include <iostream>
 
 void Sprite::move_single_axis(Translation trans) {
   if (trans.x == 0 && trans.y == 0) {
     return;
   }
   pos += trans;
-  Pos collide_visit = pos;
-
-  //FIXME: Hack to make the code work as before
-  if (reactors.empty()) {
-    return;
-  }
-  ReactorCollideBox hitbox = reactors[0];
-  int end_x = pos.x + hitbox.width;
-  int end_y = pos.y + hitbox.height;
-
-  bool last_row = false;
-  while (true) {
-    Tile& current_tile = game.current_level[collide_visit];
-
-    if (current_tile.props().collide_type == TileCollideType::WALL) {
-      if (trans.x < 0) {
-        pos.x = collide_visit.tile_scaled_x() + TILE_SUBPIXEL_SIZE + SUBPIXELS_IN_PIXEL;
-      }
-      if (trans.x > 0) {
-        pos.x = collide_visit.tile_scaled_x() - hitbox.width - SUBPIXELS_IN_PIXEL;
-      }
-      if (trans.y < 0) {
-        pos.y = collide_visit.tile_scaled_y() + TILE_SUBPIXEL_SIZE + SUBPIXELS_IN_PIXEL;
-      }
-      if (trans.y > 0) {
-        pos.y = collide_visit.tile_scaled_y() - hitbox.height - SUBPIXELS_IN_PIXEL;
-      }
-      break;
+  for (auto& reactor: reactors) {
+    ReactorCollideBox wall_reactor = reactor;
+    wall_reactor.type &= ReactorCollideType::WALL;
+    if (wall_reactor.type == 0) {
+      continue; // If this hitbox is not effected by walls optimization
     }
 
-    if (collide_visit.x == end_x) {
-      collide_visit.x = pos.x;
-      collide_visit.y += TILE_SUBPIXEL_SIZE;
+    Pos collide_visit;
+    ActivatorCollideBox activator(ActivatorCollideType::WALL, 0, 0, 0, 0);
+    if (game.collide_layers[pos.layer].overlaps_activator(wall_reactor, pos, &collide_visit, &activator)) {
+      int base_x = collide_visit.tile_scaled_x() + activator.offset_x - reactor.offset_x;
+      int base_y = collide_visit.tile_scaled_y() + activator.offset_y - reactor.offset_y;
 
-      if (last_row) {
-        break;
+      if (trans.x < 0) {
+        pos.x = base_x + activator.width + SUBPIXELS_IN_PIXEL;
       }
-      if (collide_visit.y >= end_y) {
-        collide_visit.y = end_y;
-        last_row = true;
+      if (trans.x > 0) {
+        pos.x = base_x - reactor.width - SUBPIXELS_IN_PIXEL;
       }
-    } else {
-      collide_visit.x += TILE_SUBPIXEL_SIZE;
-      if (collide_visit.x > end_x) {
-        collide_visit.x = end_x;
+      if (trans.y < 0) {
+        pos.y = base_y + activator.height + SUBPIXELS_IN_PIXEL;
       }
+      if (trans.y > 0) {
+        pos.y = base_y - reactor.height - SUBPIXELS_IN_PIXEL;
+      }
+      break;
     }
   }
 }

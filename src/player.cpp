@@ -15,12 +15,16 @@ Player::Player(Game &game, Pos pos): Mob(game, pos) {
   walk.set_frame(18, "img/player003.png", "NOSOUND");
   animations.push_back(walk);
 
-  int hitbox_width = SHAPE.w * SUBPIXELS_IN_PIXEL;
-  int hitbox_height = SHAPE.h * SUBPIXELS_IN_PIXEL;
+  int hitbox_width = 32 * SUBPIXELS_IN_PIXEL;
+  int hitbox_offset_x = 16 * SUBPIXELS_IN_PIXEL;
+  int hitbox_height = 54 * SUBPIXELS_IN_PIXEL;
+  int hitbox_offset_y = 8 * SUBPIXELS_IN_PIXEL;
 
   ReactorCollideBox hitbox(
       ReactorCollideType::WALL | ReactorCollideType::HURT,
+      hitbox_offset_x,
       hitbox_width,
+      hitbox_offset_y,
       hitbox_height
   );
 

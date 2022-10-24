@@ -1,18 +1,28 @@
-Tile hitboxes are a custom property on the tile called hitboxes.
+Tile hitboxes are a custom property on the tile called activators or activator hitboxes or
+detectors for detector hitboxes.
 The property "hitboxes" shall be a string that can be parsed as an JSON array of the following object:
 {
-  type: string?, // what to do when a collision is detected
+  type: int?, // what to do when a collision is detected
   start_x: int?, // where the hitbox's x coordinate begins
-  end_x: int?, // where the hitbox's x coordinate ends
+  width: int?, // hitbox's width
   start_y: int?, // where the hitbox's y coordinate begins
-  end_y: int?, // where the hitbox's y coordinate ends
+  height: int?, // hitbox's height
 }
 
 If any optional field is missing it is filled it according to this object:
 {
-  type: "wall",
+  type: 0x1,
   start_x: 0,
-  end_x: 31,
+  width: 32
   start_y: 0,
-  end_y: 31,
+  height: 32,
 }
+
+Type ids are bitflags with these fields for activators
+
+constexpr ActivatorCollideType ActivatorCollideType::WALL(0x1); // Acts like a wall
+constexpr ActivatorCollideType ActivatorCollideType::HIT(0x2); // Hurts sprites
+
+Type ids are bitflags with these fields for detectors
+
+none are valid for tiles as of now

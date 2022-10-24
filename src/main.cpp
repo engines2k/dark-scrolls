@@ -55,6 +55,15 @@ void Game::tick() {
 
   current_level.draw();
 
+  for (auto& collide_layer: collide_layers) {
+    collide_layer.clear();
+  }
+  current_level.add_colliders(collide_layers);
+
+  for (auto& sprite: sprite_list) {
+    sprite->add_colliders();
+  }
+
   for (auto &sprite: sprite_list) {
     sprite->tick();
     sprite->draw();
@@ -121,7 +130,8 @@ int main(int argc, char *argv[]) {
         pos.x = static_cast<int>(x) * TILE_SUBPIXEL_SIZE;
         if (game.current_level[pos].props().spawn_type == SpriteSpawnType::PLAYER) {
           Pos player_pos = pos;
-          player_pos.layer -= 1;
+          // FIXME: Collide layer placeholder
+          player_pos.layer = 0;
           game.player = std::make_shared<Player>(game, player_pos);
           break;
         }
@@ -137,7 +147,8 @@ int main(int argc, char *argv[]) {
         pos.y = static_cast<int>(y) * TILE_SUBPIXEL_SIZE;
         pos.x = static_cast<int>(x) * TILE_SUBPIXEL_SIZE;
         Pos sprite_pos = pos;
-        sprite_pos.layer -= 1;
+        // FIXME: Collide layer placeholder
+        sprite_pos.layer = 0;
         if (game.current_level[pos].props().spawn_type == SpriteSpawnType::CREEP) {
           game.sprite_list.push_back(std::make_shared<Creep>(game, sprite_pos));
         }

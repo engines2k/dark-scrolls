@@ -43,9 +43,44 @@ Tile::Tile(SDL_Renderer* renderer, const std::filesystem::path& tileset_loc, uin
       } else if (value == "creep") {
         this->properties.spawn_type = SpriteSpawnType::CREEP;
       }
-    } else if (name == "collide_type") {
-      if (value == "wall") {
-        this->properties.collide_type = TileCollideType::WALL;
+    } else if (name == "activators") {
+      std::vector<json> hitboxes = json::parse(std::string(value));
+      for (auto& hitbox_json: hitboxes) {
+        int activator = 0x1;
+        int start_x = 0;
+        int width = 32;
+        int start_y = 0;
+        int height = 32;
+
+        auto activator_iter = hitbox_json.find("type");
+        if (activator_iter != hitbox_json.end()) {
+          activator = *activator_iter;
+        }
+        auto start_x_iter = hitbox_json.find("start_x");
+        if (start_x_iter != hitbox_json.end()) {
+          start_x = *start_x_iter;
+        }
+        auto width_iter = hitbox_json.find("width");
+        if (width_iter != hitbox_json.end()) {
+          width = *width_iter;
+        }
+        auto start_y_iter = hitbox_json.find("start_y");
+        if (start_y_iter != hitbox_json.end()) {
+          start_y = *start_y_iter;
+        }
+        auto height_iter = hitbox_json.find("height");
+        if (height_iter != hitbox_json.end()) {
+          height = *height_iter;
+        }
+
+        auto activator_type = static_cast<ActivatorCollideType>(activator);
+
+        start_x *= SUBPIXELS_IN_PIXEL;
+        width *= SUBPIXELS_IN_PIXEL;
+        start_y *= SUBPIXELS_IN_PIXEL;
+        height *= SUBPIXELS_IN_PIXEL;
+        this->properties.colliders.activators.push_back(
+            ActivatorCollideBox(activator_type, start_x, width, start_y, height));
       }
     }
   }
@@ -69,7 +104,13 @@ Tile Tile::horizontal_flip() {
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
   SDL_RenderCopyEx(renderer, texture, nullptr, nullptr, 0, nullptr, SDL_FLIP_HORIZONTAL);
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-  return Tile(renderer, fliped, id | 0x80000000, properties);
+  
+  TileProperties props = properties;
+  for (auto& activator: props.colliders.activators) {
+    activator.offset_x = 32 - activator.offset_x;
+  }
+
+  return Tile(renderer, fliped, id | 0x80000000, std::move(props));
 }
 Tile Tile::vertical_flip() {
   SDL_Texture* fliped = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 32, 32);
@@ -78,7 +119,13 @@ Tile Tile::vertical_flip() {
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
   SDL_RenderCopyEx(renderer, texture, nullptr, nullptr, 0, nullptr, SDL_FLIP_VERTICAL);
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-  return Tile(renderer, fliped, id | 0x40000000, properties);
+
+  TileProperties props = properties;
+  for (auto& activator: props.colliders.activators) {
+    activator.offset_y = 32 - activator.offset_y;
+  }
+
+  return Tile(renderer, fliped, id | 0x40000000, std::move(props));
 }
 Tile Tile::diagonal_flip() {
   SDL_Texture* fliped = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 32, 32);
@@ -87,7 +134,17 @@ Tile Tile::diagonal_flip() {
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
   SDL_RenderCopyEx(renderer, texture, nullptr, nullptr, 90, nullptr, SDL_FLIP_VERTICAL);
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-  return Tile(renderer, fliped, id | 0x20000000, properties);
+
+  TileProperties props = properties;
+  for (auto& activator: props.colliders.activators) {
+    // Flip x and y axis
+    activator = ActivatorCollideBox(
+      activator.type, activator.offset_y, activator.height, 
+      activator.offset_x, activator.width
+    );
+  }
+
+  return Tile(renderer, fliped, id | 0x20000000, std::move(props));
 }
 
 Tile::Tile(const Tile& other) noexcept {
@@ -222,5 +279,23 @@ void Level::load_tileset(const json& tileset, const std::filesystem::path& tiles
 void Level::reload_texture() {
   for (auto& tile_pair: tilemap) {
     tile_pair.second->reload_texture();
+  }
+}
+
+void Level::add_colliders(std::vector<CollideLayer>& collide_layers) {
+  for (auto& tile_layer: *this) {
+    for (size_t y = 0; y < tile_layer.size(); y++) {
+      auto& tile_row = tile_layer[y];
+      for (size_t x = 0; x < tile_row.size(); x++) {
+        Tile& tile = *tile_row[x];
+        for (auto& activator: tile.props().colliders.activators) {
+          Pos pos = {.layer = 0, .x = static_cast<int>(x * TILE_SUBPIXEL_SIZE), 
+            .y = static_cast<int>(y * TILE_SUBPIXEL_SIZE)
+          };
+          //TODO: Assumes collide layer is always zero
+          collide_layers[0].add_activator(activator, pos);
+        }
+      }
+    }
   }
 }

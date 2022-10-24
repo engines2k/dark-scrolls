@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <cstddef>
+#include <type_traits>
 
 template <typename SelfType> class BitFlag {
   public:
@@ -24,7 +25,8 @@ template <typename SelfType> class BitFlag {
       return ret;
     }
     SelfType& operator|=(const SelfType& other) {
-      return *this = *this | other;
+      *this = *this | other;
+      return static_cast<SelfType&>(*this);
     }
     constexpr SelfType operator&(const SelfType& other) const {
       SelfType ret = *this;
@@ -32,7 +34,8 @@ template <typename SelfType> class BitFlag {
       return ret;
     }
     SelfType& operator&=(const SelfType& other) {
-      return *this = *this & other;
+      *this = *this & other;
+      return static_cast<SelfType&>(*this);
     }
     constexpr SelfType operator^(const SelfType& other) const {
       SelfType ret = *this;
@@ -40,12 +43,15 @@ template <typename SelfType> class BitFlag {
       return ret;
     }
     SelfType& operator^=(const SelfType& other) {
-      return *this = *this ^ other;
+      *this = *this ^ other;
+      return static_cast<SelfType&>(*this);
     }
   protected:
     constexpr BitFlag<SelfType>() : inner(0) {}
     explicit constexpr BitFlag<SelfType>(int raw) : inner(raw) {}
     int inner;
 };
+
+class Empty {};
 
 char scancode_to_char(SDL_Scancode code);

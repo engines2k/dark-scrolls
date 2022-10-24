@@ -1,6 +1,12 @@
 #pragma once
 #include "util.hpp"
 #include "pos.hpp"
+#include <vector>
+#include <functional>
+
+// The biggest dimmentions (in tiles) that collision detection functions
+constexpr int MAX_COLLIDE_X = 64;
+constexpr int MAX_COLLIDE_Y = 64;
 
 struct ReactorCollideType;
 
@@ -21,8 +27,8 @@ struct ActivatorCollideType: public BitFlag<ActivatorCollideType> {
     ActivatorCollideType operator&(ReactorCollideType counter_part) const;
 };
 
-constexpr ActivatorCollideType ActivatorCollideType::WALL(0x1);
-constexpr ActivatorCollideType ActivatorCollideType::HIT(0x2);
+constexpr ActivatorCollideType ActivatorCollideType::WALL(0x1); // Acts like a wall
+constexpr ActivatorCollideType ActivatorCollideType::HIT(0x2); // Hurts sprites
 
 struct ReactorCollideType: public BitFlag<ReactorCollideType> {
   public:
@@ -41,8 +47,8 @@ struct ReactorCollideType: public BitFlag<ReactorCollideType> {
     ReactorCollideType operator&(ActivatorCollideType counter_part) const;
 };
 
-constexpr ReactorCollideType ReactorCollideType::WALL(0x1);
-constexpr ReactorCollideType ReactorCollideType::HURT(0x2);
+constexpr ReactorCollideType ReactorCollideType::WALL(0x1); // Affected by walls
+constexpr ReactorCollideType ReactorCollideType::HURT(0x2); // Can be hurt
 
 inline ReactorCollideType ActivatorCollideType::activates() const {
   return ReactorCollideType(inner);
@@ -60,18 +66,31 @@ inline ReactorCollideType ReactorCollideType::operator&(ActivatorCollideType cou
   return *this & counter_part.activates();
 }
 
+template <typename CollideType> class CollideBox;
+
+using ActivatorCollideBox = CollideBox<ActivatorCollideType>;
+using ReactorCollideBox = CollideBox<ReactorCollideType>;
+
+// CollideType is either ActivatorCollideType or ReactorCollideType
 template <typename CollideType> class CollideBox {
   public:
-    CollideBox(CollideType type, int width, int height) {
+    CollideBox(CollideType type, int offset_x, int width, int offset_y, int height) {
+      static_assert(
+          std::is_same_v<CollideType, ActivatorCollideType> ||
+          std::is_same_v<CollideType, ReactorCollideType>
+      );
+      this->type = type;
+      this->offset_x = offset_x;
+      this->offset_y = offset_y;
       this->width = width;
       this->height = height;
     }
 
-    bool collides_with(const Pos& here, const CollideBox<typename CollideType::CounterPart>& other, const Pos& there) {
-      int this_x = here.x;
-      int this_y = here.y;
-      int other_x = there.x;
-      int other_y = there.y;
+    bool collides_with(const Pos& here, const CollideBox<typename CollideType::CounterPart>& other, const Pos& there) const {
+      int this_x = here.x + this->offset_x;
+      int this_y = here.y + this->offset_y;
+      int other_x = there.x + other.offset_x;
+      int other_y = there.y + other.offset_y;
 
       return (this->type & other.type) != 0 &&
         here.layer == there.layer &&
@@ -81,17 +100,146 @@ template <typename CollideType> class CollideBox {
         this_y + this->height > other_y;
     }
     CollideType type;
+    //The disjoint of the hitbox: the distance from the top left corner of a thing to
+    //where its hitbox begins
+    //e.g. a swords tip would be slightly ahead of a player
+    int offset_x; 
+    int offset_y;
     int width;
     int height;
 };
 
-using ActivatorCollideBox = CollideBox<ActivatorCollideType>;
-using ReactorCollideBox = CollideBox<ReactorCollideType>;
+struct TileCollideData {
+  std::vector<ActivatorCollideBox> activators;
+};
 
-//Template functions are not fully checked unless they are called
-inline void _check_activator_collide_box() {
-  ReactorCollideBox react(ReactorCollideType(), 0, 0);
-  ActivatorCollideBox activate(ActivatorCollideType(), 0, 0);
-  Pos test_pos = {.layer = 0, .x = 0, .y = 0};
-  react.collides_with(test_pos, activate, test_pos);
-}
+class CollideLayer {
+  public:
+    CollideLayer() {
+      for (int i = 0; i < MAX_COLLIDE_Y; i++) {
+        std::vector<TileCollideData> row;
+        row.resize(MAX_COLLIDE_X);
+        colliders.push_back(std::move(row));
+      }
+    }
+
+    void clear() {
+      for (auto& row: colliders) {
+        for (auto& tile: row) {
+          tile.activators.clear();
+        }
+      }
+    }
+
+    void add_activator(ActivatorCollideBox activator, Pos here) {
+      here.x += activator.offset_x;
+      here.y += activator.offset_y;
+      activator.offset_x = 0;
+      activator.offset_y = 0;
+      int end_x = here.x + activator.width;
+      int end_y = here.y + activator.height;
+
+      walk_tiles(activator, here, [&](Pos collide_visit) {
+        int tile_x = collide_visit.tile_x();
+        int tile_y = collide_visit.tile_y();
+
+        int height = activator.height;
+        int width = activator.width;
+        if (height > TILE_SUBPIXEL_SIZE) {
+          height = TILE_SUBPIXEL_SIZE;
+        }
+        if (width > TILE_SUBPIXEL_SIZE) {
+          width = TILE_SUBPIXEL_SIZE;
+        }
+        if (collide_visit.x + width > end_x) {
+          width = end_x - collide_visit.x;
+        }
+        if (collide_visit.y + height > end_y) {
+          height = end_y - collide_visit.y;
+        }
+        ActivatorCollideBox new_hitbox = activator;
+        new_hitbox.width = width;
+        new_hitbox.height = height;
+        new_hitbox.offset_x = collide_visit.x - collide_visit.tile_scaled_x();
+        new_hitbox.offset_y = collide_visit.y - collide_visit.tile_scaled_y();
+        colliders[tile_y][tile_x].activators.push_back(new_hitbox);
+
+        return true;
+      });
+    }
+
+    bool overlaps_activator(ReactorCollideBox react, Pos here, Pos* collide_out = nullptr, ActivatorCollideBox* activator_out = nullptr) {
+      here.x += react.offset_x;
+      here.y += react.offset_y;
+      react.offset_x = 0;
+      react.offset_y = 0;
+
+      bool ret = false;
+      walk_tiles(react, here, [&](Pos collide_visit) {
+        int tile_x = collide_visit.tile_x();
+        int tile_y = collide_visit.tile_y();
+
+        const TileCollideData& current_tile = colliders[tile_y][tile_x];
+
+        Pos aligned_there = {.layer = 0, .x = collide_visit.tile_scaled_x(), .y = collide_visit.tile_scaled_y()};
+        for (auto& activ: current_tile.activators) {
+          if (react.collides_with(here, activ, aligned_there)) {
+            if (collide_out) {
+              *collide_out = collide_visit;
+            }
+            if (activator_out) {
+              *activator_out = activ;
+            }
+            ret = true;
+            return false;
+          }
+        }
+        return true;
+      });
+      return ret;
+    }
+
+  private:
+    std::vector<std::vector<TileCollideData>> colliders;
+
+    // HitBoxType is a valid perameter for CollideBox
+    // Func is a function object that can be called as: bool callback(Pos collide_visit)
+    // This function will early return if Func returns false
+    template <typename HitBoxType, typename Func>
+    void walk_tiles(const CollideBox<HitBoxType>& hitbox, const Pos& here, Func func) {
+      int end_x = here.x + hitbox.width;
+      int end_y = here.y + hitbox.height;
+
+      Pos collide_visit = here;
+
+      bool last_row = false;
+      while (true) {
+        int tile_x = collide_visit.tile_x();
+        int tile_y = collide_visit.tile_y();
+        //Out of bounds has no collision
+        if (MAX_COLLIDE_Y > tile_y && MAX_COLLIDE_X > tile_x) {
+          if(!func(collide_visit)) {
+            return;
+          }
+        }
+
+        if (collide_visit.x == end_x) {
+          collide_visit.x = here.x;
+          collide_visit.y += TILE_SUBPIXEL_SIZE;
+
+          if (last_row) {
+            return;
+          }
+          if (collide_visit.y >= end_y) {
+            collide_visit.y = end_y;
+            last_row = true;
+          }
+        } else {
+          collide_visit.x += TILE_SUBPIXEL_SIZE;
+          if (collide_visit.x > end_x) {
+            collide_visit.x = end_x;
+          }
+        }
+      }
+    }
+};
