@@ -27,6 +27,8 @@ struct ActivatorCollideType: public BitFlag<ActivatorCollideType> {
     ActivatorCollideType operator&(ReactorCollideType counter_part) const;
 };
 
+//There are bitflags (increase in powers of two)
+//Symetric with reactor (every member here must have a counter part there)
 constexpr ActivatorCollideType ActivatorCollideType::WALL(0x1); // Acts like a wall
 constexpr ActivatorCollideType ActivatorCollideType::HIT(0x2); // Hurts sprites
 
@@ -47,6 +49,8 @@ struct ReactorCollideType: public BitFlag<ReactorCollideType> {
     ReactorCollideType operator&(ActivatorCollideType counter_part) const;
 };
 
+//There are bitflags (increase in powers of two)
+//Symetric with activator (every member here must have a counter part there)
 constexpr ReactorCollideType ReactorCollideType::WALL(0x1); // Affected by walls
 constexpr ReactorCollideType ReactorCollideType::HURT(0x2); // Can be hurt
 
@@ -71,8 +75,14 @@ template <typename CollideType> class CollideBox;
 using ActivatorCollideBox = CollideBox<ActivatorCollideType>;
 using ReactorCollideBox = CollideBox<ReactorCollideType>;
 
+struct ActivatorCollideProps {
+  int hp_d;
+};
+
 // CollideType is either ActivatorCollideType or ReactorCollideType
-template <typename CollideType> class CollideBox {
+template <typename CollideType> class CollideBox: 
+  public std::conditional_t<std::is_same_v<CollideType, ActivatorCollideType>, ActivatorCollideProps, Empty>
+{
   public:
     CollideBox(CollideType type, int offset_x, int width, int offset_y, int height) {
       static_assert(
@@ -204,7 +214,7 @@ class CollideLayer {
 
     // HitBoxType is a valid perameter for CollideBox
     // Func is a function object that can be called as: bool callback(Pos collide_visit)
-    // This function will early return if Func returns false
+    // This function will early return if Func returns false, it will continue if Fnc returns true.
     template <typename HitBoxType, typename Func>
     void walk_tiles(const CollideBox<HitBoxType>& hitbox, const Pos& here, Func func) {
       int end_x = here.x + hitbox.width;
@@ -217,7 +227,7 @@ class CollideLayer {
         int tile_x = collide_visit.tile_x();
         int tile_y = collide_visit.tile_y();
         //Out of bounds has no collision
-        if (MAX_COLLIDE_Y > tile_y && MAX_COLLIDE_X > tile_x) {
+        if (tile_x > 0 && tile_y > 0 && MAX_COLLIDE_Y > tile_y && MAX_COLLIDE_X > tile_x) {
           if(!func(collide_visit)) {
             return;
           }

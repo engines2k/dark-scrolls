@@ -2,10 +2,12 @@
 #include "pos.hpp"
 #include <iostream>
 
-void Sprite::move_single_axis(Translation trans) {
+//Returns true if movement occured
+bool Sprite::move_single_axis(Translation trans) {
   if (trans.x == 0 && trans.y == 0) {
-    return;
+    return false;
   }
+  Pos orig_pos = pos;
   pos += trans;
   for (auto& reactor: reactors) {
     ReactorCollideBox wall_reactor = reactor;
@@ -32,7 +34,8 @@ void Sprite::move_single_axis(Translation trans) {
       if (trans.y > 0) {
         pos.y = base_y - reactor.height - SUBPIXELS_IN_PIXEL;
       }
-      break;
+      return orig_pos != pos;
     }
   }
+  return true;
 }

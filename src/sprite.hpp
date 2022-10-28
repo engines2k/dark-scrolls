@@ -31,13 +31,13 @@ class Sprite: public std::enable_shared_from_this<Sprite> {
   bool is_spawned() const {
     return spawn_flag;
   }
-  void move(Translation trans) {
+  //Returns true if movement occured
+  bool move(Translation trans) {
     Translation x_axis = trans;
     x_axis.y = 0;
     Translation y_axis = trans;
     y_axis.x = 0;
-    move_single_axis(x_axis);
-    move_single_axis(y_axis);
+    return move_single_axis(x_axis) || move_single_axis(y_axis);
   }
 
   virtual ~Sprite() {}
@@ -50,6 +50,6 @@ class Sprite: public std::enable_shared_from_this<Sprite> {
   Game &game;
   std::vector<ReactorCollideBox> reactors;
   private:
-  void move_single_axis(Translation trans);
+  bool move_single_axis(Translation trans);
 };
 

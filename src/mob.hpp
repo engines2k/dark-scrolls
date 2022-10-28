@@ -12,23 +12,27 @@ class Mob: public Sprite {
   Mob(Game &game, Pos pos): Sprite(game, pos) {}
 
   int get_health() const  {
-    return health;
+    return hp;
   }
 
-  void hurt (int dmg) {
-    health -= dmg;
+  void damage(int dmg) {
+    hp -= dmg;
   }
 
-  void set_health (int n_health) {
-    health = n_health;
+  void heal(int dhp) {
+    hp += dhp;
+  }
+
+  void set_health(int n_hp) {
+    hp = n_hp;
   }
 
   virtual void tick() {
-    if(health < 0) despawn();
+    if(hp < 0) despawn();
   }
 
   protected:
-  int health = 100;
+  int hp = 100;
 
   virtual ~Mob () {
   }

@@ -107,7 +107,7 @@ Tile Tile::horizontal_flip() {
   
   TileProperties props = properties;
   for (auto& activator: props.colliders.activators) {
-    activator.offset_x = 32 - activator.offset_x;
+    activator.offset_x = (SUBPIXELS_IN_PIXEL * 32) - activator.offset_x;
   }
 
   return Tile(renderer, fliped, id | 0x80000000, std::move(props));
@@ -122,7 +122,7 @@ Tile Tile::vertical_flip() {
 
   TileProperties props = properties;
   for (auto& activator: props.colliders.activators) {
-    activator.offset_y = 32 - activator.offset_y;
+    activator.offset_y = (SUBPIXELS_IN_PIXEL * 32) - activator.offset_y;
   }
 
   return Tile(renderer, fliped, id | 0x40000000, std::move(props));
