@@ -51,6 +51,8 @@ Tile::Tile(SDL_Renderer* renderer, const std::filesystem::path& tileset_loc, uin
         int width = 32;
         int start_y = 0;
         int height = 32;
+        CollideDamageProps damage;
+        damage.hp_delt = 0;
 
         auto activator_iter = hitbox_json.find("type");
         if (activator_iter != hitbox_json.end()) {
@@ -72,6 +74,11 @@ Tile::Tile(SDL_Renderer* renderer, const std::filesystem::path& tileset_loc, uin
         if (height_iter != hitbox_json.end()) {
           height = *height_iter;
         }
+        auto damage_iter = hitbox_json.find("damage");
+        if (damage_iter != hitbox_json.end()) {
+          json damage_object = *damage_iter;
+          damage.hp_delt = damage_object["hp_delt"];
+        }
 
         auto activator_type = static_cast<ActivatorCollideType>(activator);
 
@@ -79,8 +86,9 @@ Tile::Tile(SDL_Renderer* renderer, const std::filesystem::path& tileset_loc, uin
         width *= SUBPIXELS_IN_PIXEL;
         start_y *= SUBPIXELS_IN_PIXEL;
         height *= SUBPIXELS_IN_PIXEL;
-        this->properties.colliders.activators.push_back(
-            ActivatorCollideBox(activator_type, start_x, width, start_y, height));
+        auto new_activator = ActivatorCollideBox(activator_type, start_x, width, start_y, height);
+        new_activator.damage = damage;
+        this->properties.colliders.activators.push_back(new_activator);
       }
     }
   }
@@ -107,7 +115,8 @@ Tile Tile::horizontal_flip() {
   
   TileProperties props = properties;
   for (auto& activator: props.colliders.activators) {
-    activator.offset_x = (SUBPIXELS_IN_PIXEL * 32) - activator.offset_x;
+    int end_x = activator.offset_x + activator.width;
+    activator.offset_x = (SUBPIXELS_IN_PIXEL * 32) - end_x;
   }
 
   return Tile(renderer, fliped, id | 0x80000000, std::move(props));
@@ -122,7 +131,8 @@ Tile Tile::vertical_flip() {
 
   TileProperties props = properties;
   for (auto& activator: props.colliders.activators) {
-    activator.offset_y = (SUBPIXELS_IN_PIXEL * 32) - activator.offset_y;
+    int end_y = activator.offset_y + activator.height;
+    activator.offset_y = (SUBPIXELS_IN_PIXEL * 32) - end_y;
   }
 
   return Tile(renderer, fliped, id | 0x40000000, std::move(props));

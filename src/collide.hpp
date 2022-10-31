@@ -18,7 +18,9 @@ struct ActivatorCollideType: public BitFlag<ActivatorCollideType> {
     constexpr ActivatorCollideType(const BitFlag<ActivatorCollideType>& inner) : BitFlag<ActivatorCollideType>(inner) {}
 
     static const ActivatorCollideType WALL;
-    static const ActivatorCollideType HIT;
+    static const ActivatorCollideType HIT_EVIL;
+    static const ActivatorCollideType HIT_GOOD;
+    static const ActivatorCollideType HIT_ALL;
     ReactorCollideType activates() const;
 
     ActivatorCollideType operator&(const ActivatorCollideType& other) const {
@@ -30,7 +32,9 @@ struct ActivatorCollideType: public BitFlag<ActivatorCollideType> {
 //There are bitflags (increase in powers of two)
 //Symetric with reactor (every member here must have a counter part there)
 constexpr ActivatorCollideType ActivatorCollideType::WALL(0x1); // Acts like a wall
-constexpr ActivatorCollideType ActivatorCollideType::HIT(0x2); // Hurts sprites
+constexpr ActivatorCollideType ActivatorCollideType::HIT_EVIL(0x2); // Hurts evil sprites
+constexpr ActivatorCollideType ActivatorCollideType::HIT_GOOD(0x4); // Hurts good sprites (probally player)
+constexpr ActivatorCollideType ActivatorCollideType::HIT_ALL(ActivatorCollideType::HIT_EVIL | ActivatorCollideType::HIT_GOOD);
 
 struct ReactorCollideType: public BitFlag<ReactorCollideType> {
   public:
@@ -40,7 +44,9 @@ struct ReactorCollideType: public BitFlag<ReactorCollideType> {
     constexpr ReactorCollideType(const BitFlag<ReactorCollideType>& inner) : BitFlag<ReactorCollideType>(inner) {}
 
     static const ReactorCollideType WALL;
-    static const ReactorCollideType HURT;
+    static const ReactorCollideType HURT_BY_GOOD;
+    static const ReactorCollideType HURT_BY_EVIL;
+    static const ReactorCollideType HURT_BY_ANY;
     ActivatorCollideType activated_by() const;
 
     ReactorCollideType operator&(const ReactorCollideType& other) const {
@@ -52,7 +58,9 @@ struct ReactorCollideType: public BitFlag<ReactorCollideType> {
 //There are bitflags (increase in powers of two)
 //Symetric with activator (every member here must have a counter part there)
 constexpr ReactorCollideType ReactorCollideType::WALL(0x1); // Affected by walls
-constexpr ReactorCollideType ReactorCollideType::HURT(0x2); // Can be hurt
+constexpr ReactorCollideType ReactorCollideType::HURT_BY_GOOD(0x2); // Can be hurt (only by good stuff)
+constexpr ReactorCollideType ReactorCollideType::HURT_BY_EVIL(0x4); // Can be hurt (only by evil stuff)
+constexpr ReactorCollideType ReactorCollideType::HURT_BY_ANY(ReactorCollideType::HURT_BY_GOOD | ReactorCollideType::HURT_BY_EVIL);
 
 inline ReactorCollideType ActivatorCollideType::activates() const {
   return ReactorCollideType(inner);
@@ -75,8 +83,12 @@ template <typename CollideType> class CollideBox;
 using ActivatorCollideBox = CollideBox<ActivatorCollideType>;
 using ReactorCollideBox = CollideBox<ReactorCollideType>;
 
+struct CollideDamageProps {
+  int hp_delt;
+};
+
 struct ActivatorCollideProps {
-  int hp_d;
+  CollideDamageProps damage;
 };
 
 // CollideType is either ActivatorCollideType or ReactorCollideType
@@ -84,6 +96,7 @@ template <typename CollideType> class CollideBox:
   public std::conditional_t<std::is_same_v<CollideType, ActivatorCollideType>, ActivatorCollideProps, Empty>
 {
   public:
+    CollideBox(): CollideBox(CollideType::WALL, 0, 0, 0, 0) {}
     CollideBox(CollideType type, int offset_x, int width, int offset_y, int height) {
       static_assert(
           std::is_same_v<CollideType, ActivatorCollideType> ||

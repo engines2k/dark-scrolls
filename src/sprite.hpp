@@ -37,7 +37,9 @@ class Sprite: public std::enable_shared_from_this<Sprite> {
     x_axis.y = 0;
     Translation y_axis = trans;
     y_axis.x = 0;
-    return move_single_axis(x_axis) || move_single_axis(y_axis);
+    bool moved_x = move_single_axis(x_axis);
+    bool moved_y = move_single_axis(y_axis);
+    return moved_x || moved_y;
   }
 
   virtual ~Sprite() {}

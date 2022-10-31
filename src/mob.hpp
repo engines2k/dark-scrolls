@@ -2,7 +2,6 @@
 #include <SDL2/SDL.h>
 #include "pos.hpp"
 #include "level.hpp"
-#include "game.hpp"
 #include "sprite.hpp"
 
 class Game;
@@ -27,9 +26,7 @@ class Mob: public Sprite {
     hp = n_hp;
   }
 
-  virtual void tick() {
-    if(hp < 0) despawn();
-  }
+  virtual void tick();
 
   protected:
   int hp = 100;

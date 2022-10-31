@@ -1,27 +1,35 @@
 Tile hitboxes are a custom property on the tile called activators or activator hitboxes or
 detectors for detector hitboxes.
-The property "hitboxes" shall be a string that can be parsed as an JSON array of the following object:
+The property "activators" shall be a string that can be parsed as an JSON array of the following object:
 {
   type: int?, // what to do when a collision is detected
   start_x: int?, // where the hitbox's x coordinate begins
   width: int?, // hitbox's width
   start_y: int?, // where the hitbox's y coordinate begins
   height: int?, // hitbox's height
+  damage: { // controlls damage type and strength
+    hp_delt: int, // The value in hit points of the attack
+  }?,
 }
 
 If any optional field is missing it is filled it according to this object:
 {
-  type: 0x1,
+  type: 1,
   start_x: 0,
   width: 32
   start_y: 0,
   height: 32,
+  damage: {
+    hp_delt: 0,
+  }
 }
 
 Type ids are bitflags with these fields for activators
 
 constexpr ActivatorCollideType ActivatorCollideType::WALL(0x1); // Acts like a wall
-constexpr ActivatorCollideType ActivatorCollideType::HIT(0x2); // Hurts sprites
+constexpr ActivatorCollideType ActivatorCollideType::HIT_EVIL(0x2); // Hurts evil sprites
+constexpr ActivatorCollideType ActivatorCollideType::HIT_GOOD(0x4); // Hurts good sprites (probally player)
+constexpr ActivatorCollideType ActivatorCollideType::HIT_ALL(0x6);
 
 Type ids are bitflags with these fields for detectors
 

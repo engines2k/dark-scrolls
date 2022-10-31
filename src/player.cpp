@@ -21,13 +21,14 @@ Player::Player(Game &game, Pos pos): Mob(game, pos) {
 
   animations.push_back(walk);
 
+  // FIXME: Placeholder reactor
   int hitbox_width = 32 * SUBPIXELS_IN_PIXEL;
   int hitbox_offset_x = 16 * SUBPIXELS_IN_PIXEL;
   int hitbox_height = 54 * SUBPIXELS_IN_PIXEL;
   int hitbox_offset_y = 8 * SUBPIXELS_IN_PIXEL;
 
   ReactorCollideBox hitbox(
-      ReactorCollideType::WALL | ReactorCollideType::HURT,
+      ReactorCollideType::WALL | ReactorCollideType::HURT_BY_EVIL,
       hitbox_offset_x,
       hitbox_width,
       hitbox_offset_y,
