@@ -34,6 +34,7 @@ class Game {
   //Text test_text;
 
   void tick();
+  void set_cam_trans();
 
   Pos screen_pos(Pos pos) {
     return pos + current_level.get_camera_offset();

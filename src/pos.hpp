@@ -48,6 +48,7 @@ struct Pos {
     new_pos += trans;
     return new_pos;
   }
+
   Pos& operator+=(const Translation& trans);
 
   bool operator==(const Pos& other) {
@@ -75,6 +76,7 @@ struct Translation {
     this->y += other.y;
     return *this;
   }
+
 };
 
 inline Pos& Pos::operator+=(const Translation& trans) {

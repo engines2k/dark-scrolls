@@ -48,10 +48,23 @@ uint32_t game_timer(uint32_t rate, void *game_ptr) {
   return rate;
 }
 
+void Game::set_cam_trans() {
+  // Center the render on the player
+  if(player != NULL) {
+    Pos p = player->get_pos();
+    Translation t = { -p.x + (WIDTH * SUBPIXELS_IN_PIXEL / 2),
+                      -p.y + (HEIGHT * SUBPIXELS_IN_PIXEL / 2) };
+
+    current_level.set_camera_offset(t);
+  }
+}
+
 void Game::tick() {
   SDL_SetRenderTarget(renderer, nullptr);
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
+
+  set_cam_trans();
 
   current_level.draw();
 

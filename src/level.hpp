@@ -173,6 +173,10 @@ class Level {
       return camera_offset;
     }
 
+    void set_camera_offset(Translation cam_center) {
+      camera_offset = { cam_center.x, cam_center.y };
+    }
+
     void add_colliders(std::vector<CollideLayer>& layers);
 
     void reload_texture();
