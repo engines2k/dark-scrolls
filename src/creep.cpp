@@ -6,11 +6,11 @@
 
 Creep::Creep(Game &game, Pos pos): Mob(game, pos) {
   Animation walk(game, 60);
-  walk.set_frame(0, "img/clacker000.png", "NOSOUND");
-  walk.set_frame(30, "img/clacker001.png", "NOSOUND");
-  // walk.set_frame(24, "img/clacker002.png", "NOSOUND");
-  // walk.set_frame(36, "img/clacker003.png", "NOSOUND");
-  // walk.set_frame(48, "img/clacker004.png", "NOSOUND");
+  walk.set_frame(0, "data/sprite/clacker000.png", "NOSOUND");
+  walk.set_frame(30, "data/sprite/clacker001.png", "NOSOUND");
+  // walk.set_frame(24, "data/sprite/clacker002.png", "NOSOUND");
+  // walk.set_frame(36, "data/sprite/clacker003.png", "NOSOUND");
+  // walk.set_frame(48, "data/sprite/clacker004.png", "NOSOUND");
   animations.push_back(walk);
 
   // FIXME: Placeholder reactor
