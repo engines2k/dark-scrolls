@@ -11,11 +11,11 @@ Player::Player(Game &game, Pos pos): Mob(game, pos) {
   Animation walk(game, 48);
 
   walk.set_frame(0, "data/sprite/player_run000.png", "NOSOUND");
-  walk.set_frame(6, "data/sprite/player_run001.png", "img/walk.wav");
+  walk.set_frame(6, "data/sprite/player_run001.png", "data/sound/walk.wav");
   walk.set_frame(13, "data/sprite/player_run002.png", "NOSOUND");
   walk.set_frame(20, "data/sprite/player_run003.png", "NOSOUND");
   walk.set_frame(24, "data/sprite/player_run004.png", "NOSOUND");
-  walk.set_frame(30, "data/sprite/player_run005.png", "img/walk.wav");
+  walk.set_frame(30, "data/sprite/player_run005.png", "data/sound/walk.wav");
   walk.set_frame(37, "data/sprite/player_run006.png", "NOSOUND");
   walk.set_frame(44, "data/sprite/player_run007.png", "NOSOUND");
 
@@ -104,7 +104,7 @@ void Player::draw() {
     else {
       // display first frame
       animations[0].reset();
-      SDL_Surface *surface = IMG_Load("img/player000.png");
+      SDL_Surface *surface = IMG_Load("data/sound/player000.png");
       texture = SDL_CreateTextureFromSurface(game.renderer, surface);
     }
 
