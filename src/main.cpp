@@ -18,6 +18,7 @@
 #include "creep.hpp"
 #include "player.hpp"
 #include "text.hpp"
+#include "render.hpp"
 #include <iostream>
 
 const int WIDTH = 800, HEIGHT = 600;

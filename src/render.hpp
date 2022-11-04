@@ -4,35 +4,36 @@
 
 class Game;
 
-class FocusPoint : public Translation }
+class FocusPoint : public Translation {
+
 	
 };
 
 class Camera {
 private:
 	Game &game;
-	std::<vector>FocusPoint focus_points[]
+	std::vector<FocusPoint> focus_points[];
 
-	float get_zoom_lvl() {
-		return game.get_camera_zoom
+	float get_zoom() {
+		return game.get_camera_zoom;
 	}
 
-	SDL_Rect rect_scaled(SDL_Rect *r) {
-		dstrect.x *= zoom_lvl;
-		dstrect.y *= zoom_lvl;
-		dstrect.w *= zoom_lvl;
-		dstrect.h *= zoom_lvl;
+	SDL_Rect *rect_scaled(SDL_Rect *r) {
+		r->x *= get_zoom();
+		r->y *= get_zoom();
+		r->w *= get_zoom();
+		r->h *= get_zoom();
 
-		return SDL_Rect
+		return r;
 	}
 
 public:
 	int render(	SDL_Renderer *renderer,
-				SDL_Texture *texture,,
+				SDL_Texture *texture,
 				const SDL_Rect *srcrect,
 				SDL_Rect *dstrect) {
 
-		return SDL_RenderCopy(renderer, texture, srcrect, dstrect)
+		return SDL_RenderCopy(renderer, texture, srcrect, rect_scaled(dstrect));
 	}
 
 	int render_ex(	SDL_Renderer * renderer,
