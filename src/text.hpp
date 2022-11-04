@@ -66,18 +66,18 @@ class Incantation : public Sprite {
       abort();
     }
 
-    type_sound = Mix_LoadWAV("img/type.wav");
+    type_sound = Mix_LoadWAV("data/sound/type.wav");
     if(type_sound == nullptr){
       printf("Sound error: %s\n", SDL_GetError());
       abort();
     }
-    type_finish_sound = Mix_LoadWAV("img/type_finish.wav");
+    type_finish_sound = Mix_LoadWAV("data/sound/type_finish.wav");
     if(type_finish_sound == nullptr){
       printf("Sound error: %s\n", SDL_GetError());
       abort();
     }
 
-    type_init_sound = Mix_LoadWAV("img/type_init.wav");
+    type_init_sound = Mix_LoadWAV("data/sound/type_init.wav");
     if(type_init_sound == nullptr){
       printf("Sound error: %s\n", SDL_GetError());
       abort();

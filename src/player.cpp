@@ -104,7 +104,7 @@ void Player::draw() {
     else {
       // display first frame
       animations[0].reset();
-      SDL_Surface *surface = IMG_Load("data/sound/player000.png");
+      SDL_Surface *surface = IMG_Load("data/sprite/player000.png");
       texture = SDL_CreateTextureFromSurface(game.renderer, surface);
     }
 

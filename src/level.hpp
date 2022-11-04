@@ -177,6 +177,14 @@ class Level {
       camera_offset = { cam_center.x, cam_center.y };
     }
 
+    float get_camera_zoom() {
+      return camera_zoom;
+    }
+
+    void set_camera_zoom(float scalar) {
+      camera_zoom = scalar;
+    }
+
     void add_colliders(std::vector<CollideLayer>& layers);
 
     void reload_texture();
@@ -192,6 +200,12 @@ class Level {
     std::vector<Layer> layers;
 
     Translation camera_offset = {.x = 32 * SUBPIXELS_IN_PIXEL, .y = 32 * SUBPIXELS_IN_PIXEL};
+    
+    // This needs to be fixed.
+    // A draw function needs to be created that handles
+    // zoom for everything drawn (and probably transpositions as well.)
+    float camera_zoom = 1;
+
   public:
     decltype(std::declval<Level&>().layers.begin()) begin() {
       return layers.begin();
