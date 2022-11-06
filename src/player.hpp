@@ -19,10 +19,12 @@ class Player: public Mob {
     this->IMMOBILE_FLAG = b;
   }
 
+  bool switch_animation(int anim_idx);
   virtual void draw();
   virtual void tick();
 
   private:
+  int current_animation_index;
   std::vector<Animation> animations;
   bool IMMOBILE_FLAG = false;
   bool moving = false;

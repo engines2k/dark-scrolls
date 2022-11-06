@@ -5,7 +5,7 @@
 #include "mob.hpp"
 
 Creep::Creep(Game &game, Pos pos): Mob(game, pos) {
-  Animation walk(game, 60);
+  Animation walk(game, 60, 1);
   walk.set_frame(0, "data/sprite/clacker000.png", "NOSOUND");
   walk.set_frame(30, "data/sprite/clacker001.png", "NOSOUND");
   // walk.set_frame(24, "data/sprite/clacker002.png", "NOSOUND");
