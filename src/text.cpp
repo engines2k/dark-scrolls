@@ -11,16 +11,12 @@ Text::Text(char *n_text, Game &game, Pos pos, SDL_Color n_color) : Sprite(game, 
   char font_path[261];
   //snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
   snprintf(font_path, 261, ".\\data\\font\\alagard.ttf");
-  font = TTF_OpenFont(font_path, 25);
-  if (font == nullptr) {
-    printf("Font error: %s\n", SDL_GetError());
-    abort();
-  }
+  font = mediaManager.readFont(font_path, 25);
 }
 
 void Text::draw() {
-  surface = TTF_RenderText_Solid(font, text, color);
-  texture = SDL_CreateTextureFromSurface(game.renderer, surface);
+  //surface = TTF_RenderText_Solid(font, text, color);
+  texture = mediaManager.showFont(game.renderer, font, text, color); //SDL_CreateTextureFromSurface(game.renderer, surface);
 
   texW = 0;
   texH = 0;
@@ -29,7 +25,7 @@ void Text::draw() {
   dstrect = { screen_pos.pixel_x(), screen_pos.pixel_y(), texW, texH };
   SDL_RenderCopy(game.renderer, texture, NULL, &dstrect);
 
-  SDL_FreeSurface(surface);
+  //SDL_FreeSurface(surface);
   SDL_DestroyTexture(texture);
 }
 
@@ -67,6 +63,7 @@ void Incantation::draw() {
       const char *typed = phrase.substr(0, index).c_str();
       typed_surface = TTF_RenderText_Solid(font, typed, color_red);
       typed_texture = SDL_CreateTextureFromSurface(game.renderer, typed_surface);
+
       SDL_QueryTexture(typed_texture, NULL, NULL, &typed_texW, &typed_texH);
       this->pos = game.player->get_pos();
       this->pos += Translation {.x = SUBPIXELS_IN_PIXEL * 40, .y = SUBPIXELS_IN_PIXEL * -40 }; /* must be modified later to scale with player*/

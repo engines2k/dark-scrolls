@@ -97,15 +97,12 @@ void Player::draw() {
     my_rect.x = screen_pos.pixel_x();
     my_rect.y = screen_pos.pixel_y();
 
-    SDL_DestroyTexture(texture);
-
     if(moving)
       texture = animations[0].play();
     else {
       // display first frame
       animations[0].reset();
-      SDL_Surface *surface = IMG_Load("data/sprite/player000.png");
-      texture = SDL_CreateTextureFromSurface(game.renderer, surface);
+      texture = animations[0].get_frame();
     }
 
     SDL_RenderCopyEx(game.renderer, texture, NULL, &my_rect, 0, NULL, flip);

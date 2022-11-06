@@ -25,6 +25,8 @@ class Animation {
 	Animation(Game &game, int nframes);
 	Animation(const Animation &a);
 	SDL_Texture * play();
+	SDL_Rect rect;
 	void set_frame(int fn, const char *fpath, const char *spath);
+	SDL_Texture * get_frame();
 	void reset();
 };
