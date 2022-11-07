@@ -48,8 +48,9 @@ SDL_Texture* Animation::play()
 			Mix_PlayChannel(-1, s, 0);
 		}
 	}
-
-    SDL_Texture *tex = mediaManager.readIMG(game.renderer, frames[current_frame_index]->frame_path, rect);
+	SDL_Surface *s = IMG_Load(frames[current_frame_index]->frame_path);
+	SDL_Texture *tex	 = SDL_CreateTextureFromSurface(game.renderer, s);
+    //SDL_Texture *tex = mediaManager.readIMG(game.renderer, frames[current_frame_index]->frame_path, rect);
 	return tex;
 }
 
