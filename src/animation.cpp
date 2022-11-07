@@ -3,6 +3,7 @@
 #include <SDL2/SDL_mixer.h>
 #include "game.hpp"
 #include "animation.hpp"
+#include "MediaManager.hpp"
 #include <iostream>
 
 AnimationFrame::AnimationFrame(int fn, const char *fpath, const char *spath)
@@ -42,16 +43,13 @@ SDL_Texture* Animation::play()
 		current_frame_index = frame_index;
 		const char *p = frames[current_frame_index]->sound;
 		
-		Mix_Chunk *s = Mix_LoadWAV(p);
-	 //    if(s == nullptr && p != "NOSOUND"){
-		// 	printf("Sound error: %s\n", SDL_GetError());
-		// 	abort();
-		// }
-		Mix_PlayChannel(-1, s, 0);
+		if (strcmp(p, "NOSOUND")) {
+			Mix_Chunk *s = mediaManager.readWAV(p);
+			Mix_PlayChannel(-1, s, 0);
+		}
 	}
 
-    SDL_Surface *surface = IMG_Load(frames[current_frame_index]->frame_path);
-    SDL_Texture *tex = SDL_CreateTextureFromSurface(game.renderer, surface);
+    SDL_Texture *tex = mediaManager.readIMG(game.renderer, frames[current_frame_index]->frame_path, rect);
 	return tex;
 }
 
@@ -59,6 +57,11 @@ SDL_Texture* Animation::play()
 void Animation::set_frame(int fn, const char *fpath, const char *spath)
 {
 	frames.emplace(fn, std::make_shared<AnimationFrame>(fn, fpath, spath));
+}
+
+SDL_Texture *Animation::get_frame() {
+	SDL_Texture *texture = mediaManager.readIMG(game.renderer, frames[current_frame_index]->frame_path, rect);
+	return texture;
 }
 
 void Animation::reset() {

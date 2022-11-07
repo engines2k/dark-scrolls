@@ -7,17 +7,16 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 #include "level.hpp"
+#include "MediaManager.hpp"
 
 using json = nlohmann::json;
 
 Tile::Tile(SDL_Renderer* renderer, const std::filesystem::path& tileset_loc, uint32_t id, const json& j) {
   std::string texture_path = j["image"];
   std::string texture_fullpath = (tileset_loc.parent_path() / texture_path).u8string();
-  SDL_Texture* tex = IMG_LoadTexture(renderer, texture_fullpath.c_str());
-  if (!tex) {
-    printf("Tile load failed: %s\n", IMG_GetError());
-    abort();
-  }
+  
+  SDL_Texture* tex = mediaManager.readTile(renderer, texture_fullpath.c_str());
+  
   SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
   SDL_Texture* big_tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, TILE_SIZE, TILE_SIZE);
   SDL_SetTextureBlendMode(big_tex, SDL_BLENDMODE_BLEND);

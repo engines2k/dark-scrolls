@@ -114,6 +114,7 @@ void Player::draw()
     my_rect.x = screen_pos.pixel_x();
     my_rect.y = screen_pos.pixel_y();
 
+<<<<<<< HEAD
     SDL_RendererFlip flip;    // Flip the sprite if player facing left 
     if(facing_left)
       flip = SDL_FLIP_HORIZONTAL;
@@ -130,7 +131,7 @@ void Player::draw()
         switch_animation(1);  // walk
       else
         switch_animation(0);  // idle 
-    }
+
     else immobile(true);      // Player cannot move while attacking
 
     SDL_DestroyTexture(texture);
