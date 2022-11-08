@@ -1,36 +1,55 @@
 #include "MediaManager.hpp"
 #include <iostream>
 
-SDL_Texture *MediaManager::readIMG(SDL_Renderer *renderer, std::string filename, SDL_Rect &SrcR) {
+SDL_Texture *MediaManager::readIMG(SDL_Renderer *renderer, std::string filename) {
     
     if (images.find(filename) == images.end()) {
-        SDL_Texture *image = NULL;
-        SDL_Surface *surface = NULL;
-        surface = IMG_Load(filename.c_str());
+        
+        SDL_Surface *surface = IMG_Load(filename.c_str());
+        //surface = 
 
         if (surface == NULL) {
             printf("Image error: %s\n", SDL_GetError());
             abort();
         }
 
-        SrcR.x = 0;
-        SrcR.y = 0;
-
-        SrcR.w = surface->w;
-        SrcR.h = surface->h;
-
-        image = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_Texture *image = SDL_CreateTextureFromSurface(renderer, surface);
 
         SDL_FreeSurface(surface);
-        images[filename] = TextureInfo(image);
+        images[filename] = image;
 
         return image;	
     }
     
-    TextureInfo texture = images[filename];
-    SrcR = texture.srcRect;  
+    SDL_Texture* texture = images[filename];
 
-    return texture.texture;
+    return texture;
+}
+
+SDL_Texture *MediaManager::readSurface(SDL_Renderer *renderer, std::string filename) {
+    
+    if (images.find(filename) == images.end()) { 
+        SDL_Surface *surface = IMG_Load(filename.c_str());
+
+        if (surface == NULL) {
+            printf("Image error: %s\n", SDL_GetError());
+            abort();
+        }
+
+        SDL_Texture *image = SDL_CreateTextureFromSurface(renderer, surface);
+        
+        surfaces[filename] = surface;
+
+        SDL_FreeSurface(surface);
+
+        return image;	
+    }
+
+    SDL_Surface *surface = surfaces[filename];
+    SDL_Texture *image = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+
+    return image;
 }
 
 Mix_Chunk *MediaManager::readWAV(std::string filename) { 
@@ -83,8 +102,6 @@ SDL_Texture *MediaManager::showFont(SDL_Renderer *renderer, TTF_Font *font, char
     return texture;	
 }
 
-// create an overloaded function for other text render thingy see text.cpp ln 64 & 65, 18 & 19, 76 & 77
-    // rember to move the free surfaces into function and remove them from text.cpp
 
 SDL_Texture *MediaManager::readTile(SDL_Renderer *renderer, std::string filename) {
     if (tiles.find(filename) == tiles.end()) {
