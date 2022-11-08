@@ -3,6 +3,7 @@
 #include <SDL2/SDL_mixer.h>
 #include <string>
 #include "sprite.hpp"
+#include "MediaManager.hpp"
 
 class Game;
 
@@ -60,28 +61,14 @@ class Incantation : public Sprite {
     char font_path[261];
     // snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
     snprintf(font_path, 261, ".\\data\\font\\alagard.ttf");
-    font = TTF_OpenFont(font_path, 25);
-    if (font == nullptr) {
-      printf("Font error: %s\n", SDL_GetError());
-      abort();
-    }
+    
+    font = mediaManager.readFont(font_path, 25);
+    
+    type_sound = mediaManager.readWAV("data/sound/type.wav");
+    
+    type_finish_sound = mediaManager.readWAV("data/sound/type_finish.wav");
 
-    type_sound = Mix_LoadWAV("img/type.wav");
-    if(type_sound == nullptr){
-      printf("Sound error: %s\n", SDL_GetError());
-      abort();
-    }
-    type_finish_sound = Mix_LoadWAV("img/type_finish.wav");
-    if(type_finish_sound == nullptr){
-      printf("Sound error: %s\n", SDL_GetError());
-      abort();
-    }
-
-    type_init_sound = Mix_LoadWAV("img/type_init.wav");
-    if(type_init_sound == nullptr){
-      printf("Sound error: %s\n", SDL_GetError());
-      abort();
-    }
+    type_init_sound = mediaManager.readWAV("data/sound/type_init.wav");
 
     index = 0;
     phrase = n_phrase;

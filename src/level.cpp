@@ -7,19 +7,18 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 #include "level.hpp"
+#include "MediaManager.hpp"
 
 using json = nlohmann::json;
 
 Tile::Tile(SDL_Renderer* renderer, const std::filesystem::path& tileset_loc, uint32_t id, const json& j) {
   std::string texture_path = j["image"];
   std::string texture_fullpath = (tileset_loc.parent_path() / texture_path).u8string();
-  SDL_Texture* tex = IMG_LoadTexture(renderer, texture_fullpath.c_str());
-  if (!tex) {
-    printf("Tile load failed: %s\n", IMG_GetError());
-    abort();
-  }
+  
+  SDL_Texture* tex = mediaManager.readTile(renderer, texture_fullpath.c_str());
+  
   SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
-  SDL_Texture* big_tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 32, 32);
+  SDL_Texture* big_tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, TILE_SIZE, TILE_SIZE);
   SDL_SetTextureBlendMode(big_tex, SDL_BLENDMODE_BLEND);
   SDL_SetRenderTarget(renderer, big_tex);
   SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_NONE);
@@ -48,9 +47,9 @@ Tile::Tile(SDL_Renderer* renderer, const std::filesystem::path& tileset_loc, uin
       for (auto& hitbox_json: hitboxes) {
         int activator = 0x1;
         int start_x = 0;
-        int width = 32;
+        int width = TILE_SIZE;
         int start_y = 0;
-        int height = 32;
+        int height = TILE_SIZE;
         CollideDamageProps damage;
         damage.hp_delt = 0;
 
@@ -106,7 +105,7 @@ Tile::Tile(SDL_Renderer* renderer, SDL_Texture* texture, uint32_t id, TileProper
   backup_texture();
 }
 Tile Tile::horizontal_flip() {
-  SDL_Texture* fliped = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 32, 32);
+  SDL_Texture* fliped = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, TILE_SIZE, TILE_SIZE);
   SDL_SetTextureBlendMode(fliped, SDL_BLENDMODE_BLEND);
   SDL_SetRenderTarget(renderer, fliped);
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
@@ -122,7 +121,7 @@ Tile Tile::horizontal_flip() {
   return Tile(renderer, fliped, id | 0x80000000, std::move(props));
 }
 Tile Tile::vertical_flip() {
-  SDL_Texture* fliped = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 32, 32);
+  SDL_Texture* fliped = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, TILE_SIZE, TILE_SIZE);
   SDL_SetTextureBlendMode(fliped, SDL_BLENDMODE_BLEND);
   SDL_SetRenderTarget(renderer, fliped);
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
@@ -132,13 +131,13 @@ Tile Tile::vertical_flip() {
   TileProperties props = properties;
   for (auto& activator: props.colliders.activators) {
     int end_y = activator.offset_y + activator.height;
-    activator.offset_y = (SUBPIXELS_IN_PIXEL * 32) - end_y;
+    activator.offset_y = (SUBPIXELS_IN_PIXEL * TILE_SIZE) - end_y;
   }
 
   return Tile(renderer, fliped, id | 0x40000000, std::move(props));
 }
 Tile Tile::diagonal_flip() {
-  SDL_Texture* fliped = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 32, 32);
+  SDL_Texture* fliped = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, TILE_SIZE, TILE_SIZE);
   SDL_SetTextureBlendMode(fliped, SDL_BLENDMODE_BLEND);
   SDL_SetRenderTarget(renderer, fliped);
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
@@ -163,7 +162,7 @@ Tile::Tile(const Tile& other) noexcept {
   this->id = other.id;
   this->texture_backup = other.texture_backup;
 
-  this->texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 32, 32);
+  this->texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, TILE_SIZE, TILE_SIZE);
   SDL_SetTextureBlendMode(this->texture, SDL_BLENDMODE_BLEND);
   SDL_Texture* old_render_target = SDL_GetRenderTarget(renderer);
   SDL_SetRenderTarget(renderer, this->texture);
@@ -175,15 +174,15 @@ Tile::Tile(const Tile& other) noexcept {
 
 void Tile::backup_texture() {
   SDL_SetRenderTarget(renderer, texture);
-  texture_backup.resize(32 * 32);
-  SDL_Rect backup_zone = {.x = 0, .y = 0, .w = 32, .h = 32};
-  SDL_RenderReadPixels(renderer, &backup_zone, SDL_PIXELFORMAT_RGBA8888, &texture_backup.front(), 32 * 4);
+  texture_backup.resize(TILE_SIZE * TILE_SIZE);
+  SDL_Rect backup_zone = {.x = 0, .y = 0, .w = TILE_SIZE, .h = TILE_SIZE};
+  SDL_RenderReadPixels(renderer, &backup_zone, SDL_PIXELFORMAT_RGBA8888, &texture_backup.front(), TILE_SIZE * 4);
 }
 
 void Tile::reload_texture() {
   SDL_DestroyTexture(texture);
-  texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, 32, 32);
-  SDL_UpdateTexture(texture, nullptr, &texture_backup.front(), 32 * 4);
+  texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, TILE_SIZE, TILE_SIZE);
+  SDL_UpdateTexture(texture, nullptr, &texture_backup.front(), TILE_SIZE * 4);
 }
 
 Layer::Layer(std::vector<std::vector<std::shared_ptr<Tile>>> tiles) {
@@ -245,19 +244,20 @@ Level::Level(SDL_Renderer* renderer, const std::filesystem::path& level_loc) {
 }
 
 void Level::draw() {
+  float tile_scaled = TILE_SIZE * camera_zoom;
   for (auto& layer: layers) {
     int camera_offset_x = camera_offset.x / SUBPIXELS_IN_PIXEL;
     int camera_offset_y = camera_offset.y / SUBPIXELS_IN_PIXEL;
-    SDL_Rect dest_loc = {camera_offset_x, camera_offset_y, 32, 32};
+    SDL_Rect dest_loc = {camera_offset_x, camera_offset_y, tile_scaled, tile_scaled};
     for (auto& row: layer) {
       for (auto& tile: row) {
         if (!tile->props().invisible) {
           SDL_RenderCopy(renderer, tile->get_texture(), nullptr, &dest_loc);
         }
-        dest_loc.x += 32;
+        dest_loc.x += tile_scaled;
       }
       dest_loc.x = camera_offset_x;
-      dest_loc.y += 32;
+      dest_loc.y += tile_scaled;
     }
   }
 }
