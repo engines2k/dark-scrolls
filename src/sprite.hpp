@@ -18,6 +18,8 @@ class Sprite: public std::enable_shared_from_this<Sprite> {
   virtual void draw() = 0;
   virtual void tick() {}
   virtual void add_colliders() {}
+  virtual void set_reactors(std::vector<ReactorCollideBox> r);
+  virtual void set_activators(std::vector<ActivatorCollideBox> a);
 
   Pos get_pos() const {
     return pos;
@@ -51,6 +53,7 @@ class Sprite: public std::enable_shared_from_this<Sprite> {
   bool spawn_flag = true;
   Game &game;
   std::vector<ReactorCollideBox> reactors;
+  std::vector<ActivatorCollideBox> activators;
   private:
   bool move_single_axis(Translation trans);
 };

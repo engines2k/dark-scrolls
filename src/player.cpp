@@ -6,9 +6,24 @@
 #include "game.hpp"
 #include "mob.hpp"
 #include "animation.hpp"
+#include <iostream>
 
 Player::Player(Game &game, Pos pos): Mob(game, pos)
 {
+  // FIXME: Placeholder reactor
+  int hitbox_width = 32 * SUBPIXELS_IN_PIXEL;
+  int hitbox_offset_x = 16 * SUBPIXELS_IN_PIXEL;
+  int hitbox_height = 54 * SUBPIXELS_IN_PIXEL;
+  int hitbox_offset_y = 8 * SUBPIXELS_IN_PIXEL;
+
+  ReactorCollideBox hurtbox(
+    ReactorCollideType::WALL | ReactorCollideType::HURT_BY_EVIL,
+    hitbox_offset_x,
+    hitbox_width,
+    hitbox_offset_y,
+    hitbox_height
+  );
+
   Animation walk(game, 48, 1);
   walk.set_frame(0, "data/sprite/player_run000.png", "NOSOUND");
   walk.set_frame(6, "data/sprite/player_run001.png", "data/sound/walk.wav");
@@ -25,27 +40,15 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
 
   Animation attack(game, 60, 0);
   attack.set_frame(0, "data/sprite/player_attack000.png", "NOSOUND");
+  //FIXME
+  //attack.add_activator(0, hitbox);
 
   animations.push_back(idle);
   animations.push_back(walk);
   animations.push_back(attack);
   current_animation_index = 0;            // Player is initialized with idle animation
 
-  // FIXME: Placeholder reactor
-  int hitbox_width = 32 * SUBPIXELS_IN_PIXEL;
-  int hitbox_offset_x = 16 * SUBPIXELS_IN_PIXEL;
-  int hitbox_height = 54 * SUBPIXELS_IN_PIXEL;
-  int hitbox_offset_y = 8 * SUBPIXELS_IN_PIXEL;
-
-  ReactorCollideBox hitbox(
-    ReactorCollideType::WALL | ReactorCollideType::HURT_BY_EVIL,
-    hitbox_offset_x,
-    hitbox_width,
-    hitbox_offset_y,
-    hitbox_height
-  );
-
-  reactors.push_back(std::move(hitbox));
+  reactors.push_back(std::move(hurtbox));
 
   speed = (140 * FRAME_RATE) * SUBPIXELS_IN_PIXEL;
   speed_mod = 0;
@@ -104,6 +107,8 @@ void Player::tick() {
     {
       despawn(); 
     }
+
+
   }
 }
 
@@ -120,8 +125,24 @@ void Player::draw()
     else 
       flip = SDL_FLIP_NONE;
 
-    if (game.keyboard.is_pressed(SDL_SCANCODE_J))
-        switch_animation(2);  // attack
+    if (game.keyboard.is_pressed(SDL_SCANCODE_J)){
+
+      ActivatorCollideBox hitbox(
+        ActivatorCollideType::HIT_ALL,
+        24 * SUBPIXELS_IN_PIXEL,
+        15 * SUBPIXELS_IN_PIXEL,
+        16 * SUBPIXELS_IN_PIXEL,
+        15 * SUBPIXELS_IN_PIXEL
+      );
+
+      CollideDamageProps damage;
+      damage.hp_delt = 100;
+      hitbox.damage = damage;
+
+      switch_animation(2);  // attack
+      collide_layers[0].add_activator(hitbox, pos);
+    }
+
 
     if (current_animation_index != 2 || animations[current_animation_index].is_over()){
         immobile(false);
@@ -130,8 +151,11 @@ void Player::draw()
      else
         switch_animation(0);  // idle 
     }
-    if(current_animation_index == 2)
+    if(current_animation_index == 2) 
+    {
+      set_activators(animations[2].get_activators());
       immobile(true);      // Player cannot move while attacking
+    }
 
     SDL_DestroyTexture(texture);
     texture = animations[current_animation_index].play();

@@ -39,3 +39,21 @@ bool Sprite::move_single_axis(Translation trans) {
   }
   return true;
 }
+
+void Sprite::add_colliders() {
+  for (auto& activator: activators) {
+    Pos pos = {.layer = 0, .x = static_cast<int>(x * TILE_SUBPIXEL_SIZE), 
+      .y = static_cast<int>(y * TILE_SUBPIXEL_SIZE)
+  };
+
+  //TODO: Assumes collide layer is always zero
+  collide_layers[0].add_activator(activator, pos);
+}
+
+void Sprite::set_activators(std::vector<ActivatorCollideBox> a) {
+  activators = a;
+}
+
+void Sprite::set_reactors(std::vector<ReactorCollideBox> r) {
+  reactors = r;
+}

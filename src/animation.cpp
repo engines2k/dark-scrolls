@@ -65,6 +65,19 @@ SDL_Texture *Animation::get_frame() {
 	return texture;
 }
 
+std::vector<ReactorCollideBox> Animation::get_reactors() {
+	return frames[current_frame_index]->reactors;
+}
+
+std::vector<ActivatorCollideBox> Animation::get_activators() {
+	return frames[current_frame_index]->activators;
+}
+
+void Animation::add_activator(int fn, ActivatorCollideBox hitbox) {
+	frames[fn]->activators.push_back(hitbox);
+}
+
+
 void Animation::reset() {
 	current_frame_index = 0;
 	start_tick = game.frame_counter.rendered_frames;

@@ -302,6 +302,7 @@ void Level::add_colliders(std::vector<CollideLayer>& collide_layers) {
           Pos pos = {.layer = 0, .x = static_cast<int>(x * TILE_SUBPIXEL_SIZE), 
             .y = static_cast<int>(y * TILE_SUBPIXEL_SIZE)
           };
+          
           //TODO: Assumes collide layer is always zero
           collide_layers[0].add_activator(activator, pos);
         }
