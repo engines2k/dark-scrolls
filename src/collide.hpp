@@ -192,6 +192,11 @@ class CollideLayer {
     }
 
     bool overlaps_activator(ReactorCollideBox react, Pos here, Pos* collide_out = nullptr, ActivatorCollideBox* activator_out = nullptr) {
+      // A reactor without a type cannot overlap any activator
+      if (react.type == 0) {
+        return false;
+      }
+
       here.x += react.offset_x;
       here.y += react.offset_y;
       react.offset_x = 0;
