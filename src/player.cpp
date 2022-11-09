@@ -54,6 +54,27 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
   speed_mod = 0;
 }
 
+void Player::add_colliders() {
+  Sprite::add_colliders();
+  //FIXME: Hack to allow hitbox
+  if (current_animation_index == 2) {
+    ActivatorCollideBox hitbox(
+      //The hitbox overlaps player to hit_evil is required
+      ActivatorCollideType::HIT_EVIL,
+      24 * SUBPIXELS_IN_PIXEL,
+      15 * SUBPIXELS_IN_PIXEL,
+      16 * SUBPIXELS_IN_PIXEL,
+      15 * SUBPIXELS_IN_PIXEL
+    );
+
+    CollideDamageProps damage;
+    damage.hp_delt = 100;
+    hitbox.damage = damage;
+    game.collide_layers[0].add_activator(hitbox, pos);
+  }
+
+}
+
 bool Player::switch_animation(int new_animation_index) {
   // WIP : Needs to return false if the animation currently playing cannot be interrupted.
   bool successful;
@@ -127,20 +148,9 @@ void Player::draw()
 
     if (game.keyboard.is_pressed(SDL_SCANCODE_J)){
 
-      ActivatorCollideBox hitbox(
-        ActivatorCollideType::HIT_ALL,
-        24 * SUBPIXELS_IN_PIXEL,
-        15 * SUBPIXELS_IN_PIXEL,
-        16 * SUBPIXELS_IN_PIXEL,
-        15 * SUBPIXELS_IN_PIXEL
-      );
 
-      CollideDamageProps damage;
-      damage.hp_delt = 100;
-      hitbox.damage = damage;
 
       switch_animation(2);  // attack
-      collide_layers[0].add_activator(hitbox, pos);
     }
 
 

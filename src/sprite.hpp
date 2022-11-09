@@ -17,7 +17,7 @@ class Sprite: public std::enable_shared_from_this<Sprite> {
 
   virtual void draw() = 0;
   virtual void tick() {}
-  virtual void add_colliders() {}
+  virtual void add_colliders();
   virtual void set_reactors(std::vector<ReactorCollideBox> r);
   virtual void set_activators(std::vector<ActivatorCollideBox> a);
 

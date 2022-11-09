@@ -11,6 +11,8 @@ class Player: public Mob {
 
   Player(Game &game, Pos pos);
 
+  virtual void add_colliders() override;
+
   bool is_immobile() const {
     return this->IMMOBILE_FLAG;
   }
