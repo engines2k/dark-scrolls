@@ -12,9 +12,6 @@ bool Sprite::move_single_axis(Translation trans) {
   for (auto& reactor: reactors) {
     ReactorCollideBox wall_reactor = reactor;
     wall_reactor.type &= ReactorCollideType::WALL;
-    if (wall_reactor.type == 0) {
-      continue; // If this hitbox is not effected by walls optimization
-    }
 
     Pos collide_visit;
     ActivatorCollideBox activator;

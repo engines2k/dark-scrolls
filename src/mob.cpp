@@ -7,9 +7,6 @@ void Mob::tick() {
   for (auto& reactor: reactors) {
     ReactorCollideBox hurt_reactor = reactor;
     hurt_reactor.type &= ReactorCollideType::HURT_BY_ANY;
-    if (hurt_reactor.type == 0) {
-      continue;
-    }
 
     ActivatorCollideBox activator;
     if (game.collide_layers[pos.layer].overlaps_activator(hurt_reactor, pos, nullptr, &activator)) {
