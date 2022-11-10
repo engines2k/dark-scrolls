@@ -171,14 +171,6 @@ class Level {
       return layers.size();
     }
 
-    Translation get_camera_offset() {
-      return camera_offset;
-    }
-
-    void set_camera_offset(Translation cam_center) {
-      camera_offset = { cam_center.x, cam_center.y };
-    }
-
     float get_camera_zoom() {
       return camera_zoom;
     }

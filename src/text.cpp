@@ -21,8 +21,7 @@ void Text::draw() {
   texW = 0;
   texH = 0;
   SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
-  Pos screen_pos = game.screen_pos(pos);
-  dstrect = { screen_pos.pixel_x(), screen_pos.pixel_y(), texW, texH };
+  dstrect = { 300, -40, texW, texH };
   SDL_RenderCopy(game.renderer, texture, NULL, &dstrect);
 
   //SDL_FreeSurface(surface);
@@ -68,16 +67,14 @@ void Incantation::draw() {
       this->pos = game.player->get_pos();
       this->pos += Translation {.x = SUBPIXELS_IN_PIXEL * 40, .y = SUBPIXELS_IN_PIXEL * -40 }; /* must be modified later to scale with player*/
 
-      Pos screen_pos = game.screen_pos(pos);
-
       // std::cout << game.player->get_pos_x() << std::endl;
-      dstrect = { screen_pos.pixel_x(), screen_pos.pixel_y(), typed_texW, typed_texH };
+      dstrect = { pos.x, pos.y, typed_texW, typed_texH };
 
       const char *untyped = phrase.substr(index).c_str();
       untyped_surface = TTF_RenderText_Solid(font, untyped, color_grey);
       untyped_texture = SDL_CreateTextureFromSurface(game.renderer, untyped_surface);
       SDL_QueryTexture(untyped_texture, NULL, NULL, &untyped_texW, &untyped_texH);
-      undstrect = { screen_pos.pixel_x() + typed_texW, screen_pos.pixel_y(), untyped_texW, untyped_texH };
+      undstrect = { pos.x + typed_texW, pos.x, untyped_texW, untyped_texH };
       // if(index == 0) undstrect.x = pos.pixel_x();
 
       // center align text

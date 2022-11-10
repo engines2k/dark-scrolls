@@ -20,14 +20,17 @@ private:
  	std::vector<std::shared_ptr<Sprite>> focus_points;
  	Translation offset = {0, 0};
 	float zoom_default;
-	
-	float get_zoom();
+	float zoom_factor;
+
+	SDL_Rect rect_offsetted(const SDL_Rect *r);
 	SDL_Rect rect_scaled(SDL_Rect r);
-	SDL_Rect rect_offsetted(SDL_Rect r);
+
 
 public:
-	void calc_offset();
+
 	Camera(Game &game);
+	void calc_zoom();
+	void calc_offset();
 	void add_focus(std::shared_ptr<Sprite> sprite);
 
 	/* 
@@ -40,17 +43,7 @@ public:
 	int render(	SDL_Renderer *renderer,
 				SDL_Texture *texture,
 				const SDL_Rect *srcrect,
-				const SDL_Rect *dstrect) {
-		// Apply camera offset, de-subpixelize
-		SDL_Rect offset_dst = { dstrect->x, dstrect->y, dstrect->w, dstrect->h };
-		offset_dst.x /= SUBPIXELS_IN_PIXEL;
-		offset_dst.y /= SUBPIXELS_IN_PIXEL;
-		offset_dst.x -= offset.x;
-		offset_dst.y -= offset.y;
-		offset_dst = rect_scaled(offset_dst);
-
-		return SDL_RenderCopy(renderer, texture, srcrect, &offset_dst);
-	}
+				const SDL_Rect *dstrect);
 
 	int render_ex(	SDL_Renderer * renderer,
                    	SDL_Texture * texture,
@@ -58,16 +51,5 @@ public:
                    	SDL_Rect * dstrect,
                    	const double angle,
                    	const SDL_Point *center,
-                   	const SDL_RendererFlip flip) {
-		// Apply camera offset, de-subpixelize
-		SDL_Rect offset_dst = { dstrect->x, dstrect->y, dstrect->w, dstrect->h };
-		offset_dst.x /= SUBPIXELS_IN_PIXEL;
-		offset_dst.y /= SUBPIXELS_IN_PIXEL;
-		offset_dst.x -= offset.x;
-		offset_dst.y -= offset.y;
-		offset_dst = rect_scaled(offset_dst);
-		
-		return SDL_RenderCopyEx(renderer, texture, srcrect, &offset_dst, angle, center, flip);
-
-	}
+                   	const SDL_RendererFlip flip);
 };
