@@ -32,10 +32,13 @@ class Animation {
 	SDL_Texture * play();
 	SDL_Rect rect;
 	void set_frame(int fn, const char *fpath, const char *spath);
+	void set_frame_reactors(int fn, std::vector<ReactorCollideBox> r);
+	void set_frame_activators(int fn, std::vector<ActivatorCollideBox> a);
 	SDL_Texture * get_frame();
 	std::vector<ReactorCollideBox> get_reactors();
 	std::vector<ActivatorCollideBox> get_activators();
-	void add_activator(int fn, ActivatorCollideBox hitbox);
+	void add_reactor(int fn, ReactorCollideBox box);
+	void add_activator(int fn, ActivatorCollideBox box);
 	void reset();
 	bool is_over();
 };

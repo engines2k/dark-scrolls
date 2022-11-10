@@ -38,12 +38,15 @@ void Creep::draw() {
   SDL_RendererFlip flip = SDL_FLIP_NONE;
 
   SDL_Rect rect = shape;
-  Pos screen_pos = game.screen_pos(pos);
-  rect.x = screen_pos.pixel_x();
-  rect.y = screen_pos.pixel_y();
+  // Pos screen_pos = game.screen_pos(pos);
+  // rect.x = screen_pos.pixel_x();
+  // rect.y = screen_pos.pixel_y();
+
+  rect.x = pos.x;
+  rect.y = pos.y;
 
   texture = animations[0].play();
-  SDL_RenderCopyEx(game.renderer, texture, NULL, &rect, 0, NULL, flip);
+  game.camera->render_ex(game.renderer, texture, NULL, &rect, 0, NULL, flip);
 }
 
 

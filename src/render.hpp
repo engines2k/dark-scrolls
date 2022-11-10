@@ -1,9 +1,9 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include "pos.hpp"
-
 class Game;
 
+/*
 class FocusPoint : public Translation {
 
 	
@@ -48,3 +48,4 @@ public:
 
 	}
 };
+*/

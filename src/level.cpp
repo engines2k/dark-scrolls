@@ -8,6 +8,9 @@
 #include <iostream>
 #include "level.hpp"
 #include "MediaManager.hpp"
+#include "game.hpp"
+
+#include <cstdio>
 
 using json = nlohmann::json;
 
@@ -189,12 +192,15 @@ Layer::Layer(std::vector<std::vector<std::shared_ptr<Tile>>> tiles) {
   tile_data = std::move(tiles);
 }
 
-Level::Level(SDL_Renderer* renderer) {
+Level::Level(Game *game, SDL_Renderer* renderer) {
+  this->game = game;
   this->width = 0;
   this->height = 0;
   this->renderer = renderer;
 }
-Level::Level(SDL_Renderer* renderer, const std::filesystem::path& level_loc) {
+
+Level::Level(Game *game, SDL_Renderer* renderer, const std::filesystem::path& level_loc) {
+  this->game = game;
   std::ifstream level_file(level_loc);
   json level_data = json::parse(level_file);
   this->width = level_data["width"].get<uint32_t>();
@@ -244,23 +250,23 @@ Level::Level(SDL_Renderer* renderer, const std::filesystem::path& level_loc) {
 }
 
 void Level::draw() {
-  float tile_scaled = TILE_SIZE * camera_zoom;
+  if(!game){ printf("Level game not initialized!"); abort(); }
   for (auto& layer: layers) {
-    int camera_offset_x = camera_offset.x / SUBPIXELS_IN_PIXEL;
-    int camera_offset_y = camera_offset.y / SUBPIXELS_IN_PIXEL;
-    SDL_Rect dest_loc = {camera_offset_x, camera_offset_y, tile_scaled, tile_scaled};
+    SDL_Rect dest_loc = {0, 0, TILE_SIZE, TILE_SIZE};
     for (auto& row: layer) {
+      //printf("x: %i y: %i\n", dest_loc.x, dest_loc.y);
       for (auto& tile: row) {
         if (!tile->props().invisible) {
-          SDL_RenderCopy(renderer, tile->get_texture(), nullptr, &dest_loc);
+          game->camera->render(renderer, tile->get_texture(), nullptr, &dest_loc);
         }
-        dest_loc.x += tile_scaled;
+        dest_loc.x += TILE_SUBPIXEL_SIZE;
       }
-      dest_loc.x = camera_offset_x;
-      dest_loc.y += tile_scaled;
+      dest_loc.x = 0;
+      dest_loc.y += TILE_SUBPIXEL_SIZE;
     }
   }
 }
+
 void Level::load_tileset(const json& tileset, const std::filesystem::path& tileset_loc, uint32_t first_tid, uint32_t end_tid) {
   std::vector<json> tiles = tileset["tiles"];
   for (auto& tile_data: tiles) {

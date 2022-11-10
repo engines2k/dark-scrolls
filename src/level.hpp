@@ -4,6 +4,8 @@
 #include "pos.hpp"
 #include "collide.hpp"
 
+class Game;
+
 enum class SpriteSpawnType { NONE, PLAYER, CREEP };
 
 struct TileProperties {
@@ -123,8 +125,8 @@ class Layer {
 
 class Level {
   public:
-    Level(SDL_Renderer* renderer);
-    Level(SDL_Renderer* renderer, const std::filesystem::path& level_loc);
+    Level(Game *game, SDL_Renderer* renderer);
+    Level(Game *game, SDL_Renderer* renderer, const std::filesystem::path& level_loc);
 
     void draw();
     Layer& operator[](size_t layer_id) {
@@ -198,6 +200,8 @@ class Level {
     std::unordered_map<uint32_t, std::shared_ptr<Tile>> tilemap;
     // Index order is Layer id y x
     std::vector<Layer> layers;
+
+    Game *game;
 
     Translation camera_offset = {.x = 32 * SUBPIXELS_IN_PIXEL, .y = 32 * SUBPIXELS_IN_PIXEL};
     

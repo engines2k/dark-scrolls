@@ -136,9 +136,8 @@ void Player::tick() {
 void Player::draw()
 {
     SDL_Rect my_rect = SHAPE;
-    Pos screen_pos = game.screen_pos(pos);
-    my_rect.x = screen_pos.pixel_x();
-    my_rect.y = screen_pos.pixel_y();
+    my_rect.x = pos.x;
+    my_rect.y = pos.y;
 
     SDL_RendererFlip flip;    // Flip the sprite if player facing left 
     if(facing_left)
@@ -146,10 +145,8 @@ void Player::draw()
     else 
       flip = SDL_FLIP_NONE;
 
-    if (game.keyboard.is_pressed(SDL_SCANCODE_J)){
-
-
-
+    if (game.keyboard.is_pressed(SDL_SCANCODE_J))
+    {
       switch_animation(2);  // attack
     }
 
@@ -170,5 +167,5 @@ void Player::draw()
     SDL_DestroyTexture(texture);
     texture = animations[current_animation_index].play();
 
-    SDL_RenderCopyEx(game.renderer, texture, NULL, &my_rect, 0, NULL, flip);
+    game.camera->render_ex(game.renderer, texture, NULL, &my_rect, 0, NULL, flip);
 }

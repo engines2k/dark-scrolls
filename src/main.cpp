@@ -49,7 +49,7 @@ uint32_t game_timer(uint32_t rate, void *game_ptr) {
   return rate;
 }
 
-void Game::set_cam_trans() {
+void Game::set_cam_trans() { // SOON TO BE DEPRECATED
   // Center the render on the player
   if(player != NULL) {
     Pos p = player->get_pos();
@@ -64,8 +64,6 @@ void Game::tick() {
   SDL_SetRenderTarget(renderer, nullptr);
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
-
-  set_cam_trans();
 
   current_level.draw();
 
@@ -82,6 +80,9 @@ void Game::tick() {
     sprite->tick();
     sprite->draw();
   }
+
+  //set_cam_trans();
+  camera->calc_offset();
 
   std::vector<std::shared_ptr<Sprite>> next_sprite_list;
 
@@ -133,8 +134,16 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  Game game(SDL_CreateRenderer(window, -1, 0));
-  game.current_level = Level(game.renderer, game.data_path / "level/test_room_2.tmj");
+  
+  Game game(SDL_CreateRenderer(window, -1, 0)); 
+  
+  game.camera = std::make_shared<Camera>(game);
+  if (!game.camera) {
+    std::cerr << "Camera not initialized" << std::endl;
+    abort();
+  }
+
+  game.current_level = Level(&game, game.renderer, game.data_path / "level/test_room_2.tmj");
   for (unsigned layer_id = 0; layer_id < game.current_level.size(); layer_id++) {
     for (unsigned y = 0; y < game.current_level[layer_id].size(); y++) {
       for (unsigned x = 0; x < game.current_level[layer_id][y].size(); x++) {
@@ -174,6 +183,8 @@ int main(int argc, char *argv[]) {
     std::cerr << "Player not found in level" << std::endl;
     abort();
   }
+
+  game.camera->add_focus(game.player);
 
   game.sprite_list.push_back(game.player);
   game.sprite_list.push_back(std::make_shared<Text>(Text((char*)"Welcome to Dark Scrolls", game, Pos {.layer = 0, .x = 220 * SUBPIXELS_IN_PIXEL, .y = -27 * SUBPIXELS_IN_PIXEL})));

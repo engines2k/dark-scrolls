@@ -60,6 +60,16 @@ void Animation::set_frame(int fn, const char *fpath, const char *spath)
 	frames.emplace(fn, std::make_shared<AnimationFrame>(fn, fpath, spath));
 }
 
+void Animation::set_frame_reactors(int fn, std::vector<ReactorCollideBox> r)
+{
+	frames[fn]->reactors = r;
+}
+
+void Animation::set_frame_activators(int fn, std::vector<ActivatorCollideBox> a)
+{
+	frames[fn]->activators = a;
+}
+
 SDL_Texture *Animation::get_frame() {
 	SDL_Texture *texture = mediaManager.readIMG(game.renderer, frames[current_frame_index]->frame_path);
 	return texture;
@@ -72,11 +82,14 @@ std::vector<ReactorCollideBox> Animation::get_reactors() {
 std::vector<ActivatorCollideBox> Animation::get_activators() {
 	return frames[current_frame_index]->activators;
 }
-
-void Animation::add_activator(int fn, ActivatorCollideBox hitbox) {
-	frames[fn]->activators.push_back(hitbox);
+/*
+void Animation::add_activator(int fn, ActivatorCollideBox 	box) {
+	frames[fn]->activators.push_back(box);
 }
 
+void Animation::add_reactor(int fn, ReactorCollideBox box) {
+	frames[fn]->activators.push_back(&box);
+}*/
 
 void Animation::reset() {
 	current_frame_index = 0;
