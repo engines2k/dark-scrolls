@@ -50,10 +50,11 @@ Incantation::Incantation(std::string n_phrase, Game &game, Pos pos) : Sprite(gam
 }
 
 void Incantation::tick() {
+
   if (game.keyboard.is_pressed(SDL_SCANCODE_RETURN)) {
       if(index >= phrase.length()) {
-        Mix_PlayChannel(-1, type_finish_sound, 0);
         game.player->immobile(false);
+        Mix_PlayChannel(-1, type_finish_sound, 0);
         game.player->speed_mod = 60;
         despawn();
       } else if(typed_surface == NULL) {
@@ -85,28 +86,26 @@ void Incantation::draw() {
       this->pos = game.player->get_pos();
       this->pos += Translation {.x = SUBPIXELS_IN_PIXEL * 40, .y = SUBPIXELS_IN_PIXEL * -40 }; /* must be modified later to scale with player*/
 
-      // std::cout << game.player->get_pos_x() << std::endl;
       dstrect = { pos.x, pos.y, typed_texW, typed_texH };
 
       const char *untyped = phrase.substr(index).c_str();
       untyped_surface = TTF_RenderText_Solid(font, untyped, color_grey);
       untyped_texture = SDL_CreateTextureFromSurface(game.renderer, untyped_surface);
       SDL_QueryTexture(untyped_texture, NULL, NULL, &untyped_texW, &untyped_texH);
-      undstrect = { pos.x + typed_texW, pos.x, untyped_texW, untyped_texH };
-      // if(index == 0) undstrect.x = pos.pixel_x();
+      undstrect = { pos.x + (typed_texW * SUBPIXELS_IN_PIXEL), pos.y, untyped_texW, untyped_texH };
 
-      // center align text
-      int offset_center = (dstrect.w + undstrect.w) / 2.05;
+      // Center align incantation
+      int offset_center = (dstrect.w + undstrect.w * SUBPIXELS_IN_PIXEL) / 2.05;
       dstrect.x -= offset_center;
       undstrect.x -= offset_center;
     }
     
-    SDL_RenderCopy(game.renderer, typed_texture, NULL, &dstrect);
-    SDL_RenderCopy(game.renderer, untyped_texture, NULL, &undstrect);
+    game.camera->render(game.renderer, typed_texture, NULL, &dstrect);
+    game.camera->render(game.renderer, untyped_texture, NULL, &undstrect);
 
     SDL_FreeSurface(typed_surface);
-    typed_surface = nullptr;
     SDL_FreeSurface(untyped_surface);
+    typed_surface = nullptr;
     untyped_surface = nullptr;
 
     SDL_DestroyTexture(typed_texture);
