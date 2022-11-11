@@ -1,10 +1,6 @@
 #include "camera.hpp"
 #include <cstdlib>
 
-// Included for debugging. Not neccesary.
-#include <cstdio>
-#include "game.hpp"
-
 const int WIDTH = 800, HEIGHT = 600;
 
 Camera::Camera(Game &game): game(game){
@@ -31,17 +27,10 @@ void Camera::calc_offset() {
 			o.x = o.x + p.x;
 			o.y = o.y + p.y;
 		}
-
 		o.x = (o.x / fp_size) - (WIDTH * SUBPIXELS_IN_PIXEL / 2);
 		o.y = (o.y / fp_size) - (HEIGHT * SUBPIXELS_IN_PIXEL / 2);
-
-		
 	}
-
-
 	offset = o;
-	// if(game.frame_counter.rendered_frames % 10 == 0)
-	// printf("offset: %i %i\n", offset.x, offset.y);
 }
 
 void Camera::calc_zoom() {
@@ -89,7 +78,6 @@ void Camera::calc_zoom() {
 		if(delt < subpixeled_axis) delt = subpixeled_axis;	// Failsafe for small delts
 
 		z = static_cast<float>(WIDTH) / delt;
-		// printf("delt(*1.2): %i\nx_min: %i\nx_max: %i\ny_min: %i\ny_max: %i\nz: %f\n", delt, x_min, x_max, y_min, y_max, z);
 	}
 
 	// zoom_factor = z; // Commented out for testing
@@ -116,29 +104,6 @@ SDL_Rect Camera::rect_scaled(SDL_Rect r) {
 	return result;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 int Camera::render(	SDL_Renderer *renderer,
 					SDL_Texture *texture,
 					const SDL_Rect *srcrect,
@@ -146,6 +111,7 @@ int Camera::render(	SDL_Renderer *renderer,
 
 	SDL_Rect offset_dst = rect_offsetted(dstrect);
 	offset_dst = rect_scaled(offset_dst);
+	// .x and .y are sprite positions
 	offset_dst.x /= SUBPIXELS_IN_PIXEL;
 	offset_dst.y /= SUBPIXELS_IN_PIXEL;
 
@@ -162,13 +128,20 @@ int Camera::render_ex(	SDL_Renderer * renderer,
 
 	SDL_Rect offset_dst = rect_offsetted(dstrect);
 	offset_dst = rect_scaled(offset_dst);
-	// .w and .h shouldn't be desubbed
 	offset_dst.x /= SUBPIXELS_IN_PIXEL;
 	offset_dst.y /= SUBPIXELS_IN_PIXEL;
 
-	// if(game.frame_counter.rendered_frames % 10 == 0)
-	// printf("offset: %i %i\n", offset.x, offset.y);
-
 	return SDL_RenderCopyEx(renderer, texture, srcrect, &offset_dst, angle, center, flip);
 
+}
+
+int Camera::fill_rect( 	SDL_Renderer * renderer,
+						SDL_Rect * dstrect) {
+
+	SDL_Rect offset_dst = rect_offsetted(dstrect);
+	offset_dst = rect_scaled(offset_dst);
+	offset_dst.x /= SUBPIXELS_IN_PIXEL;
+	offset_dst.y /= SUBPIXELS_IN_PIXEL;
+
+	return SDL_RenderFillRect(renderer, &offset_dst);
 }

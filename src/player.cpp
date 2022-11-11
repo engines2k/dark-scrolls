@@ -135,6 +135,7 @@ void Player::tick() {
 
 void Player::draw()
 {
+    Mob::draw();
     SDL_Rect my_rect = SHAPE;
     my_rect.x = pos.x;
     my_rect.y = pos.y;
@@ -165,9 +166,6 @@ void Player::draw()
     }
 
     texture = animations[current_animation_index].play();
-
-    // if(game.frame_counter.rendered_frames % 10 == 0)
-    // printf("player pos: %i %i\n", pos.x, pos.y);
 
     game.camera->render_ex(game.renderer, texture, NULL, &my_rect, 0, NULL, flip);
 }

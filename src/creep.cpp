@@ -35,6 +35,7 @@ Creep::Creep(Game &game, Pos pos): Mob(game, pos) {
 }
 
 void Creep::draw() {
+  Mob::draw();
   SDL_RendererFlip flip = SDL_FLIP_NONE;
 
   SDL_Rect rect = shape;

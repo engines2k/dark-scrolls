@@ -4,7 +4,6 @@
 #include <memory>
 #include "pos.hpp"
 #include "sprite.hpp"
-#include <cstdio>
 
 class Game;
 
@@ -52,4 +51,7 @@ public:
                    	const double angle,
                    	const SDL_Point *center,
                    	const SDL_RendererFlip flip);
+
+	int fill_rect(	SDL_Renderer * renderer,
+                   	SDL_Rect * dstrect);
 };
