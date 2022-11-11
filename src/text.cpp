@@ -21,8 +21,8 @@ void Text::draw() {
   texW = 0;
   texH = 0;
   SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
-  dstrect = { 300, -40, texW, texH };
-  SDL_RenderCopy(game.renderer, texture, NULL, &dstrect);
+  dstrect = { 300 * SUBPIXELS_IN_PIXEL, -40 * SUBPIXELS_IN_PIXEL, texW, texH };
+  game.camera->render(game.renderer, texture, NULL, &dstrect);
 
   //SDL_FreeSurface(surface);
   SDL_DestroyTexture(texture);
