@@ -16,8 +16,8 @@ struct TileProperties {
 
 class Tile {
   public:
-    Tile(SDL_Renderer* renderer, const std::filesystem::path& tileset_loc, uint32_t id, const nlohmann::json& j);
-    Tile(SDL_Renderer* renderer, SDL_Texture* texture, uint32_t id, TileProperties properties);
+    Tile(Game& game, const std::filesystem::path& tileset_loc, uint32_t id, const nlohmann::json& j);
+    Tile(Game& game, SDL_Texture* texture, uint32_t id, TileProperties properties);
     uint32_t get_id() const {
       return id;
     }
@@ -30,9 +30,9 @@ class Tile {
     const TileProperties& props() const {
       return properties;
     }
-    Tile horizontal_flip();
-    Tile vertical_flip();
-    Tile diagonal_flip();
+    Tile horizontal_flip(Game& game);
+    Tile vertical_flip(Game& game);
+    Tile diagonal_flip(Game& game);
 
     Tile(const Tile& other) noexcept;
 
@@ -125,8 +125,8 @@ class Layer {
 
 class Level {
   public:
-    Level(Game *game, SDL_Renderer* renderer);
-    Level(Game *game, SDL_Renderer* renderer, const std::filesystem::path& level_loc);
+    Level(Game &game);
+    Level(Game &game, const std::filesystem::path& level_loc);
 
     void draw();
     Layer& operator[](size_t layer_id) {
@@ -188,7 +188,6 @@ class Level {
 
     uint32_t width;
     uint32_t height;
-    SDL_Renderer* renderer;
     std::unordered_map<uint32_t, std::shared_ptr<Tile>> tilemap;
     // Index order is Layer id y x
     std::vector<Layer> layers;

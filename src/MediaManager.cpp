@@ -1,9 +1,13 @@
 #include "MediaManager.hpp"
 #include <iostream>
 
-SDL_Texture *MediaManager::readIMG(SDL_Renderer *renderer, std::string filename) {
-    
-    if (images.find(filename) == images.end()) {
+MediaManager::MediaManager(SDL_Renderer* renderer) {
+    this->renderer = renderer;
+}
+
+SDL_Surface *MediaManager::readSurface(std::string filename) {
+    auto surface_iter = surfaces.find(filename);
+    if (surface_iter == surfaces.end()) {
         
         SDL_Surface *surface = IMG_Load(filename.c_str());
         //surface = 
@@ -13,43 +17,32 @@ SDL_Texture *MediaManager::readIMG(SDL_Renderer *renderer, std::string filename)
             abort();
         }
 
-        SDL_Texture *image = SDL_CreateTextureFromSurface(renderer, surface);
+        surfaces[filename] = surface;
 
-        SDL_FreeSurface(surface);
-        images[filename] = image;
-
-        return image;	
+        return surface;
     }
     
-    SDL_Texture* texture = images[filename];
-
-    return texture;
+    return surface_iter->second;
 }
 
-SDL_Texture *MediaManager::readSurface(SDL_Renderer *renderer, std::string filename) {
-    
-    if (images.find(filename) == images.end()) { 
-        SDL_Surface *surface = IMG_Load(filename.c_str());
+SDL_Texture *MediaManager::readTexture(std::string filename) {
+    auto texture_iter = textures.find(filename);
+    if (texture_iter == textures.end()) { 
+        SDL_Surface *surface = readSurface(filename.c_str());
 
         if (surface == NULL) {
-            printf("Image error: %s\n", SDL_GetError());
+            printf("Texture error: %s\n", SDL_GetError());
             abort();
         }
 
-        SDL_Texture *image = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
         
-        surfaces[filename] = surface;
+        textures[filename] = texture;
 
-        SDL_FreeSurface(surface);
-
-        return image;	
+        return texture;	
     }
 
-    SDL_Surface *surface = surfaces[filename];
-    SDL_Texture *image = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
-
-    return image;
+    return texture_iter->second;
 }
 
 Mix_Chunk *MediaManager::readWAV(std::string filename) { 
@@ -60,6 +53,8 @@ Mix_Chunk *MediaManager::readWAV(std::string filename) {
             printf("Sound error: %s\n", SDL_GetError());
             abort();
         }
+
+        sounds[filename] = waves;
 
         return waves;
     }
@@ -84,7 +79,7 @@ TTF_Font *MediaManager::readFont(std::string filename, int size) {
     return font;
 } 
 
-SDL_Texture *MediaManager::showFont(SDL_Renderer *renderer, TTF_Font *font, char *text, SDL_Color color) {   
+SDL_Texture *MediaManager::showFont(TTF_Font *font, char *text, SDL_Color color) {   
     SDL_Texture *texture = NULL;
     SDL_Surface *surface = NULL;
     
@@ -102,21 +97,9 @@ SDL_Texture *MediaManager::showFont(SDL_Renderer *renderer, TTF_Font *font, char
     return texture;	
 }
 
-
-SDL_Texture *MediaManager::readTile(SDL_Renderer *renderer, std::string filename) {
-    if (tiles.find(filename) == tiles.end()) {
-        SDL_Texture *tile = IMG_LoadTexture(renderer, filename.c_str());
-
-        if (!tile) {
-            printf("Tile load failed: %s\n", IMG_GetError());
-            abort();
-        }
-
-        return tile;
+void MediaManager::flushTextureCache() {
+    for (auto& texture: textures) {
+        SDL_DestroyTexture(texture.second);
     }
-
-    SDL_Texture *tile = tiles[filename];
-    return tile;
+    textures.clear();
 }
-
-MediaManager mediaManager;

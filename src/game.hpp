@@ -3,6 +3,7 @@
 #include "keyboard_manager.hpp"
 #include "collide.hpp"
 #include "camera.hpp"
+#include "MediaManager.hpp"
 #include <mutex>
 
 constexpr double FRAME_RATE = 1.0 / 60.0;
@@ -16,7 +17,7 @@ class Player;
 
 class Game: public std::enable_shared_from_this<Game> {
   public:
-  Game(SDL_Renderer *renderer): renderer(renderer), current_level(this, renderer) {
+  Game(SDL_Renderer *renderer): renderer(renderer), current_level(*this), media(renderer) {
     // FIXME: Figure out how to determine max collide layers
     collide_layers.resize(1);
   }
@@ -32,6 +33,7 @@ class Game: public std::enable_shared_from_this<Game> {
   std::vector<std::shared_ptr<Sprite>> sprite_list;
   std::shared_ptr<Player> player = NULL;
   std::vector<CollideLayer> collide_layers;
+  MediaManager media;
 
   //Text test_text;
 

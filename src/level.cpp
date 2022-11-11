@@ -14,18 +14,18 @@
 
 using json = nlohmann::json;
 
-Tile::Tile(SDL_Renderer* renderer, const std::filesystem::path& tileset_loc, uint32_t id, const json& j) {
+Tile::Tile(Game& game, const std::filesystem::path& tileset_loc, uint32_t id, const json& j) {
   std::string texture_path = j["image"];
   std::string texture_fullpath = (tileset_loc.parent_path() / texture_path).u8string();
   
-  SDL_Texture* tex = mediaManager.readTile(renderer, texture_fullpath.c_str());
+  SDL_Texture* tex = game.media.readTexture(texture_fullpath.c_str());
   
   SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
-  SDL_Texture* big_tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, TILE_SIZE, TILE_SIZE);
+  SDL_Texture* big_tex = SDL_CreateTexture(game.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, TILE_SIZE, TILE_SIZE);
   SDL_SetTextureBlendMode(big_tex, SDL_BLENDMODE_BLEND);
-  SDL_SetRenderTarget(renderer, big_tex);
+  SDL_SetRenderTarget(game.renderer, big_tex);
   SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_NONE);
-  SDL_RenderCopy(renderer, tex, nullptr, nullptr);
+  SDL_RenderCopy(game.renderer, tex, nullptr, nullptr);
   SDL_DestroyTexture(tex);
   tex = big_tex;
 
@@ -95,19 +95,19 @@ Tile::Tile(SDL_Renderer* renderer, const std::filesystem::path& tileset_loc, uin
     }
   }
 
-  this->renderer = renderer;
+  this->renderer = game.renderer;
   this->texture = tex;
   this->id = id;
   backup_texture();
 }
-Tile::Tile(SDL_Renderer* renderer, SDL_Texture* texture, uint32_t id, TileProperties properties) {
+Tile::Tile(Game &game, SDL_Texture* texture, uint32_t id, TileProperties properties) {
   this->texture = texture;
-  this->renderer = renderer;
+  this->renderer = game.renderer;
   this->id = id;
   this->properties = properties;
   backup_texture();
 }
-Tile Tile::horizontal_flip() {
+Tile Tile::horizontal_flip(Game& game) {
   SDL_Texture* fliped = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, TILE_SIZE, TILE_SIZE);
   SDL_SetTextureBlendMode(fliped, SDL_BLENDMODE_BLEND);
   SDL_SetRenderTarget(renderer, fliped);
@@ -121,9 +121,9 @@ Tile Tile::horizontal_flip() {
     activator.offset_x = (SUBPIXELS_IN_PIXEL * 32) - end_x;
   }
 
-  return Tile(renderer, fliped, id | 0x80000000, std::move(props));
+  return Tile(game, fliped, id | 0x80000000, std::move(props));
 }
-Tile Tile::vertical_flip() {
+Tile Tile::vertical_flip(Game& game) {
   SDL_Texture* fliped = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, TILE_SIZE, TILE_SIZE);
   SDL_SetTextureBlendMode(fliped, SDL_BLENDMODE_BLEND);
   SDL_SetRenderTarget(renderer, fliped);
@@ -137,9 +137,9 @@ Tile Tile::vertical_flip() {
     activator.offset_y = (SUBPIXELS_IN_PIXEL * TILE_SIZE) - end_y;
   }
 
-  return Tile(renderer, fliped, id | 0x40000000, std::move(props));
+  return Tile(game, fliped, id | 0x40000000, std::move(props));
 }
-Tile Tile::diagonal_flip() {
+Tile Tile::diagonal_flip(Game& game) {
   SDL_Texture* fliped = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, TILE_SIZE, TILE_SIZE);
   SDL_SetTextureBlendMode(fliped, SDL_BLENDMODE_BLEND);
   SDL_SetRenderTarget(renderer, fliped);
@@ -156,7 +156,7 @@ Tile Tile::diagonal_flip() {
     );
   }
 
-  return Tile(renderer, fliped, id | 0x20000000, std::move(props));
+  return Tile(game, fliped, id | 0x20000000, std::move(props));
 }
 
 Tile::Tile(const Tile& other) noexcept {
@@ -192,21 +192,19 @@ Layer::Layer(std::vector<std::vector<std::shared_ptr<Tile>>> tiles) {
   tile_data = std::move(tiles);
 }
 
-Level::Level(Game *game, SDL_Renderer* renderer) {
-  this->game = game;
+Level::Level(Game &game) {
+  this->game = &game;
   this->width = 0;
   this->height = 0;
-  this->renderer = renderer;
 }
 
-Level::Level(Game *game, SDL_Renderer* renderer, const std::filesystem::path& level_loc) {
-  this->game = game;
+Level::Level(Game &game, const std::filesystem::path& level_loc) {
+  this->game = &game;
   std::ifstream level_file(level_loc);
   json level_data = json::parse(level_file);
   this->width = level_data["width"].get<uint32_t>();
   this->height = level_data["height"].get<uint32_t>();
-  this->renderer = renderer;
-  std::shared_ptr<Tile> empty = std::make_shared<Tile>(Tile(renderer, nullptr, 0, TileProperties()));
+  std::shared_ptr<Tile> empty = std::make_shared<Tile>(Tile(game, nullptr, 0, TileProperties()));
   empty->props().invisible = true;
   tilemap.insert(std::pair(0, std::move(empty)));
 
@@ -257,7 +255,7 @@ void Level::draw() {
       //printf("x: %i y: %i\n", dest_loc.x, dest_loc.y);
       for (auto& tile: row) {
         if (!tile->props().invisible) {
-          game->camera->render(renderer, tile->get_texture(), nullptr, &dest_loc);
+          game->camera->render(game->renderer, tile->get_texture(), nullptr, &dest_loc);
         }
         dest_loc.x += TILE_SUBPIXEL_SIZE;
       }
@@ -274,18 +272,18 @@ void Level::load_tileset(const json& tileset, const std::filesystem::path& tiles
     if (global_tile_id > end_tid) {
       continue;
     }
-    Tile base_tile(renderer, tileset_loc, global_tile_id, tile_data);
+    Tile base_tile(*game, tileset_loc, global_tile_id, tile_data);
 
     for (int flip_bits = 0; flip_bits < 0x8; flip_bits++) {
       Tile new_tile = base_tile;
       if ((flip_bits & 0x1) == 0x1) {
-        new_tile = new_tile.diagonal_flip();
+        new_tile = new_tile.diagonal_flip(*game);
       }
       if ((flip_bits & 0x2) == 0x2) {
-        new_tile = new_tile.horizontal_flip();
+        new_tile = new_tile.horizontal_flip(*game);
       }
       if ((flip_bits & 0x4) == 0x4) {
-        new_tile = new_tile.vertical_flip();
+        new_tile = new_tile.vertical_flip(*game);
       }
       tilemap.insert(std::pair(new_tile.get_id(), std::make_shared<Tile>(std::move(new_tile))));
     }

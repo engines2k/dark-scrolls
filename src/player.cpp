@@ -164,7 +164,6 @@ void Player::draw()
       immobile(true);      // Player cannot move while attacking
     }
 
-    SDL_DestroyTexture(texture);
     texture = animations[current_animation_index].play();
 
     // if(game.frame_counter.rendered_frames % 10 == 0)

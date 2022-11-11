@@ -44,12 +44,12 @@ SDL_Texture* Animation::play()
 		const char *p = frames[current_frame_index]->sound;
 		
 		if (strcmp(p, "NOSOUND")) {
-			Mix_Chunk *s = mediaManager.readWAV(p);
+			Mix_Chunk *s = game.media.readWAV(p);
 			Mix_PlayChannel(-1, s, 0);
 		}
 	}
 
-    SDL_Texture *tex = mediaManager.readSurface(game.renderer, frames[current_frame_index]->frame_path);
+    SDL_Texture *tex = game.media.readTexture(frames[current_frame_index]->frame_path);
 
 	return tex;
 }
@@ -71,7 +71,7 @@ void Animation::set_frame_activators(int fn, std::vector<ActivatorCollideBox> a)
 }
 
 SDL_Texture *Animation::get_frame() {
-	SDL_Texture *texture = mediaManager.readIMG(game.renderer, frames[current_frame_index]->frame_path);
+	SDL_Texture *texture = game.media.readTexture(frames[current_frame_index]->frame_path);
 	return texture;
 }
 

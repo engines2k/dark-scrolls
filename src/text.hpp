@@ -56,23 +56,7 @@ class Incantation : public Sprite {
   std::shared_ptr<Sprite> player;
 
   public:
-  Incantation(std::string n_phrase, Game &game, Pos pos) : Sprite(game, pos) 
-  {
-    char font_path[261];
-    // snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
-    snprintf(font_path, 261, "./data/font/alagard.ttf");
-    
-    font = mediaManager.readFont(font_path, 25);
-    
-    type_sound = mediaManager.readWAV("data/sound/type.wav");
-    
-    type_finish_sound = mediaManager.readWAV("data/sound/type_finish.wav");
-
-    type_init_sound = mediaManager.readWAV("data/sound/type_init.wav");
-
-    index = 0;
-    phrase = n_phrase;
-  }
+  Incantation(std::string n_phrase, Game &game, Pos pos);
 
   void tick();
   void draw();
