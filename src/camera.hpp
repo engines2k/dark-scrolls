@@ -21,8 +21,9 @@ private:
 	float zoom_default;
 	float zoom_factor;
 
-	SDL_Rect rect_offsetted(const SDL_Rect *r);
+	SDL_Rect rect_offsetted(SDL_Rect r);
 	SDL_Rect rect_scaled(SDL_Rect r);
+	SDL_Rect rect_processed(SDL_Rect r);
 
 
 public:
