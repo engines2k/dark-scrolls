@@ -52,7 +52,7 @@ class Incantation : public Sprite {
 
   std::string phrase;
   uint32_t index;
-  bool inc_btn_pressed;
+  bool inc_btn_pressed = false;
   std::shared_ptr<Sprite> player;
 
   public:
@@ -60,7 +60,7 @@ class Incantation : public Sprite {
   {
     char font_path[261];
     // snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
-    snprintf(font_path, 261, ".\\data\\font\\alagard.ttf");
+    snprintf(font_path, 261, "./data/font/alagard.ttf");
     
     font = mediaManager.readFont(font_path, 25);
     

@@ -28,7 +28,7 @@ class Game: public std::enable_shared_from_this<Game> {
   FrameCounter frame_counter;
   std::mutex frame_counter_lock;
   Level current_level;
-  std::filesystem::path data_path = std::filesystem::path(_pgmptr).parent_path() / "data";
+  std::filesystem::path data_path = calc_data_path();
   std::vector<std::shared_ptr<Sprite>> sprite_list;
   std::shared_ptr<Player> player = NULL;
   std::vector<CollideLayer> collide_layers;
@@ -36,5 +36,6 @@ class Game: public std::enable_shared_from_this<Game> {
   //Text test_text;
 
   void tick();
-
+  private:
+  static std::filesystem::path calc_data_path();
 };

@@ -10,7 +10,7 @@ Text::Text(char *n_text, Game &game, Pos pos, SDL_Color n_color) : Sprite(game, 
   text = n_text;
   char font_path[261];
   //snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
-  snprintf(font_path, 261, ".\\data\\font\\alagard.ttf");
+  snprintf(font_path, 261, "./data/font/alagard.ttf");
   font = mediaManager.readFont(font_path, 25);
 }
 

@@ -1,4 +1,5 @@
 build
+dark_scrolls
 *.o
 *.exe
 .vscode/
