@@ -4,7 +4,7 @@
 const int WIDTH = 800, HEIGHT = 600;
 
 Camera::Camera(Game &game): game(game){
-	zoom_default = 1;
+	zoom_default = 1.5;
 	zoom_factor = zoom_default;
 }
 
