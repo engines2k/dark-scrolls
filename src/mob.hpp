@@ -31,7 +31,7 @@ class Mob: public Sprite {
   }
 
   virtual void tick();
-  virtual void draw();
+  virtual void draw(SDL_Rect shape);
 
   protected:
   bool show_health;

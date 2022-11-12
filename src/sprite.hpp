@@ -53,6 +53,7 @@ class Sprite: public std::enable_shared_from_this<Sprite> {
   protected:
   Pos pos;
   bool spawn_flag = true;
+  bool facing_left = false;
   Game &game;
   std::vector<ReactorCollideBox> reactors;
   std::vector<ActivatorCollideBox> activators;

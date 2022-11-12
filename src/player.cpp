@@ -12,7 +12,7 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
 {
   // FIXME: Placeholder reactor
   int hitbox_width = 32 * SUBPIXELS_IN_PIXEL;
-  int hitbox_offset_x = 16 * SUBPIXELS_IN_PIXEL;
+  int hitbox_offset_x = 17 * SUBPIXELS_IN_PIXEL;
   int hitbox_height = 54 * SUBPIXELS_IN_PIXEL;
   int hitbox_offset_y = 8 * SUBPIXELS_IN_PIXEL;
 
@@ -27,7 +27,7 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
   ActivatorCollideBox hitbox(
     //The hitbox overlaps player to hit_evil is required
     ActivatorCollideType::HIT_EVIL,
-    24 * SUBPIXELS_IN_PIXEL,
+    0 * SUBPIXELS_IN_PIXEL,
     15 * SUBPIXELS_IN_PIXEL,
     16 * SUBPIXELS_IN_PIXEL,
     15 * SUBPIXELS_IN_PIXEL
@@ -53,7 +53,7 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
 
   Animation attack(game, 30, 0);
   attack.set_frame(0, "data/sprite/player_attack000.png", "NOSOUND");
-  attack.set_frame(10, "data/sprite/player_run001.png", "NOSOUND");
+  attack.set_frame(1, "data/sprite/player_run001.png", "NOSOUND");
 
   // //FIXME
   attack.add_activator(0, hitbox);
@@ -91,6 +91,7 @@ bool Player::switch_animation(int new_animation_index) {
   bool successful;
     if(new_animation_index != current_animation_index){
       animations[current_animation_index].reset();
+      animations[new_animation_index].reset();
       current_animation_index = new_animation_index;
     }
     successful = true;
@@ -104,7 +105,7 @@ void Player::tick() {
 
   int mspeed = speed + int(speed_mod * FRAME_RATE * SUBPIXELS_IN_PIXEL);
 
-      if (game.keyboard.is_pressed(SDL_SCANCODE_J))
+      if (game.keyboard.is_pressed(SDL_SCANCODE_J) || current_animation_index == 2)
     {
       switch_animation(2);  // attack
     }
@@ -115,7 +116,7 @@ void Player::tick() {
       if (moving)
         switch_animation(1);  // walk
      else
-        switch_animation(0);  // idle 
+        switch_animation(0);  // idle     
     }
 
   if(current_animation_index == 2) 
@@ -167,8 +168,8 @@ void Player::tick() {
 
 void Player::draw()
 {
-    Mob::draw();
     SDL_Rect my_rect = SHAPE;
+    Mob::draw(SHAPE);
     my_rect.x = pos.x;
     my_rect.y = pos.y;
 

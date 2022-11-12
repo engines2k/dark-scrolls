@@ -17,25 +17,25 @@ void Mob::tick() {
       activator.on_recoil(collide_at, hurt_reactor);
     }
   }
-  if(hp < 0) despawn();
+  if(hp < 1) despawn();
 }
 
-void Mob::draw() {
+void Mob::draw(SDL_Rect shape) {
   // Draw health bar
   if(show_health) {
     if(hp == 0 ) return;
     int bar_width = 30;
     double h_ratio = static_cast<float>(hp) / max_hp;
-    // Fix these later: render center below mob, use SHAPE
-    SDL_Rect bar_green = {pos.x,
-                          pos.y, 
+    int center_left = pos.x + ((shape.w - bar_width) / 2 * SUBPIXELS_IN_PIXEL);
+    SDL_Rect bar_green = { center_left,
+                          pos.y - 10 * SUBPIXELS_IN_PIXEL, 
                           static_cast<int>(bar_width*h_ratio),
-                          6};
+                          5};
 
-    SDL_Rect bar_red = {pos.x + bar_green.w * SUBPIXELS_IN_PIXEL,
-                        pos.y,
+    SDL_Rect bar_red = {center_left + bar_green.w * SUBPIXELS_IN_PIXEL,
+                        pos.y - 10 * SUBPIXELS_IN_PIXEL,
                         static_cast<int>(bar_width*(1 - h_ratio)),
-                        6};
+                        5};
 
     SDL_SetRenderDrawColor(game.renderer, 255, 0, 0, 255);
     game.camera->fill_rect(game.renderer, &bar_red);
