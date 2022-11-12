@@ -24,6 +24,19 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
     hitbox_height
   );
 
+  ActivatorCollideBox hitbox(
+    //The hitbox overlaps player to hit_evil is required
+    ActivatorCollideType::HIT_EVIL,
+    24 * SUBPIXELS_IN_PIXEL,
+    15 * SUBPIXELS_IN_PIXEL,
+    16 * SUBPIXELS_IN_PIXEL,
+    15 * SUBPIXELS_IN_PIXEL
+  );
+
+  CollideDamageProps damage;
+  damage.hp_delt = 40;
+  hitbox.damage = damage;
+
   Animation walk(game, 48, 1);
   walk.set_frame(0, "data/sprite/player_run000.png", "NOSOUND");
   walk.set_frame(6, "data/sprite/player_run001.png", "data/sound/walk.wav");
@@ -38,10 +51,12 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
   idle.set_frame(0, "data/sprite/player_idle000.png", "NOSOUND");
   idle.set_frame(35, "data/sprite/player_idle001.png", "NOSOUND");
 
-  Animation attack(game, 60, 0);
+  Animation attack(game, 30, 0);
   attack.set_frame(0, "data/sprite/player_attack000.png", "NOSOUND");
-  //FIXME
-  //attack.add_activator(0, hitbox);
+  attack.set_frame(10, "data/sprite/player_run001.png", "NOSOUND");
+
+  // //FIXME
+  attack.add_activator(0, hitbox);
 
   animations.push_back(idle);
   animations.push_back(walk);
@@ -58,26 +73,16 @@ void Player::add_colliders() {
   Sprite::add_colliders();
   //FIXME: Hack to allow hitbox
   if (current_animation_index == 2) {
-    ActivatorCollideBox hitbox(
-      //The hitbox overlaps player to hit_evil is required
-      ActivatorCollideType::HIT_EVIL,
-      24 * SUBPIXELS_IN_PIXEL,
-      15 * SUBPIXELS_IN_PIXEL,
-      16 * SUBPIXELS_IN_PIXEL,
-      15 * SUBPIXELS_IN_PIXEL
-    );
-
-    CollideDamageProps damage;
-    damage.hp_delt = 100;
-    hitbox.damage = damage;
+    
 
     // Joke test example
-    std::shared_ptr<Player> self = std::static_pointer_cast<Player>(shared_from_this());
-    hitbox.on_recoil = [self](Pos pos, ReactorCollideBox reactor) {
-      std::cout << "I think the enemy got, the point" << std::endl;
-    };
+    // std::shared_ptr<Player> self = std::static_pointer_cast<Player>(shared_from_this());
+    // hitbox.on_recoil = [self](Pos pos, ReactorCollideBox reactor) {
+    //   std::cout << "I think the enemy got, the point" << std::endl;
+    // };
 
-    game.collide_layers[0].add_activator(hitbox, pos);
+    for(auto hbox: activators)
+      game.collide_layers[0].add_activator(hbox, pos);
   }
 }
 
@@ -94,8 +99,30 @@ bool Player::switch_animation(int new_animation_index) {
 }
 
 void Player::tick() {
+  set_activators(animations[current_animation_index].frame_activators());
   Mob::tick();
+
   int mspeed = speed + int(speed_mod * FRAME_RATE * SUBPIXELS_IN_PIXEL);
+
+      if (game.keyboard.is_pressed(SDL_SCANCODE_J))
+    {
+      switch_animation(2);  // attack
+    }
+
+
+    if (current_animation_index != 2 || animations[current_animation_index].is_over()){
+        immobile(false);
+      if (moving)
+        switch_animation(1);  // walk
+     else
+        switch_animation(0);  // idle 
+    }
+
+  if(current_animation_index == 2) 
+    { 
+      immobile(true);      // Player cannot move while attacking
+    }
+
   if(!is_immobile())
   {
     Translation vel = Translation {.x = 0, .y = 0};
@@ -135,7 +162,6 @@ void Player::tick() {
       despawn(); 
     }
 
-
   }
 }
 
@@ -151,25 +177,6 @@ void Player::draw()
       flip = SDL_FLIP_HORIZONTAL;
     else 
       flip = SDL_FLIP_NONE;
-
-    if (game.keyboard.is_pressed(SDL_SCANCODE_J))
-    {
-      switch_animation(2);  // attack
-    }
-
-
-    if (current_animation_index != 2 || animations[current_animation_index].is_over()){
-        immobile(false);
-      if (moving)
-        switch_animation(1);  // walk
-     else
-        switch_animation(0);  // idle 
-    }
-    if(current_animation_index == 2) 
-    {
-      set_activators(animations[2].get_activators());
-      immobile(true);      // Player cannot move while attacking
-    }
 
     texture = animations[current_animation_index].play();
 

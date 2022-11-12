@@ -22,7 +22,7 @@ class Animation {
 	Game &game;
 	bool loops;
 	int animation_l;
-	int32_t start_tick, current_frame_index;
+	int32_t start_tick, current_frame;
 	std::map<int, std::shared_ptr<AnimationFrame>> frames;
 	
 	public:
@@ -35,8 +35,8 @@ class Animation {
 	void set_frame_reactors(int fn, std::vector<ReactorCollideBox> r);
 	void set_frame_activators(int fn, std::vector<ActivatorCollideBox> a);
 	SDL_Texture * get_frame();
-	std::vector<ReactorCollideBox> get_reactors();
-	std::vector<ActivatorCollideBox> get_activators();
+	std::vector<ReactorCollideBox> frame_reactors();
+	std::vector<ActivatorCollideBox> frame_activators();
 	void add_reactor(int fn, ReactorCollideBox box);
 	void add_activator(int fn, ActivatorCollideBox box);
 	void reset();
