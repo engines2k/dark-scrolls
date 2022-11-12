@@ -11,8 +11,10 @@ void Mob::tick() {
     hurt_reactor.type &= ReactorCollideType::HURT_BY_ANY;
 
     ActivatorCollideBox activator;
-    if (game.collide_layers[pos.layer].overlaps_activator(hurt_reactor, pos, nullptr, &activator)) {
+    Pos collide_at;
+    if (game.collide_layers[pos.layer].overlaps_activator(hurt_reactor, pos, &collide_at, &activator)) {
       hp -= activator.damage.hp_delt;
+      activator.on_recoil(collide_at, hurt_reactor);
     }
   }
   if(hp < 0) despawn();

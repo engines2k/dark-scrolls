@@ -70,9 +70,15 @@ void Player::add_colliders() {
     CollideDamageProps damage;
     damage.hp_delt = 100;
     hitbox.damage = damage;
+
+    // Joke test example
+    std::shared_ptr<Player> self = std::static_pointer_cast<Player>(shared_from_this());
+    hitbox.on_recoil = [self](Pos pos, ReactorCollideBox reactor) {
+      std::cout << "I think the enemy got, the point" << std::endl;
+    };
+
     game.collide_layers[0].add_activator(hitbox, pos);
   }
-
 }
 
 bool Player::switch_animation(int new_animation_index) {

@@ -16,6 +16,7 @@ bool Sprite::move_single_axis(Translation trans) {
     Pos collide_visit;
     ActivatorCollideBox activator;
     if (game.collide_layers[pos.layer].overlaps_activator(wall_reactor, pos, &collide_visit, &activator)) {
+      activator.on_recoil(collide_visit, wall_reactor);
       int base_x = collide_visit.tile_scaled_x() + activator.offset_x - reactor.offset_x;
       int base_y = collide_visit.tile_scaled_y() + activator.offset_y - reactor.offset_y;
 

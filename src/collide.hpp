@@ -21,6 +21,7 @@ struct ActivatorCollideType: public BitFlag<ActivatorCollideType> {
     static const ActivatorCollideType HIT_EVIL;
     static const ActivatorCollideType HIT_GOOD;
     static const ActivatorCollideType HIT_ALL;
+    static const ActivatorCollideType INTERACT;
     ReactorCollideType activates() const;
 
     ActivatorCollideType operator&(const ActivatorCollideType& other) const {
@@ -35,6 +36,7 @@ constexpr ActivatorCollideType ActivatorCollideType::WALL(0x1); // Acts like a w
 constexpr ActivatorCollideType ActivatorCollideType::HIT_EVIL(0x2); // Hurts evil sprites
 constexpr ActivatorCollideType ActivatorCollideType::HIT_GOOD(0x4); // Hurts good sprites (probally player)
 constexpr ActivatorCollideType ActivatorCollideType::HIT_ALL(ActivatorCollideType::HIT_EVIL | ActivatorCollideType::HIT_GOOD);
+constexpr ActivatorCollideType ActivatorCollideType::INTERACT(0x8);
 
 struct ReactorCollideType: public BitFlag<ReactorCollideType> {
   public:
@@ -47,6 +49,7 @@ struct ReactorCollideType: public BitFlag<ReactorCollideType> {
     static const ReactorCollideType HURT_BY_GOOD;
     static const ReactorCollideType HURT_BY_EVIL;
     static const ReactorCollideType HURT_BY_ANY;
+    static const ReactorCollideType INTERACTABLE;
     ActivatorCollideType activated_by() const;
 
     ReactorCollideType operator&(const ReactorCollideType& other) const {
@@ -61,6 +64,7 @@ constexpr ReactorCollideType ReactorCollideType::WALL(0x1); // Affected by walls
 constexpr ReactorCollideType ReactorCollideType::HURT_BY_GOOD(0x2); // Can be hurt (only by good stuff)
 constexpr ReactorCollideType ReactorCollideType::HURT_BY_EVIL(0x4); // Can be hurt (only by evil stuff)
 constexpr ReactorCollideType ReactorCollideType::HURT_BY_ANY(ReactorCollideType::HURT_BY_GOOD | ReactorCollideType::HURT_BY_EVIL);
+constexpr ReactorCollideType ReactorCollideType::INTERACTABLE(0x8);
 
 inline ReactorCollideType ActivatorCollideType::activates() const {
   return ReactorCollideType(inner);
@@ -87,8 +91,13 @@ struct CollideDamageProps {
   int hp_delt;
 };
 
+using OnCollideRecoilFn = std::function<void (Pos, ReactorCollideBox)>;
+
+extern const OnCollideRecoilFn DO_NOTHING_ON_COLLIDE_RECOIL;
+
 struct ActivatorCollideProps {
   CollideDamageProps damage;
+  OnCollideRecoilFn on_recoil = DO_NOTHING_ON_COLLIDE_RECOIL;
 };
 
 // CollideType is either ActivatorCollideType or ReactorCollideType
