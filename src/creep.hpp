@@ -13,6 +13,10 @@ class Creep: public Mob {
 
   void patrol();
   void attack();
+  void add_colliders();
+  bool switch_animation(int anim_idx);
+
+  void death() override;
   virtual void draw();
   virtual void tick();
 

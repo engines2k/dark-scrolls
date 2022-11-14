@@ -30,6 +30,10 @@ class Mob: public Sprite {
     hp = n_hp;
   }
 
+  virtual void death() {
+    despawn();
+  }
+  
   virtual void tick();
   virtual void draw(SDL_Rect shape);
 

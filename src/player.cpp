@@ -24,6 +24,8 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
     hitbox_height
   );
 
+
+
   ActivatorCollideBox hitbox(
     //The hitbox overlaps player to hit_evil is required
     ActivatorCollideType::HIT_EVIL | ActivatorCollideType::INTERACT,
@@ -32,6 +34,8 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
     16 * SUBPIXELS_IN_PIXEL,
     15 * SUBPIXELS_IN_PIXEL
   );
+
+
 
   CollideDamageProps damage;
   damage.hp_delt = 40;
@@ -54,6 +58,7 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
   Animation attack(game, 30, 0);
   attack.set_frame(0, "data/sprite/player_slash000.png", "NOSOUND", {-7, 0});
   attack.set_frame(7, "data/sprite/player_slash001.png", "NOSOUND", {-7, 0});
+  attack.set_frame(9, "data/sprite/player_slash001.png", "data/sound/swing.wav", {-7, 0});
   attack.set_frame(14, "data/sprite/player_slash002.png", "NOSOUND", {-7, 0});
   attack.set_frame(15, "data/sprite/player_slash002.png", "NOSOUND", {-7, 0});
   attack.set_frame(23, "data/sprite/player_slash003.png", "NOSOUND", {-7, 0});
@@ -73,18 +78,19 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
 
 void Player::add_colliders() {
   Sprite::add_colliders();
-  //FIXME: Hack to allow hitbox
   if (current_animation_index == 2) {
-    
+    std::shared_ptr<Player> self = std::static_pointer_cast<Player>(shared_from_this());
+    for(auto hbox: activators) {
 
-    // Joke test example
-    // std::shared_ptr<Player> self = std::static_pointer_cast<Player>(shared_from_this());
-    // hitbox.on_recoil = [self](Pos pos, ReactorCollideBox reactor) {
-    //   std::cout << "I think the enemy got, the point" << std::endl;
-    // };
+      // FIXME!
+      hbox.on_recoil = [self](Pos pos, ReactorCollideBox reactor) {
+          std::cout << "I think the enemy got, the point" << std::endl;
+          Mix_Chunk *s = self->game.media.readWAV("data/sound/attack_hit.wav");
+          Mix_PlayChannel(-1, s, 0);
+      };
 
-    for(auto hbox: activators)
       game.collide_layers[0].add_activator(hbox, pos);
+    }
   }
 }
 

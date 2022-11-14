@@ -17,7 +17,7 @@ void Mob::tick() {
       activator.on_recoil(collide_at, hurt_reactor);
     }
   }
-  if(hp < 1) despawn();
+  if(hp < 1) death();
 }
 
 void Mob::draw(SDL_Rect shape) {
