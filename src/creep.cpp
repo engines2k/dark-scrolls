@@ -57,6 +57,7 @@ Creep::Creep(Game &game, Pos pos): Mob(game, pos) {
 }
 
 void Creep::patrol() {
+
   if(pos.y == og_pos.y && returning)
     returning = !returning;
   if(abs(og_pos.y - pos.y) / SUBPIXELS_IN_PIXEL >= 140)
@@ -67,18 +68,9 @@ void Creep::patrol() {
     pos.y += -speed;
 }
 
+
 void Creep::attack() {
   // switch_animation(1);
-}
-
-void Creep::draw() {
-  Mob::draw();
-  SDL_Rect rect = shape;
-  rect.x = pos.x;
-  rect.y = pos.y;
-
-  texture = animations[0].play();
-  game.camera->render_ex(game.renderer, texture, NULL, &rect, 0, NULL, SDL_FLIP_NONE);
 }
 
 void Creep::tick() {
@@ -86,5 +78,12 @@ void Creep::tick() {
   patrol();
 }
 
+void Creep::draw() {
+  Mob::draw(shape);
+  SDL_Rect rect = shape;
+  rect.x = pos.x;
+  rect.y = pos.y;
 
-
+  texture = animations[0].play();
+  game.camera->render_ex(game.renderer, texture, NULL, &rect, 0, NULL, SDL_FLIP_NONE);
+}

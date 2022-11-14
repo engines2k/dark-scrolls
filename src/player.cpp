@@ -12,7 +12,7 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
 {
   // FIXME: Placeholder reactor
   int hitbox_width = 32 * SUBPIXELS_IN_PIXEL;
-  int hitbox_offset_x = 16 * SUBPIXELS_IN_PIXEL;
+  int hitbox_offset_x = 17 * SUBPIXELS_IN_PIXEL;
   int hitbox_height = 54 * SUBPIXELS_IN_PIXEL;
   int hitbox_offset_y = 8 * SUBPIXELS_IN_PIXEL;
 
@@ -26,8 +26,8 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
 
   ActivatorCollideBox hitbox(
     //The hitbox overlaps player to hit_evil is required
-    ActivatorCollideType::HIT_EVIL,
-    24 * SUBPIXELS_IN_PIXEL,
+    ActivatorCollideType::HIT_EVIL | ActivatorCollideType::INTERACT,
+    0 * SUBPIXELS_IN_PIXEL,
     15 * SUBPIXELS_IN_PIXEL,
     16 * SUBPIXELS_IN_PIXEL,
     15 * SUBPIXELS_IN_PIXEL
@@ -107,7 +107,7 @@ void Player::tick() {
 
   int mspeed = speed + int(speed_mod * FRAME_RATE * SUBPIXELS_IN_PIXEL);
 
-      if (game.keyboard.is_pressed(SDL_SCANCODE_J))
+      if (game.keyboard.is_pressed(SDL_SCANCODE_J) || current_animation_index == 2)
     {
       switch_animation(2);  // attack
     }
@@ -118,7 +118,7 @@ void Player::tick() {
       if (moving)
         switch_animation(1);  // walk
      else
-        switch_animation(0);  // idle 
+        switch_animation(0);  // idle     
     }
 
   if(current_animation_index == 2) 
@@ -170,13 +170,12 @@ void Player::tick() {
 
 void Player::draw()
 {
-    Mob::draw();
-    texture = animations[current_animation_index].play();
-    AnimationFrame frame = animations[current_animation_index].frame();
-    SDL_RendererFlip flip; 
-    Translation offset = frame.sprite_offset;
-    SDL_Rect my_rect = SHAPE;
 
+    Mob::draw(SHAPE);
+    AnimationFrame frame = animations[current_animation_index].frame();
+    Translation offset = frame.sprite_offset;
+    SDL_RendererFlip flip; 
+    SDL_Rect my_rect = SHAPE;
     // Flip the sprite if player facing left 
     if(facing_left){
       flip = SDL_FLIP_HORIZONTAL;
@@ -186,6 +185,8 @@ void Player::draw()
 
     my_rect.x = pos.x + offset.x;
     my_rect.y = pos.y + offset.y;
+
+    texture = animations[current_animation_index].play();
 
     SDL_QueryTexture(texture, NULL, NULL, &my_rect.w, &my_rect.h);
     my_rect.w *= 2; // Image is upscaled for the moment.

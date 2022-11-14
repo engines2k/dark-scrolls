@@ -65,8 +65,6 @@ void Camera::calc_zoom() {
 		z = static_cast<float>(WIDTH) / delt;
 		z = int(z * 32) / 32.0;					// Precision limit trick, avoids black lines but causes choppiness
 
-		std::cout << "xmin:" << x_min << " xmax:" << x_max << " delt:" << delt << "z:" << z << std::endl; 
-
 		if(z < zoom_default)
 			z = zoom_default;
 		else if (z > max_zoom)

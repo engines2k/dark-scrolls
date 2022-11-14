@@ -30,7 +30,6 @@ class Player: public Mob {
   std::vector<Animation> animations;
   bool IMMOBILE_FLAG = false;
   bool moving = false;
-  bool facing_left = false;
   uint32_t speed;
 
   SDL_Surface *surface = nullptr;

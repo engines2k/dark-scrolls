@@ -8,9 +8,9 @@
  "margin":0,
  "name":"special",
  "spacing":0,
- "tilecount":2,
+ "tilecount":3,
  "tiledversion":"1.9.2",
- "tileheight":16,
+ "tileheight":64,
  "tilerendersize":"grid",
  "tiles":[
         {
@@ -46,8 +46,30 @@
                  "type":"string",
                  "value":"creep"
                 }]
+        }, 
+        {
+         "id":5,
+         "image":"..\/tileset_gfx\/item_spawn.png",
+         "imageheight":64,
+         "imagewidth":64,
+         "properties":[
+                {
+                 "name":"activators",
+                 "type":"string",
+                 "value":"[{\"type\":8}]"
+                }, 
+                {
+                 "name":"invisible",
+                 "type":"bool",
+                 "value":true
+                }, 
+                {
+                 "name":"spawn_tile",
+                 "type":"string",
+                 "value":"item"
+                }]
         }],
- "tilewidth":16,
+ "tilewidth":64,
  "type":"tileset",
  "version":"1.9"
 }
