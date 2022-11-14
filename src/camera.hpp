@@ -20,6 +20,7 @@ private:
  	Translation offset = {0, 0};
 	float zoom_default;
 	float zoom_factor;
+	const float max_zoom = 3;
 
 	SDL_Rect rect_offsetted(SDL_Rect r);
 	SDL_Rect rect_scaled(SDL_Rect r);

@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include "game.hpp"
 #include "collide.hpp"
+#include "pos.hpp"
 
 class Game;
 
@@ -11,7 +12,9 @@ struct AnimationFrame {
 	int frame_number;
 	const char *frame_path, *sound;
 	SDL_Texture *texture;
+	Translation sprite_offset;
 	AnimationFrame(int fn, const char *fpath, const char *spath);
+	AnimationFrame(int fn, const char *frame_path, const char *sound, Translation sprite_offset);
 	~AnimationFrame();
   	std::vector<ReactorCollideBox> reactors;
  	std::vector<ActivatorCollideBox> activators;
@@ -32,9 +35,10 @@ class Animation {
 	SDL_Texture * play();
 	SDL_Rect rect;
 	void set_frame(int fn, const char *fpath, const char *spath);
+	void set_frame(int fn, const char *fpath, const char *spath, Translation sprite_offset);
 	void set_frame_reactors(int fn, std::vector<ReactorCollideBox> r);
 	void set_frame_activators(int fn, std::vector<ActivatorCollideBox> a);
-	SDL_Texture * get_frame();
+	AnimationFrame frame();
 	std::vector<ReactorCollideBox> frame_reactors();
 	std::vector<ActivatorCollideBox> frame_activators();
 	void add_reactor(int fn, ReactorCollideBox box);

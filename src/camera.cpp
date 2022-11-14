@@ -1,5 +1,6 @@
 #include "camera.hpp"
 #include <cstdlib>
+#include <iostream>
 
 const int WIDTH = 800, HEIGHT = 600;
 
@@ -49,23 +50,32 @@ void Camera::calc_zoom() {
 				x_min = p.x;
 				x_max = p.x;
 			}
-
-			if(p.x < x_min) x_min = p.x;
-			else if (p.x < x_max) x_max = p.x;
+			else{
+				if(p.x < x_min) x_min = p.x;
+				else if (p.x < x_max) x_max = p.x;
+			}
 			
 		}
 
+
 		int delt = abs(x_max - x_min);
+		delt *= 2; 								// Gives padding on the sides.
+		if(delt == 0) delt = 1;					// Failsafe for small delts
 
-		// Choose greatest delt for zoom and axis
+		z = static_cast<float>(WIDTH) / delt;
+		z = int(z * 32) / 32.0;					// Precision limit trick, avoids black lines but causes choppiness
 
-		// if(delt < WIDTH) delt = WIDTH;	// Failsafe for small delts
+		std::cout << "xmin:" << x_min << " xmax:" << x_max << " delt:" << delt << "z:" << z << std::endl; 
 
-		z = zoom_default; static_cast<float>(WIDTH) / delt;
+		if(z < zoom_default)
+			z = zoom_default;
+		else if (z > max_zoom)
+			z = max_zoom;
 
+		// Zoom is currently buggy. Comment this out to see what autozoom does.
+		z = zoom_default; 
 	}
 
-	// zoom_factor = z; // Commented out for testing
 	zoom_factor = z;
 }
 

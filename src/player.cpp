@@ -52,16 +52,18 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
   idle.set_frame(35, "data/sprite/player_idle001.png", "NOSOUND");
 
   Animation attack(game, 30, 0);
-  attack.set_frame(0, "data/sprite/player_attack000.png", "NOSOUND");
-  attack.set_frame(10, "data/sprite/player_run001.png", "NOSOUND");
+  attack.set_frame(0, "data/sprite/player_slash000.png", "NOSOUND", {-7, 0});
+  attack.set_frame(7, "data/sprite/player_slash001.png", "NOSOUND", {-7, 0});
+  attack.set_frame(14, "data/sprite/player_slash002.png", "NOSOUND", {-7, 0});
+  attack.set_frame(15, "data/sprite/player_slash002.png", "NOSOUND", {-7, 0});
+  attack.set_frame(23, "data/sprite/player_slash003.png", "NOSOUND", {-7, 0});
 
   // //FIXME
-  attack.add_activator(0, hitbox);
+  attack.add_activator(14, hitbox);
 
   animations.push_back(idle);
   animations.push_back(walk);
   animations.push_back(attack);
-  current_animation_index = 0;            // Player is initialized with idle animation
 
   reactors.push_back(std::move(hurtbox));
 
@@ -91,6 +93,7 @@ bool Player::switch_animation(int new_animation_index) {
   bool successful;
     if(new_animation_index != current_animation_index){
       animations[current_animation_index].reset();
+      animations[new_animation_index].reset();
       current_animation_index = new_animation_index;
     }
     successful = true;
@@ -168,17 +171,25 @@ void Player::tick() {
 void Player::draw()
 {
     Mob::draw();
+    texture = animations[current_animation_index].play();
+    AnimationFrame frame = animations[current_animation_index].frame();
+    SDL_RendererFlip flip; 
+    Translation offset = frame.sprite_offset;
     SDL_Rect my_rect = SHAPE;
-    my_rect.x = pos.x;
-    my_rect.y = pos.y;
 
-    SDL_RendererFlip flip;    // Flip the sprite if player facing left 
-    if(facing_left)
+    // Flip the sprite if player facing left 
+    if(facing_left){
       flip = SDL_FLIP_HORIZONTAL;
-    else 
+      offset = {-(my_rect.x -offset.x), -(my_rect.y -offset.y)};
+    } else 
       flip = SDL_FLIP_NONE;
 
-    texture = animations[current_animation_index].play();
+    my_rect.x = pos.x + offset.x;
+    my_rect.y = pos.y + offset.y;
+
+    SDL_QueryTexture(texture, NULL, NULL, &my_rect.w, &my_rect.h);
+    my_rect.w *= 2; // Image is upscaled for the moment.
+    my_rect.h *= 2;
 
     game.camera->render_ex(game.renderer, texture, NULL, &my_rect, 0, NULL, flip);
 }

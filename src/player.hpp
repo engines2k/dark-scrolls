@@ -26,7 +26,7 @@ class Player: public Mob {
   virtual void tick();
 
   private:
-  int current_animation_index;
+  
   std::vector<Animation> animations;
   bool IMMOBILE_FLAG = false;
   bool moving = false;
