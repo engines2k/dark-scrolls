@@ -26,7 +26,7 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
 
   ActivatorCollideBox hitbox(
     //The hitbox overlaps player to hit_evil is required
-    ActivatorCollideType::HIT_EVIL,
+    ActivatorCollideType::HIT_EVIL | ActivatorCollideType::INTERACT,
     0 * SUBPIXELS_IN_PIXEL,
     15 * SUBPIXELS_IN_PIXEL,
     16 * SUBPIXELS_IN_PIXEL,

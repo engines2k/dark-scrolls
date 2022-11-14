@@ -19,6 +19,7 @@
 #include "player.hpp"
 #include "text.hpp"
 #include "camera.hpp"
+#include "Item.hpp"
 #include <iostream>
 
 const int WIDTH = 800, HEIGHT = 600;
@@ -164,6 +165,23 @@ int main(int argc, char *argv[]) {
         sprite_pos.layer = 0;
         if (game.current_level[pos].props().spawn_type == SpriteSpawnType::CREEP) {
           game.sprite_list.push_back(std::make_shared<Creep>(game, sprite_pos));
+        }
+      }
+    }
+  }
+
+  for (unsigned layer_id = 0; layer_id < game.current_level.size(); layer_id++) {
+    for (unsigned y = 0; y < game.current_level[layer_id].size(); y++) {
+      for (unsigned x = 0; x < game.current_level[layer_id][y].size(); x++) {
+        Pos pos;
+        pos.layer = static_cast<int>(layer_id);
+        pos.y = static_cast<int>(y) * TILE_SUBPIXEL_SIZE;
+        pos.x = static_cast<int>(x) * TILE_SUBPIXEL_SIZE;
+        Pos item_pos = pos;
+        // FIXME: Collide layer placeholder
+        item_pos.layer = 0;
+        if (game.current_level[pos].props().spawn_type == SpriteSpawnType::ITEM) {
+          game.sprite_list.push_back(std::make_shared<Item>(game, item_pos));
         }
       }
     }

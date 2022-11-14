@@ -44,6 +44,8 @@ Tile::Tile(Game& game, const std::filesystem::path& tileset_loc, uint32_t id, co
         this->properties.spawn_type = SpriteSpawnType::PLAYER;
       } else if (value == "creep") {
         this->properties.spawn_type = SpriteSpawnType::CREEP;
+      } else if (value == "item") {
+        this->properties.spawn_type = SpriteSpawnType::ITEM;
       }
     } else if (name == "activators") {
       std::vector<json> hitboxes = json::parse(std::string(value));
