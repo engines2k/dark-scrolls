@@ -48,17 +48,18 @@ void Camera::calc_zoom() {
 
 		for(auto sprite: focus_points) {
 			Pos p = sprite->get_pos();
-			p.x /= SUBPIXELS_IN_PIXEL;
+			if(sprite->is_spawned()){
+				p.x /= SUBPIXELS_IN_PIXEL;
 
-			if(&sprite == &focus_points.front()){
-				x_min = p.x;
-				x_max = p.x;
+				if(&sprite == &focus_points.front()){
+					x_min = p.x;
+					x_max = p.x;
+				}
+				else{
+					if(p.x < x_min) x_min = p.x;
+					else if (p.x < x_max) x_max = p.x;
+				}
 			}
-			else{
-				if(p.x < x_min) x_min = p.x;
-				else if (p.x < x_max) x_max = p.x;
-			}
-			
 		}
 
 
