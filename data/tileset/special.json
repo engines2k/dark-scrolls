@@ -8,7 +8,7 @@
  "margin":0,
  "name":"special",
  "spacing":0,
- "tilecount":3,
+ "tilecount":4,
  "tiledversion":"1.9.2",
  "tileheight":32,
  "tilerendersize":"grid",
@@ -67,6 +67,28 @@
                  "name":"spawn_tile",
                  "type":"string",
                  "value":"health_potion"
+                }]
+        }, 
+        {
+         "id":6,
+         "image":"..\/tileset_gfx\/sp.png",
+         "imageheight":16,
+         "imagewidth":16,
+         "properties":[
+                {
+                 "name":"activators",
+                 "type":"string",
+                 "value":"[{\"type\":8}]"
+                }, 
+                {
+                 "name":"invisible",
+                 "type":"bool",
+                 "value":true
+                }, 
+                {
+                 "name":"spawn_tile",
+                 "type":"string",
+                 "value":"speed_potion"
                 }]
         }],
  "tilewidth":32,
