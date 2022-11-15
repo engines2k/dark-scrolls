@@ -140,8 +140,7 @@ void Player::tick() {
     {
       vel.x = -mspeed;
       facing_left = true;
-    } 
-    else if (game.keyboard.is_held(SDL_SCANCODE_D))
+    } else if (game.keyboard.is_held(SDL_SCANCODE_D))
     {
       vel.x = mspeed;
       facing_left = false;
@@ -163,6 +162,15 @@ void Player::tick() {
     if (game.keyboard.is_held(SDL_SCANCODE_0))     // Suicide test code
     {
       despawn(); 
+    }
+
+    // FOR DEMONSTRATION PURPOSES
+    if(game.keyboard.is_pressed(SDL_SCANCODE_9)) {
+      if(!test_creep || !test_creep->is_spawned()) {
+        test_creep = std::make_shared<Creep>(game, pos);
+        game.sprite_list.push_back(test_creep);
+        game.camera->add_focus(test_creep);
+      }
     }
 
   }

@@ -2,6 +2,7 @@
 #include <SDL2/SDL_mixer.h>
 #include "mob.hpp"
 #include "animation.hpp"
+#include "creep.hpp"
 
 class Game;
 
@@ -26,7 +27,7 @@ class Player: public Mob {
   virtual void tick();
 
   private:
-  
+  std::shared_ptr<Creep> test_creep; // FOR DEMONSTRATION PURPOSES
   std::vector<Animation> animations;
   bool IMMOBILE_FLAG = false;
   bool moving = false;

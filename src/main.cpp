@@ -193,7 +193,6 @@ int main(int argc, char *argv[]) {
   }
 
   game.camera->add_focus(game.player);
-  game.camera->add_focus(game.sprite_list[0]);
 
   game.sprite_list.push_back(game.player);
   game.sprite_list.push_back(std::make_shared<Text>(Text((char*)"Welcome to Dark Scrolls", game, Pos {.layer = 0, .x = 220 * SUBPIXELS_IN_PIXEL, .y = -27 * SUBPIXELS_IN_PIXEL})));
