@@ -21,10 +21,10 @@ class Item: public Sprite{
 
             ActivatorCollideBox temp2( // What it can hit/ effect
                 ActivatorCollideType::HIT_GOOD | ActivatorCollideType::INTERACT,
+                1 * SUBPIXELS_IN_PIXEL,
+                16 * SUBPIXELS_IN_PIXEL,
                 0 * SUBPIXELS_IN_PIXEL,
-                64 * SUBPIXELS_IN_PIXEL,
-                0 * SUBPIXELS_IN_PIXEL,
-                64 * SUBPIXELS_IN_PIXEL
+                16 * SUBPIXELS_IN_PIXEL
             );
 
             hitbox = temp2;

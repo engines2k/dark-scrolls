@@ -38,3 +38,34 @@ class HealthPotion: public Item {
         protected:
             int heal_amount = 15;
 };
+
+class SpeedPotion : public Item {
+    SpeedPotion(Game &game, Pos pos) : Item(game, pos) {
+            filename = "data/sprite/healing_potion.png";
+        }
+
+        virtual void draw() { 
+            Item::draw();
+
+            if (player_collide) {
+                Mix_Chunk *s = game.media.readWAV("data/sound/heal.wav");
+                Mix_PlayChannel(-1, s, 0);
+            }
+        }
+
+        virtual void tick() {
+            Item::tick();
+            if (player_collide) {
+                game.player->speed_mod = speed_mod;
+
+                despawn();
+            }
+        }
+
+        void set_speed_mod(int num) {
+            speed_mod = num;
+        }
+
+        protected:
+            int speed_mod = 3;
+};
