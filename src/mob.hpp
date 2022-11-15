@@ -41,7 +41,7 @@ class Mob: public Sprite {
   bool show_health;
   bool dead = false;
   const int max_hp = 100; // This should be changed to initialize in the constructor later.
-  int hp = 80;
+  int hp = max_hp;
 
   virtual ~Mob () {
   }

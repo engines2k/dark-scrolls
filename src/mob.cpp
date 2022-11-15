@@ -13,7 +13,7 @@ void Mob::tick() {
     ActivatorCollideBox activator;
     Pos collide_at;
     if (game.collide_layers[pos.layer].overlaps_activator(hurt_reactor, pos, &collide_at, &activator)) {
-      hp -= activator.damage.hp_delt;
+      damage(activator.damage.hp_delt);
       activator.on_recoil(collide_at, hurt_reactor);
     }
   }
