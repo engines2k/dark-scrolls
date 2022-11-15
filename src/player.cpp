@@ -73,19 +73,20 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
 }
 
 void Player::add_colliders() {
-  Sprite::add_colliders();
+
 
     std::shared_ptr<Player> self = std::static_pointer_cast<Player>(shared_from_this());
-    for(auto activator: activators) {
+    for(auto &activator: activators) {
 
       // FIXME!
       activator.on_recoil = [self](Pos pos, ReactorCollideBox reactor) {
-          std::cout << "I think the enemy got, the point" << std::endl;
           Mix_Chunk *s = self->game.media.readWAV("data/sound/attack_hit.wav");
           Mix_PlayChannel(-1, s, 0);
       };
 
   }
+
+  Sprite::add_colliders();
 }
 
 bool Player::switch_animation(int new_animation_index) {
