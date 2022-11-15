@@ -6,7 +6,7 @@
 
 class Game;
 
-enum class SpriteSpawnType { NONE, PLAYER, CREEP, HEALTH_POTION};
+enum class SpriteSpawnType { NONE, PLAYER, CREEP, HEALTH_POTION, SPEED_POTION};
 
 class TileLayer;
 

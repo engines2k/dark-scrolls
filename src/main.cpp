@@ -189,6 +189,9 @@ int main(int argc, char *argv[]) {
         if (game.current_level[pos].props().spawn_type == SpriteSpawnType::HEALTH_POTION) {
           game.sprite_list.push_back(std::make_shared<HealthPotion>(game, item_pos));
         }
+        if (game.current_level[pos].props().spawn_type == SpriteSpawnType::SPEED_POTION) {
+          game.sprite_list.push_back(std::make_shared<SpeedPotion>(game, item_pos));
+        }
       }
     }
   }

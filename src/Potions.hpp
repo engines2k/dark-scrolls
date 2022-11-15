@@ -40,32 +40,32 @@ class HealthPotion: public Item {
 };
 
 class SpeedPotion : public Item {
-    SpeedPotion(Game &game, Pos pos) : Item(game, pos) {
-            filename = "data/sprite/healing_potion.png";
-        }
-
-        virtual void draw() { 
-            Item::draw();
-
-            if (player_collide) {
-                Mix_Chunk *s = game.media.readWAV("data/sound/heal.wav");
-                Mix_PlayChannel(-1, s, 0);
+    public:
+        SpeedPotion(Game &game, Pos pos) : Item(game, pos) {
+                filename = "data/sprite/speed_potion.png";
             }
-        }
 
-        virtual void tick() {
-            Item::tick();
-            if (player_collide) {
-                game.player->speed_mod = speed_mod;
+            virtual void draw() { 
+                Item::draw();
 
-                despawn();
+                if (player_collide) {
+                    Mix_Chunk *s = game.media.readWAV("data/sound/heal.wav");
+                    Mix_PlayChannel(-1, s, 0);
+                }
             }
-        }
 
-        void set_speed_mod(int num) {
-            speed_mod = num;
-        }
+            virtual void tick() {
+                Item::tick();
+                if (player_collide) {
+                    game.player->speed_mod += speed_mod;
+                }
+            }
+
+            void set_speed_mod(int num) {
+                speed_mod = num;
+            }
 
         protected:
-            int speed_mod = 3;
+            int effect_duration = 15; // FIXME - Need to stop effects after duration time. In Player?
+            float speed_mod = 100;
 };
