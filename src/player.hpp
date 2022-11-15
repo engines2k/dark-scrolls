@@ -34,7 +34,6 @@ class Player: public Mob {
 
   SDL_Surface *surface = nullptr;
   SDL_Texture *texture = nullptr;
-  static constexpr SDL_Rect SHAPE = {.x = 0, .y = 0, .w = 64, .h = 64};
   static constexpr uint8_t RED = 126;
   static constexpr uint8_t GREEN = 219;
   static constexpr uint8_t BLUE = 222;

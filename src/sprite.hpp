@@ -53,6 +53,7 @@ class Sprite: public std::enable_shared_from_this<Sprite> {
   const int id = NEXT_SPRITE_ID;
 
   protected:
+  static constexpr SDL_Rect SHAPE = {.x = 0, .y = 0, .w = 64, .h = 64};
   int current_animation_index;
   Pos pos;
   bool spawn_flag = true;

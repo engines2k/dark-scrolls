@@ -15,9 +15,9 @@
  "tiles":[
         {
          "id":3,
-         "image":"..\/tileset_gfx\/player_spawn.png",
-         "imageheight":16,
-         "imagewidth":16,
+         "image":"..\/tileset_gfx\/player.png",
+         "imageheight":32,
+         "imagewidth":32,
          "properties":[
                 {
                  "name":"invisible",
@@ -32,7 +32,7 @@
         }, 
         {
          "id":4,
-         "image":"..\/tileset_gfx\/creep_spawn.png",
+         "image":"..\/tileset_gfx\/clacker.png",
          "imageheight":16,
          "imagewidth":16,
          "properties":[

@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
     abort();
   }
 
-  game.current_level = Level(game, game.data_path / "level/test_room_2.tmj");
+  game.current_level = Level(game, game.data_path / "level/level_1.tmj");
   for (unsigned layer_id = 0; layer_id < game.current_level.size(); layer_id++) {
     for (unsigned y = 0; y < game.current_level[layer_id].size(); y++) {
       for (unsigned x = 0; x < game.current_level[layer_id][y].size(); x++) {

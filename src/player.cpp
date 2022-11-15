@@ -24,18 +24,14 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
     hitbox_height
   );
 
-
-
   ActivatorCollideBox hitbox(
     //The hitbox overlaps player to hit_evil is required
     ActivatorCollideType::HIT_EVIL | ActivatorCollideType::INTERACT,
-    0 * SUBPIXELS_IN_PIXEL,
-    15 * SUBPIXELS_IN_PIXEL,
-    16 * SUBPIXELS_IN_PIXEL,
-    15 * SUBPIXELS_IN_PIXEL
+    55 * SUBPIXELS_IN_PIXEL,
+    12 * SUBPIXELS_IN_PIXEL,
+    20 * SUBPIXELS_IN_PIXEL,
+    19 * SUBPIXELS_IN_PIXEL
   );
-
-
 
   CollideDamageProps damage;
   damage.hp_delt = 40;
@@ -78,19 +74,17 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
 
 void Player::add_colliders() {
   Sprite::add_colliders();
-  if (current_animation_index == 2) {
+
     std::shared_ptr<Player> self = std::static_pointer_cast<Player>(shared_from_this());
-    for(auto hbox: activators) {
+    for(auto activator: activators) {
 
       // FIXME!
-      hbox.on_recoil = [self](Pos pos, ReactorCollideBox reactor) {
+      activator.on_recoil = [self](Pos pos, ReactorCollideBox reactor) {
           std::cout << "I think the enemy got, the point" << std::endl;
           Mix_Chunk *s = self->game.media.readWAV("data/sound/attack_hit.wav");
           Mix_PlayChannel(-1, s, 0);
       };
 
-      game.collide_layers[0].add_activator(hbox, pos);
-    }
   }
 }
 
@@ -195,7 +189,7 @@ void Player::draw()
     texture = animations[current_animation_index].play();
 
     SDL_QueryTexture(texture, NULL, NULL, &my_rect.w, &my_rect.h);
-    my_rect.w *= 2; // Image is upscaled for the moment.
+    my_rect.w *= 2; // Sprite w and h is set & upscaled here for the moment.
     my_rect.h *= 2;
 
     game.camera->render_ex(game.renderer, texture, NULL, &my_rect, 0, NULL, flip);
