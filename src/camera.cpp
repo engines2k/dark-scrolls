@@ -21,21 +21,20 @@ void Camera::calc_offset() {
 	std::vector<std::shared_ptr<Sprite>> next_focus_points;
 	Translation o = {0, 0};
 	int fp_size = focus_points.size();
+    for(auto sprite: focus_points) {
+        if(sprite->is_spawned()){
+            Pos p = sprite->get_pos();
+            o.x = o.x + p.x / SUBPIXELS_IN_PIXEL;
+            o.y = o.y + p.y / SUBPIXELS_IN_PIXEL;
+        }
+        else fp_size--;
+    }
 	if(fp_size > 0)
 	{
-		for(auto sprite: focus_points) {
-			if(sprite->is_spawned()){
-				Pos p = sprite->get_pos();
-				o.x = o.x + p.x / SUBPIXELS_IN_PIXEL;
-				o.y = o.y + p.y / SUBPIXELS_IN_PIXEL;
-			}
-			else fp_size--;
-		}
 		o.x = (o.x / fp_size) - (WIDTH / 2 / zoom_factor);
 		o.y = (o.y / fp_size) - (HEIGHT / 2 / zoom_factor);
-	}
-
 		offset = o;
+	}
 }
 
 void Camera::calc_zoom() {
