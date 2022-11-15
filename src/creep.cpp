@@ -6,13 +6,21 @@
 #include "mob.hpp"
 
 Creep::Creep(Game &game, Pos pos): Mob(game, pos) {
-  Animation walk(game, 60, 1);
+
+  Animation walk(game, 60 /* Animation length */, 1 /* Loops?*/);
   walk.set_frame(0, "data/sprite/clacker000.png", "NOSOUND");
   walk.set_frame(30, "data/sprite/clacker001.png", "NOSOUND");
   // walk.set_frame(24, "data/sprite/clacker002.png", "NOSOUND");
   // walk.set_frame(36, "data/sprite/clacker003.png", "NOSOUND");
   // walk.set_frame(48, "data/sprite/clacker004.png", "NOSOUND");
-  animations.push_back(walk);
+
+  Animation die(game, 60, 0);
+  die.set_frame(0, "data/sprite/clacker_die000.png", "data/sound/creep_death.wav");
+  die.set_frame(10, "data/sprite/clacker_die001.png", "NOSOUND");
+  die.set_frame(20, "data/sprite/clacker_die002.png", "NOSOUND");
+  die.set_frame(30, "data/sprite/clacker_die003.png", "NOSOUND");
+  die.set_frame(40, "data/sprite/clacker_die004.png", "NOSOUND");
+  die.set_frame(50, "data/sprite/clacker_die005.png", "NOSOUND");
 
   Animation attack(game, 60, 0);
   attack.set_frame(0, "data/sprite/clacker_attack000.png", "data/sound/poison_bloom.wav");
@@ -35,6 +43,8 @@ Creep::Creep(Game &game, Pos pos): Mob(game, pos) {
   attack.add_activator(0, hitbox);
   attack.add_activator(20, hitbox);
   attack.add_activator(40, hitbox);
+  animations.push_back(walk);
+  animations.push_back(die);
   animations.push_back(attack);
 
 
@@ -97,21 +107,25 @@ void Creep::add_colliders() {
 }
 
 void Creep::death() {
-  Mix_Chunk *s = game.media.readWAV("data/sound/creep_death.wav");
-  Mix_PlayChannel(-1, s, 0);
-  despawn();
+  dead = true;
+  switch_animation(1);
+  if(animations[1].is_over())  // Play death animation before despawning.
+    despawn();
 }
 
 void Creep::attack() {
-  switch_animation(1);
+  switch_animation(2);
 }
 
 void Creep::tick() {
   set_activators(animations[current_animation_index].frame_activators());
   Mob::tick();
+
   for(auto hbox: activators) {
       game.collide_layers[0].add_activator(hbox, pos);
   }
+
+  if(dead) return; 
 
   if(animations[current_animation_index].is_over())
     switch_animation(0);                    // Switch to patrol / idle if done with action
@@ -119,7 +133,7 @@ void Creep::tick() {
   if(rand() % 300 == 1)                     // 1/60 Chance of attacking
     attack();
 
-  else if(current_animation_index != 1) {   // Patrol if not attacking
+  else if(current_animation_index != 2) {   // Patrol if not attacking
     patrol();
   }
 }

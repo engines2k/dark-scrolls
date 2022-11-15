@@ -123,7 +123,7 @@ void Animation::reset() {
 bool Animation::is_over() {
 	if (!loops) {
 		//std::cout << (int)game.frame_counter.rendered_frames << " - " << start_tick << " > " << animation_l << std::endl;
-		return (int)game.frame_counter.rendered_frames - start_tick >= animation_l;
+		return (int)game.frame_counter.rendered_frames - start_tick >= animation_l - 1;
 	}
 	return false;
 }
