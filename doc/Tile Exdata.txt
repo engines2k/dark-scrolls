@@ -1,3 +1,19 @@
+TileReactorBehavor is one of the following json objects
+class TileReactDoNothing: TileReactorBehavor {
+  type: "do_nothing"
+}
+// Changes the id of a tile on react
+class TileReactChangeId: TileReactorBehavor {
+  type: "change_id",
+  new_id: int, // The ID property of the new tile showed in tiled
+}
+// Handles levers
+TileReactLever: TileReactorBehavor {
+  type: "lever",
+  new_lever_state: bool,
+  new_id: int,
+}
+
 Tile hitboxes are a custom property on the tile called activators for activator hitboxes or
 detectors for detector hitboxes.
 
@@ -39,16 +55,6 @@ class TileReactor: TileHitBox {
   on_react: TileReactorBehavor
 }
 
-TileReactorBehavor is one of the following json objects
-class TileReactDoNothing: TileReactorBehavor {
-  type: "do_nothing"
-}
-// Changes the id of a tile on react
-class TileReactChangeId: TileReactorBehavor {
-  type: "change_id",
-  new_id: int, // The ID property of the new tile showed in tiled
-}
-
 Type ids are bitflags with these fields for activators
 
 constexpr ActivatorCollideType ActivatorCollideType::WALL(0x1); // Acts like a wall
@@ -64,3 +70,5 @@ constexpr ReactorCollideType ReactorCollideType::HURT_BY_GOOD(0x2); // Can be hu
 constexpr ReactorCollideType ReactorCollideType::HURT_BY_EVIL(0x4); // Can be hurt (only by evil stuff)
 constexpr ReactorCollideType ReactorCollideType::HURT_BY_ANY(0x6);
 constexpr ReactorCollideType ReactorCollideType::INTERACTABLE(0x8);
+
+The custom properties on_lever_activate and on_lever_deactivate shall be strings that can be parsed as the the json object TileReactorBehavor.

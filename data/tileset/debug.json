@@ -8,7 +8,7 @@
  "margin":0,
  "name":"debug",
  "spacing":0,
- "tilecount":5,
+ "tilecount":9,
  "tiledversion":"1.9.2",
  "tileheight":32,
  "tiles":[
@@ -65,6 +65,59 @@
          "image":"..\/tileset_gfx\/debug\/red.png",
          "imageheight":32,
          "imagewidth":32
+        }, 
+        {
+         "id":5,
+         "image":"..\/tileset_gfx\/debug\/bars.png",
+         "imageheight":32,
+         "imagewidth":32,
+         "properties":[
+                {
+                 "name":"activators",
+                 "type":"string",
+                 "value":"[{\"height\":30}]"
+                }, 
+                {
+                 "name":"on_lever_activate",
+                 "type":"string",
+                 "value":"{\"type\":\"change_id\",\"new_id\":8}"
+                }]
+        }, 
+        {
+         "id":6,
+         "image":"..\/tileset_gfx\/debug\/juicebox.png",
+         "imageheight":32,
+         "imagewidth":32,
+         "properties":[
+                {
+                 "name":"reactors",
+                 "type":"string",
+                 "value":"[{\"type\":2,\"on_react\":{\"type\":\"lever\",\"new_lever_state\":true,\"new_id\":7}}]"
+                }]
+        }, 
+        {
+         "id":7,
+         "image":"..\/tileset_gfx\/debug\/juicebox_bendy_staw.png",
+         "imageheight":32,
+         "imagewidth":32,
+         "properties":[
+                {
+                 "name":"reactors",
+                 "type":"string",
+                 "value":"[{\"type\":2,\"on_react\":{\"type\":\"lever\",\"new_lever_state\":false,\"new_id\":6}}]"
+                }]
+        }, 
+        {
+         "id":8,
+         "image":"..\/tileset_gfx\/debug\/bars_activated.png",
+         "imageheight":1,
+         "imagewidth":1,
+         "properties":[
+                {
+                 "name":"on_lever_deactivate",
+                 "type":"string",
+                 "value":"{\"type\":\"change_id\",\"new_id\":5}"
+                }]
         }],
  "tilewidth":32,
  "type":"tileset",

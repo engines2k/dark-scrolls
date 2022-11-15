@@ -14,6 +14,11 @@
 
 using json = nlohmann::json;
 
+static void do_nothing_on_tile_react(int x, int y, TileLayer& layer) {
+}
+
+const OnTileReactFn DO_NOTHING_ON_TILE_REACT = do_nothing_on_tile_react;
+
 // Represents a tile and its 7 rotations and reflections
 struct TileGroup {
   std::array<std::shared_ptr<Tile>, 8> tiles;
@@ -51,13 +56,33 @@ void TileImpl::backup_texture(Tile& tile) {
 OnTileReactFn TileImpl::gen_react_fn(Tilemap& tilemap, uint32_t id_offset, const json& j) {
   std::string fn_type = j["type"];
   if (fn_type == "do_nothing") {
-    return [](int tile_x, int tile_y, TileLayer& current_layer, ActivatorCollideBox activator){};
+    return DO_NOTHING_ON_TILE_REACT;
   } else if (fn_type == "change_id") {
     uint32_t new_id = static_cast<uint32_t>(j["new_id"]) + id_offset;
     TileGroup new_tile = TileGroup(tilemap, new_id);
-    return [new_tile](int tile_x, int tile_y, TileLayer& current_layer, ActivatorCollideBox activator) mutable {
+    return [new_tile](int tile_x, int tile_y, TileLayer& current_layer) mutable {
       int this_id = current_layer[tile_y][tile_x]->get_id();
       current_layer[tile_y][tile_x] = new_tile.transfer_flip(this_id);
+    };
+  } else if (fn_type == "lever") {
+    bool new_lever_state = j["new_lever_state"];
+    uint32_t new_id = static_cast<uint32_t>(j["new_id"]) + id_offset;
+    TileGroup new_tile = TileGroup(tilemap, new_id);
+    return [=](int tile_x, int tile_y, TileLayer& current_layer) mutable {
+      int this_id = current_layer[tile_y][tile_x]->get_id();
+      current_layer[tile_y][tile_x] = new_tile.transfer_flip(this_id);
+
+      for (size_t i = 0; i < current_layer.size(); i++) {
+        auto& row = current_layer[i];
+        for (size_t j = 0; j < row.size(); j++) {
+          auto& tile = row[j];
+          if (new_lever_state) {
+            tile->props().lever_activate(j, i, current_layer);
+          } else {
+            tile->props().lever_deactivate(j, i, current_layer);
+          }
+        }
+      }
     };
   } else {
     std::cerr << "Unknown type on tile react funtion" << std::endl;
@@ -187,6 +212,16 @@ Tile::Tile(Game& game, Tilemap& tilemap, uint32_t id_offset, const std::filesyst
 
         this->properties.colliders.reactors.push_back(tile_reactor);
       }
+    } else if (name == "on_lever_activate" || name == "on_lever_deactivate") {
+      OnTileReactFn* lever_change_state;
+      if (name == "on_lever_activate") {
+        lever_change_state = &properties.lever_activate;
+      } else if (name == "on_lever_deactivate") {
+        lever_change_state = &properties.lever_deactivate;
+      }
+      json lever_change_data = json::parse(std::string(value));
+
+      *lever_change_state = TileImpl::gen_react_fn(tilemap, id_offset, lever_change_data);
     }
   }
 
@@ -426,10 +461,9 @@ void Level::handle_reactions() {
           Pos pos = {.layer = 0, .x = static_cast<int>(x * TILE_SUBPIXEL_SIZE), 
             .y = static_cast<int>(y * TILE_SUBPIXEL_SIZE)
           };
-          ActivatorCollideBox activator;
           //FIXME: Collide layers still is not done
-          if (game->collide_layers[0].overlaps_activator(reactor.react_box, pos, nullptr, &activator)) {
-            reactor.on_react(x, y, tile_layer, activator);
+          if (game->collide_layers[0].overlaps_activator(reactor.react_box, pos, nullptr, nullptr)) {
+            reactor.on_react(x, y, tile_layer);
           }
         }
       }

@@ -11,7 +11,8 @@ enum class SpriteSpawnType { NONE, PLAYER, CREEP, HEALTH_POTION};
 class TileLayer;
 
 //Params are (x, y, current_layer, activator)
-using OnTileReactFn = std::function<void (int, int, TileLayer&, ActivatorCollideBox)>;
+using OnTileReactFn = std::function<void (int, int, TileLayer&)>;
+extern const OnTileReactFn DO_NOTHING_ON_TILE_REACT;
 
 struct TileReactorData {
   ReactorCollideBox react_box;
@@ -27,6 +28,8 @@ struct TileProperties {
   bool invisible = false;
   SpriteSpawnType spawn_type = SpriteSpawnType::NONE;
   TileCollideData colliders;
+  OnTileReactFn lever_activate = DO_NOTHING_ON_TILE_REACT;
+  OnTileReactFn lever_deactivate = DO_NOTHING_ON_TILE_REACT;
 };
 
 class Tile;
@@ -92,9 +95,10 @@ class Tile {
     void handle_reactions();
 
     ~Tile() {
-      if (texture) {
+      //Probally broken, need to impl some kind of unloading.
+      /*if (texture) {
         SDL_DestroyTexture(texture);
-      }
+      }*/
     }
   private:
     friend class TileImpl;
