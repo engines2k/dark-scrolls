@@ -26,11 +26,11 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
 
   ActivatorCollideBox hitbox(
     //The hitbox overlaps player to hit_evil is required
-    ActivatorCollideType::HIT_EVIL,
-    0 * SUBPIXELS_IN_PIXEL,
-    15 * SUBPIXELS_IN_PIXEL,
-    16 * SUBPIXELS_IN_PIXEL,
-    15 * SUBPIXELS_IN_PIXEL
+    ActivatorCollideType::HIT_EVIL | ActivatorCollideType::INTERACT,
+    55 * SUBPIXELS_IN_PIXEL,
+    12 * SUBPIXELS_IN_PIXEL,
+    20 * SUBPIXELS_IN_PIXEL,
+    19 * SUBPIXELS_IN_PIXEL
   );
 
   CollideDamageProps damage;
@@ -52,16 +52,19 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
   idle.set_frame(35, "data/sprite/player_idle001.png", "NOSOUND");
 
   Animation attack(game, 30, 0);
-  attack.set_frame(0, "data/sprite/player_attack000.png", "NOSOUND");
-  attack.set_frame(1, "data/sprite/player_run001.png", "NOSOUND");
+  attack.set_frame(0, "data/sprite/player_slash000.png", "NOSOUND", {-7, 0});
+  attack.set_frame(7, "data/sprite/player_slash001.png", "NOSOUND", {-7, 0});
+  attack.set_frame(9, "data/sprite/player_slash001.png", "data/sound/swing.wav", {-7, 0});
+  attack.set_frame(14, "data/sprite/player_slash002.png", "NOSOUND", {-7, 0});
+  attack.set_frame(15, "data/sprite/player_slash002.png", "NOSOUND", {-7, 0});
+  attack.set_frame(23, "data/sprite/player_slash003.png", "NOSOUND", {-7, 0});
 
   // //FIXME
-  attack.add_activator(0, hitbox);
+  attack.add_activator(14, hitbox);
 
   animations.push_back(idle);
   animations.push_back(walk);
   animations.push_back(attack);
-  current_animation_index = 0;            // Player is initialized with idle animation
 
   reactors.push_back(std::move(hurtbox));
 
@@ -70,20 +73,20 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
 }
 
 void Player::add_colliders() {
-  Sprite::add_colliders();
-  //FIXME: Hack to allow hitbox
-  if (current_animation_index == 2) {
-    
 
-    // Joke test example
-    // std::shared_ptr<Player> self = std::static_pointer_cast<Player>(shared_from_this());
-    // hitbox.on_recoil = [self](Pos pos, ReactorCollideBox reactor) {
-    //   std::cout << "I think the enemy got, the point" << std::endl;
-    // };
 
-    for(auto hbox: activators)
-      game.collide_layers[0].add_activator(hbox, pos);
+    std::shared_ptr<Player> self = std::static_pointer_cast<Player>(shared_from_this());
+    for(auto &activator: activators) {
+
+      // FIXME!
+      activator.on_recoil = [self](Pos pos, ReactorCollideBox reactor) {
+          Mix_Chunk *s = self->game.media.readWAV("data/sound/attack_hit.wav");
+          Mix_PlayChannel(-1, s, 0);
+      };
+
   }
+
+  Sprite::add_colliders();
 }
 
 bool Player::switch_animation(int new_animation_index) {
@@ -138,8 +141,7 @@ void Player::tick() {
     {
       vel.x = -mspeed;
       facing_left = true;
-    } 
-    else if (game.keyboard.is_held(SDL_SCANCODE_D))
+    } else if (game.keyboard.is_held(SDL_SCANCODE_D))
     {
       vel.x = mspeed;
       facing_left = false;
@@ -163,23 +165,41 @@ void Player::tick() {
       despawn(); 
     }
 
+    // FOR DEMONSTRATION PURPOSES
+    if(game.keyboard.is_pressed(SDL_SCANCODE_9)) {
+      if(!test_creep || !test_creep->is_spawned()) {
+        test_creep = std::make_shared<Creep>(game, pos);
+        game.sprite_list.push_back(test_creep);
+        game.camera->add_focus(test_creep);
+      }
+    }
+
   }
 }
 
 void Player::draw()
 {
-    SDL_Rect my_rect = SHAPE;
-    Mob::draw(SHAPE);
-    my_rect.x = pos.x;
-    my_rect.y = pos.y;
 
-    SDL_RendererFlip flip;    // Flip the sprite if player facing left 
-    if(facing_left)
+    Mob::draw(SHAPE);
+    AnimationFrame frame = animations[current_animation_index].frame();
+    Translation offset = frame.sprite_offset;
+    SDL_RendererFlip flip; 
+    SDL_Rect my_rect = SHAPE;
+    // Flip the sprite if player facing left 
+    if(facing_left){
       flip = SDL_FLIP_HORIZONTAL;
-    else 
+      offset = {-(my_rect.x -offset.x), -(my_rect.y -offset.y)};
+    } else 
       flip = SDL_FLIP_NONE;
 
+    my_rect.x = pos.x + offset.x;
+    my_rect.y = pos.y + offset.y;
+
     texture = animations[current_animation_index].play();
+
+    SDL_QueryTexture(texture, NULL, NULL, &my_rect.w, &my_rect.h);
+    my_rect.w *= 2; // Sprite w and h is set & upscaled here for the moment.
+    my_rect.h *= 2;
 
     game.camera->render_ex(game.renderer, texture, NULL, &my_rect, 0, NULL, flip);
 }

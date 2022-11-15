@@ -1,5 +1,6 @@
 #include "camera.hpp"
 #include <cstdlib>
+#include <iostream>
 
 const int WIDTH = 800, HEIGHT = 600;
 
@@ -17,20 +18,24 @@ Calculate offset translation (camera center) as the average of all focus points
 NOTE: Caclulated as pos value (pixels * SUBPIXELS_IN_PIXEL)
 */
 void Camera::calc_offset() {
-
+	std::vector<std::shared_ptr<Sprite>> next_focus_points;
 	Translation o = {0, 0};
 	int fp_size = focus_points.size();
 	if(fp_size > 0)
 	{
 		for(auto sprite: focus_points) {
-			Pos p = sprite->get_pos();
-			o.x = o.x + p.x / SUBPIXELS_IN_PIXEL;
-			o.y = o.y + p.y / SUBPIXELS_IN_PIXEL;
+			if(sprite->is_spawned()){
+				Pos p = sprite->get_pos();
+				o.x = o.x + p.x / SUBPIXELS_IN_PIXEL;
+				o.y = o.y + p.y / SUBPIXELS_IN_PIXEL;
+			}
+			else fp_size--;
 		}
 		o.x = (o.x / fp_size) - (WIDTH / 2 / zoom_factor);
 		o.y = (o.y / fp_size) - (HEIGHT / 2 / zoom_factor);
 	}
-	offset = o;
+
+		offset = o;
 }
 
 void Camera::calc_zoom() {
@@ -43,29 +48,37 @@ void Camera::calc_zoom() {
 
 		for(auto sprite: focus_points) {
 			Pos p = sprite->get_pos();
-			p.x /= SUBPIXELS_IN_PIXEL;
+			if(sprite->is_spawned()){
+				p.x /= SUBPIXELS_IN_PIXEL;
 
-			if(&sprite == &focus_points.front()){
-				x_min = p.x;
-				x_max = p.x;
+				if(&sprite == &focus_points.front()){
+					x_min = p.x;
+					x_max = p.x;
+				}
+				else{
+					if(p.x < x_min) x_min = p.x;
+					else if (p.x < x_max) x_max = p.x;
+				}
 			}
-
-			if(p.x < x_min) x_min = p.x;
-			else if (p.x < x_max) x_max = p.x;
-			
 		}
 
+
 		int delt = abs(x_max - x_min);
+		delt *= 2; 								// Gives padding on the sides.
+		if(delt == 0) delt = 1;					// Failsafe for small delts
 
-		// Choose greatest delt for zoom and axis
+		z = static_cast<float>(WIDTH) / delt;
+		z = int(z * 32) / 32.0;					// Precision limit trick, avoids black lines but causes choppiness
 
-		// if(delt < WIDTH) delt = WIDTH;	// Failsafe for small delts
+		if(z < zoom_default)
+			z = zoom_default;
+		else if (z > max_zoom)
+			z = max_zoom;
 
-		z = zoom_default; static_cast<float>(WIDTH) / delt;
-
+		// Zoom is currently buggy. Comment this out to see what autozoom does.
+		z = zoom_default; 
 	}
 
-	// zoom_factor = z; // Commented out for testing
 	zoom_factor = z;
 }
 

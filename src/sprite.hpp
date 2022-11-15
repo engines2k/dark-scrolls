@@ -11,6 +11,7 @@ class Game;
 class Sprite: public std::enable_shared_from_this<Sprite> {
   public:
   Sprite(Game &game, Pos pos): game(game) {
+    current_animation_index = 0;
     NEXT_SPRITE_ID++;
     this->pos = pos;
   }
@@ -18,6 +19,7 @@ class Sprite: public std::enable_shared_from_this<Sprite> {
 
   virtual void draw() = 0;
   virtual void tick() {}
+  bool switch_animation(int anim_idx);
   virtual void add_colliders();
   virtual void set_reactors(std::vector<ReactorCollideBox> r);
   virtual void set_activators(std::vector<ActivatorCollideBox> a);
@@ -51,6 +53,8 @@ class Sprite: public std::enable_shared_from_this<Sprite> {
   const int id = NEXT_SPRITE_ID;
 
   protected:
+  static constexpr SDL_Rect SHAPE = {.x = 0, .y = 0, .w = 64, .h = 64};
+  int current_animation_index;
   Pos pos;
   bool spawn_flag = true;
   bool facing_left = false;

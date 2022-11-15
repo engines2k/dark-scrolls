@@ -95,6 +95,8 @@ Tile::Tile(Game& game, Tilemap& tilemap, uint32_t id_offset, const std::filesyst
         this->properties.spawn_type = SpriteSpawnType::PLAYER;
       } else if (value == "creep") {
         this->properties.spawn_type = SpriteSpawnType::CREEP;
+      } else if (value == "health_potion") {
+        this->properties.spawn_type = SpriteSpawnType::HEALTH_POTION;
       }
     } else if (name == "activators") {
       std::vector<json> hitboxes = json::parse(std::string(value));

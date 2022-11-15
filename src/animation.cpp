@@ -6,10 +6,18 @@
 #include "MediaManager.hpp"
 #include <iostream>
 
-AnimationFrame::AnimationFrame(int fn, const char *fpath, const char *spath)
+AnimationFrame::AnimationFrame(int fn, const char *frame_path, const char *sound)
 {
-	frame_path = fpath;
-	sound = spath;
+	this->sprite_offset = {0, 0};
+	this->frame_path = frame_path;
+	this->sound = sound;
+}
+
+AnimationFrame::AnimationFrame(int fn, const char *frame_path, const char *sound, Translation sprite_offset)
+{
+	this->frame_path = frame_path;
+	this->sound = sound;
+	this->sprite_offset = {sprite_offset.x * SUBPIXELS_IN_PIXEL, sprite_offset.y * SUBPIXELS_IN_PIXEL};
 }
 
 AnimationFrame::~AnimationFrame()
@@ -60,6 +68,11 @@ void Animation::set_frame(int fn, const char *fpath, const char *spath)
 	frames.emplace(fn, std::make_shared<AnimationFrame>(fn, fpath, spath));
 }
 
+void Animation::set_frame(int fn, const char *fpath, const char *spath, Translation sprite_offset)
+{
+	frames.emplace(fn, std::make_shared<AnimationFrame>(fn, fpath, spath, sprite_offset));
+}
+
 void Animation::set_frame_reactors(int fn, std::vector<ReactorCollideBox> r)
 {
 	frames[fn]->reactors = r;
@@ -70,9 +83,8 @@ void Animation::set_frame_activators(int fn, std::vector<ActivatorCollideBox> a)
 	frames[fn]->activators = a;
 }
 
-SDL_Texture *Animation::get_frame() {
-	SDL_Texture *texture = game.media.readTexture(frames[current_frame]->frame_path);
-	return texture;
+AnimationFrame Animation::frame() {
+	return *frames[current_frame];
 }
 
 std::vector<ReactorCollideBox> Animation::frame_reactors() {
@@ -86,7 +98,6 @@ std::vector<ReactorCollideBox> Animation::frame_reactors() {
 }
 
 std::vector<ActivatorCollideBox> Animation::frame_activators() {
-	int frame_index = ((int)game.frame_counter.rendered_frames - start_tick) % animation_l;
 	if(frames.find(current_frame) != frames.end()) {
 		//std::cout << "returning " << frames[current_frame]->activators.size() << " for frame index " << current_frame << std::endl;
 		return frames[current_frame]->activators;	
@@ -112,7 +123,7 @@ void Animation::reset() {
 bool Animation::is_over() {
 	if (!loops) {
 		//std::cout << (int)game.frame_counter.rendered_frames << " - " << start_tick << " > " << animation_l << std::endl;
-		return (int)game.frame_counter.rendered_frames - start_tick >= animation_l;
+		return (int)game.frame_counter.rendered_frames - start_tick >= animation_l - 1;
 	}
 	return false;
 }

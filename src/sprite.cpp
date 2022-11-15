@@ -40,6 +40,9 @@ bool Sprite::move_single_axis(Translation trans) {
 
 void Sprite::add_colliders() {
   for (auto& activator: activators) {
+      if(facing_left) {
+          activator.offset_x = (SHAPE.w * SUBPIXELS_IN_PIXEL) -(activator.offset_x + activator.width);
+      }
     //TODO: Assumes collide layer is always zero
     game.collide_layers[0].add_activator(activator, pos);
   }

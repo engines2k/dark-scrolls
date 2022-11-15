@@ -16,7 +16,7 @@ class Mob: public Sprite {
     return hp;
   }
 
-  void damage(int dmg) {
+  void take_damage(int dmg) {
     if(hp - dmg < 0) hp = 0;
     else hp -= dmg;
   }
@@ -30,13 +30,18 @@ class Mob: public Sprite {
     hp = n_hp;
   }
 
+  virtual void death() {
+    despawn();
+  }
+  
   virtual void tick();
   virtual void draw(SDL_Rect shape);
 
   protected:
   bool show_health;
+  bool dead = false;
   const int max_hp = 100; // This should be changed to initialize in the constructor later.
-  int hp = 80;
+  int hp = max_hp;
 
   virtual ~Mob () {
   }

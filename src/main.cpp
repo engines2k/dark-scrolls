@@ -19,6 +19,8 @@
 #include "player.hpp"
 #include "text.hpp"
 #include "camera.hpp"
+#include "Item.hpp"
+#include "Potions.hpp"
 #include <iostream>
 
 const int WIDTH = 800, HEIGHT = 600;
@@ -138,7 +140,7 @@ int main(int argc, char *argv[]) {
     abort();
   }
 
-  game.current_level = Level(game, game.data_path / "level/test_room_2.tmj");
+  game.current_level = Level(game, game.data_path / "level/level_1.tmj");
   for (unsigned layer_id = 0; layer_id < game.current_level.size(); layer_id++) {
     for (unsigned y = 0; y < game.current_level[layer_id].size(); y++) {
       for (unsigned x = 0; x < game.current_level[layer_id][y].size(); x++) {
@@ -174,13 +176,29 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  for (unsigned layer_id = 0; layer_id < game.current_level.size(); layer_id++) {
+    for (unsigned y = 0; y < game.current_level[layer_id].size(); y++) {
+      for (unsigned x = 0; x < game.current_level[layer_id][y].size(); x++) {
+        Pos pos;
+        pos.layer = static_cast<int>(layer_id);
+        pos.y = static_cast<int>(y) * TILE_SUBPIXEL_SIZE;
+        pos.x = static_cast<int>(x) * TILE_SUBPIXEL_SIZE;
+        Pos item_pos = pos;
+        // FIXME: Collide layer placeholder
+        item_pos.layer = 0;
+        if (game.current_level[pos].props().spawn_type == SpriteSpawnType::HEALTH_POTION) {
+          game.sprite_list.push_back(std::make_shared<HealthPotion>(game, item_pos));
+        }
+      }
+    }
+  }
+
   if (!game.player) {
     std::cerr << "Player not found in level" << std::endl;
     abort();
   }
 
   game.camera->add_focus(game.player);
-  game.camera->add_focus(game.sprite_list[0]);
 
   game.sprite_list.push_back(game.player);
   game.sprite_list.push_back(std::make_shared<Text>(Text((char*)"Welcome to Dark Scrolls", game, Pos {.layer = 0, .x = 220 * SUBPIXELS_IN_PIXEL, .y = -27 * SUBPIXELS_IN_PIXEL})));

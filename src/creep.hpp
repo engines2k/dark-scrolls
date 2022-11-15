@@ -11,6 +11,12 @@ class Creep: public Mob {
   public:
   Creep(Game &game, Pos pos);
 
+  void patrol();
+  void attack();
+  void add_colliders();
+  bool switch_animation(int anim_idx);
+
+  void death() override;
   virtual void draw();
   virtual void tick();
 
