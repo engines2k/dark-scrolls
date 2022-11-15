@@ -8,12 +8,13 @@ class HealthPotion: public Item {
             filename = "data/sprite/healing_potion.png";
         }
 
-        virtual void draw() {
+        virtual void draw() { 
             Item::draw();
 
             if (player_collide) {
                 Text t((char*)"+15 hp!", game, pos);
                 game.sprite_list.push_back(std::make_shared<Text>(t));
+                t.draw();
 
                 Mix_Chunk *s = game.media.readWAV("data/sound/heal.wav");
                 Mix_PlayChannel(-1, s, 0);

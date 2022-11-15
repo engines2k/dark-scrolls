@@ -29,8 +29,6 @@ class Item: public Sprite{
 
             hitbox = temp2;
 
-            hitbox.damage.hp_delt = 0; // This is needed to not launch the player off the screen
-
             activators.push_back(hitbox);
             reactors.push_back(reactbox); 
                
@@ -41,7 +39,7 @@ class Item: public Sprite{
             my_rect.x = pos.x;
             my_rect.y = pos.y;
             
-            SDL_Texture *texture = game.media.readTexture("data/sprite/healing_potion.png");
+            SDL_Texture *texture = game.media.readTexture(filename.c_str());
             game.camera->render(game.renderer, texture, NULL, &my_rect);     
         }
 
