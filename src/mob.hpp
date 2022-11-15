@@ -16,7 +16,7 @@ class Mob: public Sprite {
     return hp;
   }
 
-  void damage(int dmg) {
+  void take_damage(int dmg) {
     if(hp - dmg < 0) hp = 0;
     else hp -= dmg;
   }
