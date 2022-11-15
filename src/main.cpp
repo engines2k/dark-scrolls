@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
 
   SDL_Window *window;
 
-  window = SDL_CreateWindow("Hello, World!",
+  window = SDL_CreateWindow("Dark Scrolls",
                                         SDL_WINDOWPOS_UNDEFINED,
                                         SDL_WINDOWPOS_UNDEFINED,
                                         WIDTH, HEIGHT,
