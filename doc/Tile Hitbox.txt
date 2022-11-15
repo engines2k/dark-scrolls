@@ -1,12 +1,26 @@
-Tile hitboxes are a custom property on the tile called activators or activator hitboxes or
+Tile hitboxes are a custom property on the tile called activators for activator hitboxes or
 detectors for detector hitboxes.
-The property "activators" shall be a string that can be parsed as an JSON array of the following object:
-{
-  type: int?, // what to do when a collision is detected
+
+All tile collide boxes shall have this object as its base:
+class TileHitBox {
+  type: int, // what kinds of collides does this interact with
   start_x: int?, // where the hitbox's x coordinate begins
   width: int?, // hitbox's width
   start_y: int?, // where the hitbox's y coordinate begins
   height: int?, // hitbox's height
+}
+
+The default fields for this object are as follows:
+{
+  start_x: 0,
+  width: 32
+  start_y: 0,
+  height: 32,
+}
+
+The property "activators" shall be a string that can be parsed as an JSON array of the following object:
+class TileActivator: TileHitBox {
+  type: int?, // The type is optional for activators only
   damage: { // controlls damage type and strength
     hp_delt: int, // The value in hit points of the attack
   }?,
@@ -15,13 +29,24 @@ The property "activators" shall be a string that can be parsed as an JSON array 
 If any optional field is missing it is filled it according to this object:
 {
   type: 1,
-  start_x: 0,
-  width: 32
-  start_y: 0,
-  height: 32,
   damage: {
     hp_delt: 0,
   }
+}
+
+The property "reactors" shall be a string that can be parsed as an JSON array of the following object:
+class TileReactor: TileHitBox {
+  on_react: TileReactorBehavor
+}
+
+TileReactorBehavor is one of the following json objects
+class TileReactDoNothing: TileReactorBehavor {
+  type: "do_nothing"
+}
+// Changes the id of a tile on react
+class TileReactChangeId: TileReactorBehavor {
+  type: "change_id",
+  new_id: int, // The ID property of the new tile showed in tiled
 }
 
 Type ids are bitflags with these fields for activators
@@ -30,7 +55,12 @@ constexpr ActivatorCollideType ActivatorCollideType::WALL(0x1); // Acts like a w
 constexpr ActivatorCollideType ActivatorCollideType::HIT_EVIL(0x2); // Hurts evil sprites
 constexpr ActivatorCollideType ActivatorCollideType::HIT_GOOD(0x4); // Hurts good sprites (probally player)
 constexpr ActivatorCollideType ActivatorCollideType::HIT_ALL(0x6);
+constexpr ActivatorCollideType ActivatorCollideType::INTERACT(0x8);
 
 Type ids are bitflags with these fields for detectors
 
-none are valid for tiles as of now
+constexpr ReactorCollideType ReactorCollideType::WALL(0x1); // Affected by walls
+constexpr ReactorCollideType ReactorCollideType::HURT_BY_GOOD(0x2); // Can be hurt (only by good stuff)
+constexpr ReactorCollideType ReactorCollideType::HURT_BY_EVIL(0x4); // Can be hurt (only by evil stuff)
+constexpr ReactorCollideType ReactorCollideType::HURT_BY_ANY(0x6);
+constexpr ReactorCollideType ReactorCollideType::INTERACTABLE(0x8);

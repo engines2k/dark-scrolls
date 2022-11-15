@@ -8,15 +8,34 @@ class Game;
 
 enum class SpriteSpawnType { NONE, PLAYER, CREEP };
 
+class TileLayer;
+
+//Params are (x, y, current_layer, activator)
+using OnTileReactFn = std::function<void (int, int, TileLayer&, ActivatorCollideBox)>;
+
+struct TileReactorData {
+  ReactorCollideBox react_box;
+  OnTileReactFn on_react;
+};
+
+struct TileCollideData {
+  std::vector<ActivatorCollideBox> activators;
+  std::vector<TileReactorData> reactors;
+};
+
 struct TileProperties {
   bool invisible = false;
   SpriteSpawnType spawn_type = SpriteSpawnType::NONE;
   TileCollideData colliders;
 };
 
+class Tile;
+
+using Tilemap = std::unordered_map<uint32_t, std::shared_ptr<Tile>>;
+
 class Tile {
   public:
-    Tile(Game& game, const std::filesystem::path& tileset_loc, uint32_t id, const nlohmann::json& j);
+    Tile(Game& game, Tilemap& tilemap, uint32_t id_offset, const std::filesystem::path& tileset_loc, uint32_t id, const nlohmann::json& j);
     Tile(Game& game, SDL_Texture* texture, uint32_t id, TileProperties properties);
     uint32_t get_id() const {
       return id;
@@ -70,6 +89,7 @@ class Tile {
     }
 
     void reload_texture();
+    void handle_reactions();
 
     ~Tile() {
       if (texture) {
@@ -77,7 +97,7 @@ class Tile {
       }
     }
   private:
-    void backup_texture();
+    friend class TileImpl;
 
     SDL_Renderer* renderer;
     SDL_Texture* texture;
@@ -86,10 +106,9 @@ class Tile {
     TileProperties properties;
 };
 
-// TODO: Rename to TileLayer
-class Layer {
+class TileLayer {
   public:
-    Layer(std::vector<std::vector<std::shared_ptr<Tile>>> tiles);
+    TileLayer(std::vector<std::vector<std::shared_ptr<Tile>>> tiles);
 
     std::vector<std::shared_ptr<Tile>>& operator[](size_t layer_id) {
       return tile_data[layer_id];
@@ -106,19 +125,19 @@ class Layer {
     std::vector<std::vector<std::shared_ptr<Tile>>> tile_data;
 
   public:
-    decltype(std::declval<Layer>().tile_data.begin()) begin() {
+    decltype(std::declval<TileLayer>().tile_data.begin()) begin() {
       return tile_data.begin();
     }
 
-    decltype(std::declval<const Layer>().tile_data.begin()) begin() const {
+    decltype(std::declval<const TileLayer>().tile_data.begin()) begin() const {
       return tile_data.begin();
     }
 
-    decltype(std::declval<Layer>().tile_data.end()) end() {
+    decltype(std::declval<TileLayer>().tile_data.end()) end() {
       return tile_data.end();
     }
 
-    decltype(std::declval<const Layer>().tile_data.end()) end() const {
+    decltype(std::declval<const TileLayer>().tile_data.end()) end() const {
       return tile_data.end();
     }
 };
@@ -127,13 +146,17 @@ class Level {
   public:
     Level(Game &game);
     Level(Game &game, const std::filesystem::path& level_loc);
+    Level(const Level&) = delete;
+    Level& operator=(const Level&) = delete;
+    Level(Level&&) = default;
+    Level& operator=(Level&&) = default;
 
     void draw();
-    Layer& operator[](size_t layer_id) {
+    TileLayer& operator[](size_t layer_id) {
       return layers[layer_id];
     }
 
-    const Layer& operator[](size_t layer_id) const {
+    const TileLayer& operator[](size_t layer_id) const {
       return layers[layer_id];
     }
 
@@ -180,6 +203,7 @@ class Level {
     }
 
     void add_colliders(std::vector<CollideLayer>& layers);
+    void handle_reactions();
 
     void reload_texture();
 
@@ -188,9 +212,9 @@ class Level {
 
     uint32_t width;
     uint32_t height;
-    std::unordered_map<uint32_t, std::shared_ptr<Tile>> tilemap;
+    Tilemap tilemap;
     // Index order is Layer id y x
-    std::vector<Layer> layers;
+    std::vector<TileLayer> layers;
 
     Game *game;
 

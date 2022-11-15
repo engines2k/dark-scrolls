@@ -54,8 +54,6 @@ void Game::tick() {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
 
-  current_level.draw();
-
   for (auto& collide_layer: collide_layers) {
     collide_layer.clear();
   }
@@ -67,6 +65,13 @@ void Game::tick() {
 
   for (auto &sprite: sprite_list) {
     sprite->tick();
+  }
+
+  current_level.handle_reactions();
+
+  current_level.draw();
+
+  for (auto &sprite: sprite_list) {
     sprite->draw();
   }
 

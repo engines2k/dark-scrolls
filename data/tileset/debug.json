@@ -8,7 +8,7 @@
  "margin":0,
  "name":"debug",
  "spacing":0,
- "tilecount":3,
+ "tilecount":5,
  "tiledversion":"1.9.2",
  "tileheight":32,
  "tiles":[
@@ -47,6 +47,24 @@
                  "type":"string",
                  "value":"[{\"type\":6,\"damage\":{\"hp_delt\":100}}]"
                 }]
+        }, 
+        {
+         "id":3,
+         "image":"..\/tileset_gfx\/debug\/blue.png",
+         "imageheight":32,
+         "imagewidth":32,
+         "properties":[
+                {
+                 "name":"reactors",
+                 "type":"string",
+                 "value":"[{\"type\":2,\"on_react\":{\"type\":\"change_id\",\"new_id\":4}}]"
+                }]
+        }, 
+        {
+         "id":4,
+         "image":"..\/tileset_gfx\/debug\/red.png",
+         "imageheight":32,
+         "imagewidth":32
         }],
  "tilewidth":32,
  "type":"tileset",

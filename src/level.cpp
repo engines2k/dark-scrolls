@@ -14,7 +14,58 @@
 
 using json = nlohmann::json;
 
-Tile::Tile(Game& game, const std::filesystem::path& tileset_loc, uint32_t id, const json& j) {
+// Represents a tile and its 7 rotations and reflections
+struct TileGroup {
+  std::array<std::shared_ptr<Tile>, 8> tiles;
+
+  TileGroup(Tilemap& tilemap, uint32_t tile_id);
+  std::shared_ptr<Tile> transfer_flip(uint32_t id);
+};
+
+TileGroup::TileGroup(Tilemap& tilemap, uint32_t tile_id) {
+  for (int flip_bits = 0; flip_bits < 0x8; flip_bits++) {
+    uint32_t translated_id = tile_id | (flip_bits << 29);
+    tiles[flip_bits] = tilemap[translated_id];
+  }
+}
+
+std::shared_ptr<Tile> TileGroup::transfer_flip(uint32_t id) {
+  int flip_bits = id >> 29;
+  return tiles[flip_bits];
+}
+
+struct TileImpl {
+  TileImpl() = delete;
+
+  static void backup_texture(Tile& self);
+  static OnTileReactFn gen_react_fn(Tilemap& tilemap, uint32_t id_offset, const json& j);
+};
+
+void TileImpl::backup_texture(Tile& tile) {
+  SDL_SetRenderTarget(tile.renderer, tile.texture);
+  tile.texture_backup.resize(TILE_SIZE * TILE_SIZE);
+  SDL_Rect backup_zone = {.x = 0, .y = 0, .w = TILE_SIZE, .h = TILE_SIZE};
+  SDL_RenderReadPixels(tile.renderer, &backup_zone, SDL_PIXELFORMAT_RGBA8888, &tile.texture_backup.front(), TILE_SIZE * 4);
+}
+
+OnTileReactFn TileImpl::gen_react_fn(Tilemap& tilemap, uint32_t id_offset, const json& j) {
+  std::string fn_type = j["type"];
+  if (fn_type == "do_nothing") {
+    return [](int tile_x, int tile_y, TileLayer& current_layer, ActivatorCollideBox activator){};
+  } else if (fn_type == "change_id") {
+    uint32_t new_id = static_cast<uint32_t>(j["new_id"]) + id_offset;
+    TileGroup new_tile = TileGroup(tilemap, new_id);
+    return [new_tile](int tile_x, int tile_y, TileLayer& current_layer, ActivatorCollideBox activator) mutable {
+      int this_id = current_layer[tile_y][tile_x]->get_id();
+      current_layer[tile_y][tile_x] = new_tile.transfer_flip(this_id);
+    };
+  } else {
+    std::cerr << "Unknown type on tile react funtion" << std::endl;
+    abort();
+  }
+}
+
+Tile::Tile(Game& game, Tilemap& tilemap, uint32_t id_offset, const std::filesystem::path& tileset_loc, uint32_t id, const nlohmann::json& j) {
   std::string texture_path = j["image"];
   std::string texture_fullpath = (tileset_loc.parent_path() / texture_path).u8string();
   
@@ -90,7 +141,49 @@ Tile::Tile(Game& game, const std::filesystem::path& tileset_loc, uint32_t id, co
         height *= SUBPIXELS_IN_PIXEL;
         auto new_activator = ActivatorCollideBox(activator_type, start_x, width, start_y, height);
         new_activator.damage = damage;
+
+        TileReactorData tile_react;
+
         this->properties.colliders.activators.push_back(new_activator);
+      }
+    } else if (name == "reactors") {
+      std::vector<json> hitboxes = json::parse(std::string(value));
+      for (auto& hitbox_json: hitboxes) {
+        int type = hitbox_json["type"];
+        int start_x = 0;
+        int width = TILE_SIZE;
+        int start_y = 0;
+        int height = TILE_SIZE;
+
+        auto start_x_iter = hitbox_json.find("start_x");
+        if (start_x_iter != hitbox_json.end()) {
+          start_x = *start_x_iter;
+        }
+        auto width_iter = hitbox_json.find("width");
+        if (width_iter != hitbox_json.end()) {
+          width = *width_iter;
+        }
+        auto start_y_iter = hitbox_json.find("start_y");
+        if (start_y_iter != hitbox_json.end()) {
+          start_y = *start_y_iter;
+        }
+        auto height_iter = hitbox_json.find("height");
+        if (height_iter != hitbox_json.end()) {
+          height = *height_iter;
+        }
+
+        auto reactor_type = static_cast<ReactorCollideType>(type);
+
+        start_x *= SUBPIXELS_IN_PIXEL;
+        width *= SUBPIXELS_IN_PIXEL;
+        start_y *= SUBPIXELS_IN_PIXEL;
+        height *= SUBPIXELS_IN_PIXEL;
+        
+        TileReactorData tile_reactor;
+        tile_reactor.react_box = ReactorCollideBox(reactor_type, start_x, width, start_y, height);
+        tile_reactor.on_react = TileImpl::gen_react_fn(tilemap, id_offset, hitbox_json["on_react"]);
+
+        this->properties.colliders.reactors.push_back(tile_reactor);
       }
     }
   }
@@ -98,14 +191,14 @@ Tile::Tile(Game& game, const std::filesystem::path& tileset_loc, uint32_t id, co
   this->renderer = game.renderer;
   this->texture = tex;
   this->id = id;
-  backup_texture();
+  TileImpl::backup_texture(*this);
 }
 Tile::Tile(Game &game, SDL_Texture* texture, uint32_t id, TileProperties properties) {
   this->texture = texture;
   this->renderer = game.renderer;
   this->id = id;
   this->properties = properties;
-  backup_texture();
+  TileImpl::backup_texture(*this);
 }
 Tile Tile::horizontal_flip(Game& game) {
   SDL_Texture* fliped = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, TILE_SIZE, TILE_SIZE);
@@ -175,20 +268,13 @@ Tile::Tile(const Tile& other) noexcept {
   SDL_SetRenderTarget(renderer, old_render_target);
 }
 
-void Tile::backup_texture() {
-  SDL_SetRenderTarget(renderer, texture);
-  texture_backup.resize(TILE_SIZE * TILE_SIZE);
-  SDL_Rect backup_zone = {.x = 0, .y = 0, .w = TILE_SIZE, .h = TILE_SIZE};
-  SDL_RenderReadPixels(renderer, &backup_zone, SDL_PIXELFORMAT_RGBA8888, &texture_backup.front(), TILE_SIZE * 4);
-}
-
 void Tile::reload_texture() {
   SDL_DestroyTexture(texture);
   texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, TILE_SIZE, TILE_SIZE);
   SDL_UpdateTexture(texture, nullptr, &texture_backup.front(), TILE_SIZE * 4);
 }
 
-Layer::Layer(std::vector<std::vector<std::shared_ptr<Tile>>> tiles) {
+TileLayer::TileLayer(std::vector<std::vector<std::shared_ptr<Tile>>> tiles) {
   tile_data = std::move(tiles);
 }
 
@@ -243,7 +329,7 @@ Level::Level(Game &game, const std::filesystem::path& level_loc) {
         current_row.clear();
       }
     }
-    this->layers.push_back(Layer(std::move(tiles)));
+    this->layers.push_back(TileLayer(std::move(tiles)));
   }
 }
 
@@ -269,10 +355,23 @@ void Level::load_tileset(const json& tileset, const std::filesystem::path& tiles
   std::vector<json> tiles = tileset["tiles"];
   for (auto& tile_data: tiles) {
     uint32_t global_tile_id = tile_data["id"].get<uint32_t>() + first_tid;
-    if (global_tile_id > end_tid) {
+    if (global_tile_id >= end_tid) {
       continue;
     }
-    Tile base_tile(*game, tileset_loc, global_tile_id, tile_data);
+    Tile placeholder_tile(*game, nullptr, global_tile_id, TileProperties());
+
+    for (int flip_bits = 0; flip_bits < 0x8; flip_bits++) {
+      int placeholder_id = global_tile_id | (flip_bits << 29);
+      Tile placeholder_tile(*game, nullptr, placeholder_id, TileProperties());
+      tilemap.insert(std::pair(placeholder_id, std::make_shared<Tile>(std::move(placeholder_tile))));
+    }
+  }
+  for (auto& tile_data: tiles) {
+    uint32_t global_tile_id = tile_data["id"].get<uint32_t>() + first_tid;
+    if (global_tile_id >= end_tid) {
+      continue;
+    }
+    Tile base_tile(*game, tilemap, first_tid, tileset_loc, global_tile_id, tile_data);
 
     for (int flip_bits = 0; flip_bits < 0x8; flip_bits++) {
       Tile new_tile = base_tile;
@@ -285,7 +384,7 @@ void Level::load_tileset(const json& tileset, const std::filesystem::path& tiles
       if ((flip_bits & 0x4) == 0x4) {
         new_tile = new_tile.vertical_flip(*game);
       }
-      tilemap.insert(std::pair(new_tile.get_id(), std::make_shared<Tile>(std::move(new_tile))));
+      *tilemap[new_tile.get_id()] = std::move(new_tile);
     }
   }
 }
@@ -309,6 +408,27 @@ void Level::add_colliders(std::vector<CollideLayer>& collide_layers) {
           
           //TODO: Assumes collide layer is always zero
           collide_layers[0].add_activator(activator, pos);
+        }
+      }
+    }
+  }
+}
+
+void Level::handle_reactions() {
+  for (auto& tile_layer: *this) {
+    for (size_t y = 0; y < tile_layer.size(); y++) {
+      auto& tile_row = tile_layer[y];
+      for (size_t x = 0; x < tile_row.size(); x++) {
+        Tile& tile = *tile_row[x];
+        for (auto& reactor: tile.props().colliders.reactors) {
+          Pos pos = {.layer = 0, .x = static_cast<int>(x * TILE_SUBPIXEL_SIZE), 
+            .y = static_cast<int>(y * TILE_SUBPIXEL_SIZE)
+          };
+          ActivatorCollideBox activator;
+          //FIXME: Collide layers still is not done
+          if (game->collide_layers[0].overlaps_activator(reactor.react_box, pos, nullptr, &activator)) {
+            reactor.on_react(x, y, tile_layer, activator);
+          }
         }
       }
     }

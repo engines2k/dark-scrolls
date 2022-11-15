@@ -141,15 +141,11 @@ template <typename CollideType> class CollideBox:
     int height;
 };
 
-struct TileCollideData {
-  std::vector<ActivatorCollideBox> activators;
-};
-
 class CollideLayer {
   public:
     CollideLayer() {
       for (int i = 0; i < MAX_COLLIDE_Y; i++) {
-        std::vector<TileCollideData> row;
+        std::vector<std::vector<ActivatorCollideBox>> row;
         row.resize(MAX_COLLIDE_X);
         colliders.push_back(std::move(row));
       }
@@ -158,7 +154,7 @@ class CollideLayer {
     void clear() {
       for (auto& row: colliders) {
         for (auto& tile: row) {
-          tile.activators.clear();
+          tile.clear();
         }
       }
     }
@@ -194,7 +190,7 @@ class CollideLayer {
         new_hitbox.height = height;
         new_hitbox.offset_x = collide_visit.x - collide_visit.tile_scaled_x();
         new_hitbox.offset_y = collide_visit.y - collide_visit.tile_scaled_y();
-        colliders[tile_y][tile_x].activators.push_back(new_hitbox);
+        colliders[tile_y][tile_x].push_back(new_hitbox);
 
         return true;
       });
@@ -216,10 +212,10 @@ class CollideLayer {
         int tile_x = collide_visit.tile_x();
         int tile_y = collide_visit.tile_y();
 
-        const TileCollideData& current_tile = colliders[tile_y][tile_x];
+        const std::vector<ActivatorCollideBox>& current_tile = colliders[tile_y][tile_x];
 
         Pos aligned_there = {.layer = 0, .x = collide_visit.tile_scaled_x(), .y = collide_visit.tile_scaled_y()};
-        for (auto& activ: current_tile.activators) {
+        for (auto& activ: current_tile) {
           if (react.collides_with(here, activ, aligned_there)) {
             if (collide_out) {
               *collide_out = collide_visit;
@@ -237,7 +233,7 @@ class CollideLayer {
     }
 
   private:
-    std::vector<std::vector<TileCollideData>> colliders;
+    std::vector<std::vector<std::vector<ActivatorCollideBox>>> colliders;
 
     // HitBoxType is a valid perameter for CollideBox
     // Func is a function object that can be called as: bool callback(Pos collide_visit)
