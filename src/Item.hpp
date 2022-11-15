@@ -41,26 +41,18 @@ class Item: public Sprite{
             my_rect.x = pos.x;
             my_rect.y = pos.y;
             
-            SDL_Texture *texture = game.media.readTexture("data/sprite/health_potion.png");
-            game.camera->render(game.renderer, texture, NULL, &my_rect);
+            SDL_Texture *texture = game.media.readTexture("data/sprite/healing_potion.png");
+            game.camera->render(game.renderer, texture, NULL, &my_rect);     
         }
 
         virtual void tick() { 
             // Check for player coliding with Item
             for (auto &reactor: reactors) { 
                 if (hitbox.collides_with(pos, reactor, game.player->get_pos())) {
-                    int heal_amount = 15;
-                    if (game.player->get_health() <= 100 - heal_amount) // Makes sure player hp doesn't go over 100
-                        game.player->heal(heal_amount); // Increases players hp by heal_amount
-                    else // players' health was too high to heal him heal_amount
-                        game.player->set_health(100); // heal him to 100
                     despawn();
-
-                    Text t((char*)"+15 hp!", game, pos);
-                    t.draw();
+                    player_collide = true;
                 }
             }
-
         }
     
     protected:
@@ -68,6 +60,8 @@ class Item: public Sprite{
         ReactorCollideBox reactbox;
         ActivatorCollideBox hitbox;
         bool player_collide = false;
-        static constexpr SDL_Rect SHAPE = {.x = 0, .y = 0, .w = 64, .h = 64};
+        static constexpr SDL_Rect SHAPE = {.x = 0, .y = 0, .w = 32, .h = 32};
 };
+
+
 

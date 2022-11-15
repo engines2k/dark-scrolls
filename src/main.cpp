@@ -20,6 +20,7 @@
 #include "text.hpp"
 #include "camera.hpp"
 #include "Item.hpp"
+#include "Potions.hpp"
 #include <iostream>
 
 const int WIDTH = 800, HEIGHT = 600;
@@ -180,8 +181,8 @@ int main(int argc, char *argv[]) {
         Pos item_pos = pos;
         // FIXME: Collide layer placeholder
         item_pos.layer = 0;
-        if (game.current_level[pos].props().spawn_type == SpriteSpawnType::ITEM) {
-          game.sprite_list.push_back(std::make_shared<Item>(game, item_pos));
+        if (game.current_level[pos].props().spawn_type == SpriteSpawnType::HEALTH_POTION) {
+          game.sprite_list.push_back(std::make_shared<HealthPotion>(game, item_pos));
         }
       }
     }

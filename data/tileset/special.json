@@ -10,7 +10,7 @@
  "spacing":0,
  "tilecount":3,
  "tiledversion":"1.9.2",
- "tileheight":64,
+ "tileheight":32,
  "tilerendersize":"grid",
  "tiles":[
         {
@@ -48,10 +48,10 @@
                 }]
         }, 
         {
-         "id":5,
-         "image":"..\/tileset_gfx\/item_spawn.png",
-         "imageheight":64,
-         "imagewidth":64,
+         "id":6,
+         "image":"..\/tileset_gfx\/healing_potion.png",
+         "imageheight":16,
+         "imagewidth":16,
          "properties":[
                 {
                  "name":"activators",
@@ -66,10 +66,10 @@
                 {
                  "name":"spawn_tile",
                  "type":"string",
-                 "value":"item"
+                 "value":"health_potion"
                 }]
         }],
- "tilewidth":64,
+ "tilewidth":32,
  "type":"tileset",
  "version":"1.9"
 }

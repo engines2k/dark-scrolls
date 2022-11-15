@@ -6,7 +6,7 @@
 
 class Game;
 
-enum class SpriteSpawnType { NONE, PLAYER, CREEP, ITEM };
+enum class SpriteSpawnType { NONE, PLAYER, CREEP, HEALTH_POTION};
 
 struct TileProperties {
   bool invisible = false;
