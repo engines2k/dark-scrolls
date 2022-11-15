@@ -15,8 +15,8 @@ Creep::Creep(Game &game, Pos pos): Mob(game, pos) {
   // walk.set_frame(48, "data/sprite/clacker004.png", "NOSOUND");
 
   Animation die(game, 60, 0);
-  die.set_frame(0, "data/sprite/clacker_die000.png", "data/sound/creep_death.wav");
-  die.set_frame(10, "data/sprite/clacker_die001.png", "NOSOUND");
+  die.set_frame(0, "data/sprite/clacker_die000.png", "data/sound/creep_deathslash.wav");
+  die.set_frame(10, "data/sprite/clacker_die001.png", "data/sound/creep_death.wav");
   die.set_frame(20, "data/sprite/clacker_die002.png", "NOSOUND");
   die.set_frame(30, "data/sprite/clacker_die003.png", "NOSOUND");
   die.set_frame(40, "data/sprite/clacker_die004.png", "NOSOUND");
