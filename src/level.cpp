@@ -43,7 +43,7 @@ struct TileImpl {
   TileImpl() = delete;
 
   static void backup_texture(Tile& self);
-  static OnTileReactFn gen_react_fn(Tilemap& tilemap, uint32_t id_offset, const json& j);
+  static OnTileReactFn gen_react_fn(Game& game, Tilemap& tilemap, uint32_t id_offset, const json& j);
 };
 
 void TileImpl::backup_texture(Tile& tile) {
@@ -53,7 +53,20 @@ void TileImpl::backup_texture(Tile& tile) {
   SDL_RenderReadPixels(tile.renderer, &backup_zone, SDL_PIXELFORMAT_RGBA8888, &tile.texture_backup.front(), TILE_SIZE * 4);
 }
 
-OnTileReactFn TileImpl::gen_react_fn(Tilemap& tilemap, uint32_t id_offset, const json& j) {
+//Implimentation of the type TileReactorBehavor in "doc/Tile Exdata.txt"
+OnTileReactFn TileImpl::gen_react_fn(Game& game, Tilemap& tilemap, uint32_t id_offset, const json& j) {
+  if (j.is_array()) {
+    std::vector<json> function_defs = j;
+    std::vector<OnTileReactFn> functions;
+    for (auto& function_data: function_defs) {
+      functions.push_back(gen_react_fn(game, tilemap, id_offset, function_data));
+    }
+    return [functions = std::move(functions)](int tile_x, int tile_y, TileLayer& current_layer) {
+      for (auto& function: functions) {
+        function(tile_x, tile_y, current_layer);
+      }
+    };
+  }
   std::string fn_type = j["type"];
   if (fn_type == "do_nothing") {
     return DO_NOTHING_ON_TILE_REACT;
@@ -83,6 +96,12 @@ OnTileReactFn TileImpl::gen_react_fn(Tilemap& tilemap, uint32_t id_offset, const
           }
         }
       }
+    };
+  } else if (fn_type == "play_sfx") {
+    std::string sound_path = j["sound_file"];
+    return [=, &game](int tile_x, int tile_y, TileLayer& current_layer) {
+			Mix_Chunk *s = game.media.readWAV(sound_path);
+			Mix_PlayChannel(-1, s, 0);
     };
   } else {
     std::cerr << "Unknown type on tile react funtion" << std::endl;
@@ -210,7 +229,7 @@ Tile::Tile(Game& game, Tilemap& tilemap, uint32_t id_offset, const std::filesyst
         
         TileReactorData tile_reactor;
         tile_reactor.react_box = ReactorCollideBox(reactor_type, start_x, width, start_y, height);
-        tile_reactor.on_react = TileImpl::gen_react_fn(tilemap, id_offset, hitbox_json["on_react"]);
+        tile_reactor.on_react = TileImpl::gen_react_fn(game, tilemap, id_offset, hitbox_json["on_react"]);
 
         this->properties.colliders.reactors.push_back(tile_reactor);
       }
@@ -223,7 +242,7 @@ Tile::Tile(Game& game, Tilemap& tilemap, uint32_t id_offset, const std::filesyst
       }
       json lever_change_data = json::parse(std::string(value));
 
-      *lever_change_state = TileImpl::gen_react_fn(tilemap, id_offset, lever_change_data);
+      *lever_change_state = TileImpl::gen_react_fn(game, tilemap, id_offset, lever_change_data);
     }
   }
 

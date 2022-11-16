@@ -92,7 +92,7 @@
                 {
                  "name":"reactors",
                  "type":"string",
-                 "value":"[{\"type\":2,\"on_react\":{\"type\":\"lever\",\"new_lever_state\":true,\"new_id\":7}}]"
+                 "value":"[{\"type\":2,\"on_react\":[{\"type\":\"lever\",\"new_lever_state\":true,\"new_id\":7},{\"type\":\"play_sfx\",\"sound_file\":\"data\/sound\/switch_activate.wav\"}]}]"
                 }]
         }, 
         {
@@ -104,7 +104,7 @@
                 {
                  "name":"reactors",
                  "type":"string",
-                 "value":"[{\"type\":2,\"on_react\":{\"type\":\"lever\",\"new_lever_state\":false,\"new_id\":6}}]"
+                 "value":"[{\"type\":2,\"on_react\":[{\"type\":\"lever\",\"new_lever_state\":false,\"new_id\":6},{\"type\":\"play_sfx\",\"sound_file\":\"data\/sound\/switch_activate.wav\"}]}]"
                 }]
         }, 
         {

@@ -1,4 +1,4 @@
-TileReactorBehavor is one of the following json objects
+TileReactorBehavor is an array of TileReactorBehavor or one of the following json objects
 class TileReactDoNothing: TileReactorBehavor {
   type: "do_nothing"
 }
@@ -8,10 +8,15 @@ class TileReactChangeId: TileReactorBehavor {
   new_id: int, // The ID property of the new tile showed in tiled
 }
 // Handles levers
-TileReactLever: TileReactorBehavor {
+class TileReactLever: TileReactorBehavor {
   type: "lever",
   new_lever_state: bool,
   new_id: int,
+}
+// Plays the sfx
+class TileReactPlaySfx: TileReactorBehavor {
+  type: "play_sfx",
+  sound_file: string,
 }
 
 Tile hitboxes are a custom property on the tile called activators for activator hitboxes or
