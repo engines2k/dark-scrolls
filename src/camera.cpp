@@ -48,7 +48,7 @@ void Camera::calc_offset() {
 
 void Camera::calc_zoom() {
 	float z;
-	if(focus_points.size() <= 1)
+	if(!zoom_enabled || focus_points.size() <= 1)
 		z = zoom_default;
 	else {
 		// Find smallest and largest x and y positions among all focus points
@@ -59,19 +59,16 @@ void Camera::calc_zoom() {
 			if(sprite->is_spawned()){
 				p.x /= SUBPIXELS_IN_PIXEL;
 
-				if(&sprite == &focus_points.front()){
-					x_min = p.x;
-					x_max = p.x;
-				}
-				else{
-					if(p.x < x_min) x_min = p.x;
-					else if (p.x < x_max) x_max = p.x;
-				}
+			if(p.x < x_min) x_min = p.x;
+			else if (p.x > x_max) x_max = p.x;
+
+
 			}
 		}
 
 
-		int delt = abs(x_max - x_min);
+		int delt = x_max - x_min;
+		if(delt < 0) delt = -delt;
 		delt *= 2; 								// Gives padding on the sides.
 		if(delt == 0) delt = 1;					// Failsafe for small delts
 
@@ -82,9 +79,6 @@ void Camera::calc_zoom() {
 			z = zoom_default;
 		else if (z > max_zoom)
 			z = max_zoom;
-
-		// Zoom is currently buggy. Comment this out to see what autozoom does.
-		z = zoom_default; 
 	}
 
 	zoom_factor = z;

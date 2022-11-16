@@ -166,6 +166,10 @@ void Player::tick() {
     }
 
     // FOR DEMONSTRATION PURPOSES
+    if(game.keyboard.is_pressed(SDL_SCANCODE_Z)){
+      game.camera->zoom_enabled = !game.camera->zoom_enabled;
+    }
+
     if(game.keyboard.is_pressed(SDL_SCANCODE_9)) {
       if(!test_creep || !test_creep->is_spawned()) {
         test_creep = std::make_shared<Creep>(game, pos);

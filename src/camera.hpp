@@ -8,7 +8,7 @@
 class Game;
 
 struct FocusPoint {
-	Pos &pos;
+	Pos &pos;	
 	float weight;
 	FocusPoint(Pos &npos, float nweight);
 };
@@ -29,7 +29,7 @@ private:
 
 
 public:
-
+	bool zoom_enabled;
 	Camera(Game &game);
 	void calc_offset();
 	void calc_eased_offset();
