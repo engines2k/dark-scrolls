@@ -8,7 +8,7 @@
  "margin":0,
  "name":"main",
  "spacing":0,
- "tilecount":12,
+ "tilecount":15,
  "tiledversion":"1.9.2",
  "tileheight":32,
  "tilerendersize":"grid",
@@ -149,6 +149,42 @@
                  "name":"activators",
                  "type":"string",
                  "value":"[{\"start_y\":24,\"height\":8}]"
+                }]
+        }, 
+        {
+         "id":27,
+         "image":"..\/tileset_gfx\/wall_shelf.png",
+         "imageheight":32,
+         "imagewidth":32,
+         "properties":[
+                {
+                 "name":"activators",
+                 "type":"string",
+                 "value":"[{\"height\":30}]"
+                }]
+        }, 
+        {
+         "id":28,
+         "image":"..\/tileset_gfx\/wall_candle_2.png",
+         "imageheight":32,
+         "imagewidth":32,
+         "properties":[
+                {
+                 "name":"activators",
+                 "type":"string",
+                 "value":"[{\"height\":30}]"
+                }]
+        }, 
+        {
+         "id":29,
+         "image":"..\/tileset_gfx\/wall_candle_1.png",
+         "imageheight":32,
+         "imagewidth":32,
+         "properties":[
+                {
+                 "name":"activators",
+                 "type":"string",
+                 "value":"[{\"height\":30}]"
                 }]
         }],
  "tilewidth":32,
