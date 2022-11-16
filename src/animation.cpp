@@ -8,9 +8,10 @@
 
 AnimationFrame::AnimationFrame(int fn, const char *frame_path, const char *sound)
 {
-	this->sprite_offset = {0, 0};
 	this->frame_path = frame_path;
 	this->sound = sound;
+	this->sprite_offset = {0, 0};
+	this->velocity = 0;
 }
 
 AnimationFrame::AnimationFrame(int fn, const char *frame_path, const char *sound, Translation sprite_offset)
@@ -18,7 +19,17 @@ AnimationFrame::AnimationFrame(int fn, const char *frame_path, const char *sound
 	this->frame_path = frame_path;
 	this->sound = sound;
 	this->sprite_offset = {sprite_offset.x * SUBPIXELS_IN_PIXEL, sprite_offset.y * SUBPIXELS_IN_PIXEL};
+	this->velocity = 0;
 }
+
+AnimationFrame::AnimationFrame(int fn, const char *frame_path, const char *sound, Translation sprite_offset, int velocity)
+{
+	this->frame_path = frame_path;
+	this->sound = sound;
+	this->sprite_offset = {sprite_offset.x * SUBPIXELS_IN_PIXEL, sprite_offset.y * SUBPIXELS_IN_PIXEL};
+	this->velocity = velocity;
+}
+
 
 AnimationFrame::~AnimationFrame()
 {
@@ -71,6 +82,11 @@ void Animation::set_frame(int fn, const char *fpath, const char *spath)
 void Animation::set_frame(int fn, const char *fpath, const char *spath, Translation sprite_offset)
 {
 	frames.emplace(fn, std::make_shared<AnimationFrame>(fn, fpath, spath, sprite_offset));
+}
+
+void Animation::set_frame(int fn, const char *fpath, const char *spath, Translation sprite_offset, int velocity)
+{
+	frames.emplace(fn, std::make_shared<AnimationFrame>(fn, fpath, spath, sprite_offset, velocity));
 }
 
 void Animation::set_frame_reactors(int fn, std::vector<ReactorCollideBox> r)

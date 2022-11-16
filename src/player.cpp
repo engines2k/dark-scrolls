@@ -59,12 +59,21 @@ Player::Player(Game &game, Pos pos): Mob(game, pos)
   attack.set_frame(15, "data/sprite/player_slash002.png", "NOSOUND", {-7, 0});
   attack.set_frame(23, "data/sprite/player_slash003.png", "NOSOUND", {-7, 0});
 
+  Animation dodge(game, 37, 0);
+  dodge.set_frame(0, "data/sprite/player_dodge000.png", "data/sound/dodge.wav");
+  dodge.set_frame(4, "data/sprite/player_dodge001.png", "NOSOUND", {0, 0}, 4);
+  // dodge.set_frame(8, "data/sprite/player_dodge002.png", "NOSOUND");
+  dodge.set_frame(11, "data/sprite/player_dodge003.png", "NOSOUND");
+  dodge.set_frame(17, "data/sprite/player_dodge004.png", "data/sound/land.wav", {0, 0}, 1);
+  dodge.set_frame(23, "data/sprite/player_dodge005.png", "NOSOUND");
+
   // //FIXME
   attack.add_activator(14, hitbox);
 
   animations.push_back(idle);
   animations.push_back(walk);
   animations.push_back(attack);
+  animations.push_back(dodge);
 
   reactors.push_back(std::move(hurtbox));
 
@@ -103,29 +112,33 @@ bool Player::switch_animation(int new_animation_index) {
 }
 
 void Player::tick() {
-  set_activators(animations[current_animation_index].frame_activators());
+  AnimationFrame frame = animations[current_animation_index].frame();
+  set_activators(frame.activators);
   Mob::tick();
 
   int mspeed = speed + int(speed_mod * FRAME_RATE * SUBPIXELS_IN_PIXEL);
 
-      if (game.keyboard.is_pressed(SDL_SCANCODE_J) || current_animation_index == 2)
-    {
+  if (game.keyboard.is_pressed(SDL_SCANCODE_J) || current_animation_index == 2)
       switch_animation(2);  // attack
-    }
 
+  if(game.keyboard.is_pressed(SDL_SCANCODE_K))
+      switch_animation(3);  // dodge
+  if(current_animation_index == 3) {
+    if(facing_left) frame.velocity = -frame.velocity;
+    Translation vel = {frame.velocity * SUBPIXELS_IN_PIXEL, 0};
+    move(vel);
+  }
 
-    if (current_animation_index != 2 || animations[current_animation_index].is_over()){
-        immobile(false);
-      if (moving)
-        switch_animation(1);  // walk
-     else
-        switch_animation(0);  // idle     
-    }
+  if(current_animation_index == 2) immobile(true);      // Player cannot move while attacking
 
-  if(current_animation_index == 2) 
-    { 
-      immobile(true);      // Player cannot move while attacking
-    }
+  if (current_animation_index < 2 || animations[current_animation_index].is_over()){
+      immobile(false);
+    if (moving)
+      switch_animation(1);  // walk
+    else
+      switch_animation(0);  // idle     
+  }
+
 
   if(!is_immobile())
   {

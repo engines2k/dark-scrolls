@@ -9,12 +9,13 @@ class Game;
 
 struct AnimationFrame {
 	public:
-	int frame_number;
+	int frame_number, velocity;
 	const char *frame_path, *sound;
 	SDL_Texture *texture;
 	Translation sprite_offset;
 	AnimationFrame(int fn, const char *fpath, const char *spath);
 	AnimationFrame(int fn, const char *frame_path, const char *sound, Translation sprite_offset);
+	AnimationFrame(int fn, const char *frame_path, const char *sound, Translation sprite_offset, int velocity);
 	~AnimationFrame();
   	std::vector<ReactorCollideBox> reactors;
  	std::vector<ActivatorCollideBox> activators;
@@ -36,6 +37,7 @@ class Animation {
 	SDL_Rect rect;
 	void set_frame(int fn, const char *fpath, const char *spath);
 	void set_frame(int fn, const char *fpath, const char *spath, Translation sprite_offset);
+	void set_frame(int fn, const char *fpath, const char *spath, Translation sprite_offset, int velocity);
 	void set_frame_reactors(int fn, std::vector<ReactorCollideBox> r);
 	void set_frame_activators(int fn, std::vector<ActivatorCollideBox> a);
 	AnimationFrame frame();
