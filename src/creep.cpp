@@ -7,12 +7,14 @@
 
 Creep::Creep(Game &game, Pos pos): Mob(game, pos) {
 
-  Animation walk(game, 60 /* Animation length */, 1 /* Loops?*/);
-  walk.set_frame(0, "data/sprite/clacker000.png", "NOSOUND");
-  walk.set_frame(30, "data/sprite/clacker001.png", "NOSOUND");
-  // walk.set_frame(24, "data/sprite/clacker002.png", "NOSOUND");
-  // walk.set_frame(36, "data/sprite/clacker003.png", "NOSOUND");
-  // walk.set_frame(48, "data/sprite/clacker004.png", "NOSOUND");
+  Animation walk(game, 120 /* Animation length */, 1 /* Loops?*/);
+  walk.set_frame(0, "data/sprite/clacker_walk000.png", "NOSOUND");
+  walk.set_frame(16, "data/sprite/clacker_walk001.png", "NOSOUND");
+  walk.set_frame(30, "data/sprite/clacker_walk002.png", "NOSOUND");
+  walk.set_frame(40, "data/sprite/clacker_walk003.png", "NOSOUND");
+  walk.set_frame(58, "data/sprite/clacker_walk004.png", "NOSOUND");
+  walk.set_frame(84, "data/sprite/clacker_walk005.png", "NOSOUND");
+  walk.set_frame(109, "data/sprite/clacker_walk006.png", "NOSOUND");
 
   Animation die(game, 60, 0);
   die.set_frame(0, "data/sprite/clacker_die000.png", "data/sound/creep_deathslash.wav");
