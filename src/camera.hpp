@@ -18,6 +18,7 @@ private:
 	Game &game;
  	std::vector<std::shared_ptr<Sprite>> focus_points;
  	Translation offset = {0, 0};
+ 	Translation eased_offset = offset;
 	float zoom_default;
 	float zoom_factor;
 	const float max_zoom = 3;
@@ -30,8 +31,9 @@ private:
 public:
 
 	Camera(Game &game);
-	void calc_zoom();
 	void calc_offset();
+	void calc_eased_offset();
+	void calc_zoom();
 	void add_focus(std::shared_ptr<Sprite> sprite);
 
 	/* 

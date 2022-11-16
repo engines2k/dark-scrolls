@@ -17,25 +17,34 @@ void Camera::add_focus(std::shared_ptr<Sprite> sprite) {
 Calculate offset translation (camera center) as the average of all focus points
 NOTE: Caclulated as pos value (pixels * SUBPIXELS_IN_PIXEL)
 */
+
+void Camera::calc_eased_offset() {
+	int ease_factor = 6;
+	eased_offset.x += (offset.x - eased_offset.x) / ease_factor;
+	eased_offset.y += (offset.y - eased_offset.y) / ease_factor;
+}
+
 void Camera::calc_offset() {
 	std::vector<std::shared_ptr<Sprite>> next_focus_points;
 	Translation o = {0, 0};
-	int fp_size = focus_points.size();
+	int active_fps = focus_points.size();
     for(auto sprite: focus_points) {
         if(sprite->is_spawned()){
             Pos p = sprite->get_pos();
             o.x = o.x + p.x / SUBPIXELS_IN_PIXEL;
             o.y = o.y + p.y / SUBPIXELS_IN_PIXEL;
         }
-        else fp_size--;
+        else active_fps--;
     }
-	if(fp_size > 0)
+	if(active_fps > 0)
 	{
-		o.x = (o.x / fp_size) - (WIDTH / 2 / zoom_factor);
-		o.y = (o.y / fp_size) - (HEIGHT / 2 / zoom_factor);
+		o.x = (WIDTH / 2 / zoom_factor) - (o.x / active_fps);
+		o.y = (HEIGHT / 2 / zoom_factor) -(o.y / active_fps);
 		offset = o;
 	}
+	calc_eased_offset();
 }
+
 
 void Camera::calc_zoom() {
 	float z;
@@ -85,8 +94,8 @@ SDL_Rect Camera::rect_offsetted(SDL_Rect r) {
 	SDL_Rect result = r;
 
 	// Apply camera offset
-	result.x = (result.x - offset.x);
-	result.y = (result.y - offset.y);
+	result.x = (result.x + eased_offset.x);
+	result.y = (result.y + eased_offset.y);
 
 	return result;
 }
