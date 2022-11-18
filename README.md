@@ -7,14 +7,11 @@
 - [ ] Consistent naming convention
 - [ ] Add game.cpp file
 - [ ] Move animation data into .json files
-- [ ] Mars
-
 
 ### Bug fixes
 - [ ] Integration with media manager
 - [ ] Infinite health glitch
 - [ ] Incantation fix
-
 
 ### New Features
 - [ ] AI behavior
