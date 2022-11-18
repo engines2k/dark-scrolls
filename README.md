@@ -1,6 +1,8 @@
 # Objectives: Stage 2
 
 ### Clean up code
+- [ ] Modify hitboxes to be handled by animations
+- [ ] Add mob collision
 - [ ] Move code out of header files
 - [ ] Consistent naming convention
 - [ ] Add game.cpp file
@@ -15,6 +17,7 @@
 
 
 ### New Features
+- [ ] Sprite animations
 - [ ] Animation Combos
 - [ ] Inventory
 - [ ] Player respawns at beginning of level
