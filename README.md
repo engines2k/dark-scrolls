@@ -17,6 +17,7 @@
 
 
 ### New Features
+- [ ] AI behavior
 - [ ] Sprite animations
 - [ ] Animation Combos
 - [ ] Pause / Title screen
