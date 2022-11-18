@@ -1,4 +1,4 @@
-#include "MediaManager.hpp"
+#include "media_manager.hpp"
 #include <iostream>
 
 MediaManager::MediaManager(SDL_Renderer* renderer) {

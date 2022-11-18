@@ -3,7 +3,7 @@
 #include <SDL2/SDL_mixer.h>
 #include "game.hpp"
 #include "animation.hpp"
-#include "MediaManager.hpp"
+#include "media_manager.hpp"
 #include <iostream>
 
 AnimationFrame::AnimationFrame(int fn, const char *frame_path, const char *sound)

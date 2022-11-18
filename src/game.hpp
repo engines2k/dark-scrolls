@@ -3,7 +3,7 @@
 #include "keyboard_manager.hpp"
 #include "collide.hpp"
 #include "camera.hpp"
-#include "MediaManager.hpp"
+#include "media_manager.hpp"
 #include <mutex>
 
 constexpr double FRAME_RATE = 1.0 / 60.0;

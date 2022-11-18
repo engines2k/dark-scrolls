@@ -7,7 +7,7 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 #include "level.hpp"
-#include "MediaManager.hpp"
+#include "media_manager.hpp"
 #include "game.hpp"
 
 #include <cstdio>

@@ -19,8 +19,8 @@
 #include "player.hpp"
 #include "text.hpp"
 #include "camera.hpp"
-#include "Item.hpp"
-#include "Potions.hpp"
+#include "item.hpp"
+#include "potions.hpp"
 #include <iostream>
 
 const int WIDTH = 800, HEIGHT = 600;

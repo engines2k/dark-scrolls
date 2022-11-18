@@ -3,7 +3,7 @@
 #include <SDL2/SDL_mixer.h>
 #include <string>
 #include "sprite.hpp"
-#include "MediaManager.hpp"
+#include "media_manager.hpp"
 
 class Game;
 
