@@ -19,6 +19,7 @@
 ### New Features
 - [ ] Sprite animations
 - [ ] Animation Combos
+- [ ] Pause / Title screen
 - [ ] Inventory
 - [ ] Player respawns at beginning of level
 - [ ] Game over state
