@@ -6,7 +6,7 @@
 - [ ] Move code out of header files
 - [ ] Consistent naming convention
 - [ ] Add game.cpp file
-- [ ] Move animation data in .json files
+- [ ] Move animation data into .json files
 - [ ] Mars
 
 
