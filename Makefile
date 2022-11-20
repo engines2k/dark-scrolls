@@ -40,18 +40,19 @@ else
 endif
 
 CFLAGS += $(OSCFLAGS) -Wall
+LDFLAGS += $(OSLDFLAGS) -lSDL2 -lSDL2_ttf -lSDL2_image -lSDL2_mixer
 
 ifeq ($(OPTIMIZE),1)
-	CFLAGS += -O3
+	CFLAGS += -O3 -flto
+	LDFLAGS += -flto
 else ifeq ($(OPTIMIZE),DEBUG)
-	CFLAGS += -O3 -g
+	CFLAGS += -O3 -g -flto
+	LDFLAGS += -flto
 else
 	CFLAGS += -g
 endif
 
 CXXFLAGS += $(CFLAGS) --std=c++17
-
-LDFLAGS := $(OSLDFLAGS) -lSDL2 -lSDL2_ttf -lSDL2_image -lSDL2_mixer
 
 # The final build step.
 $(TARGET_EXEC): $(OBJS)
