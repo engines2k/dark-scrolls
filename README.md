@@ -14,6 +14,7 @@
 - [ ] Incantation fix *[Z]*
 
 ### New Features
+- [ ] Player death *[Z]*
 - [ ] AI behavior [Z]*
 - [ ] Sprite animations *[K/Z]*
 - [ ] Animation Combos *[Z]*
