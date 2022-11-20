@@ -4,7 +4,7 @@
 - [ ] Modify hitboxes to be handled by animations *(Z)*
 - [ ] Add mob collision *(Z)*
 - [ ] Move code out of header files *(ALL)*
-- [ ] Consistent naming convention *(A)*
+- [x] Consistent naming convention *(A)*
 - [ ] Add game.cpp file *(K)*
 - [ ] Move animation data into .json files *(Z)*
 
