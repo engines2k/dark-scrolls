@@ -20,6 +20,6 @@
 - [ ] Animation Combos *[Z]*
 - [ ] Pause / Title screen *[K]*
 - [ ] Inventory System *[A]*
-- [ ] Player respawns at spawn point *[J]*
+- [x] Player respawns at spawn point *[J]*
 - [ ] Game over state *[J]*
 - [ ] Signs *[A] (display text on bottom of screen when you get close)*
