@@ -175,7 +175,7 @@ void Player::tick() {
     
     if (game.keyboard.is_held(SDL_SCANCODE_0))     // Suicide test code
     {
-      despawn(); 
+      death(); 
     }
 
     // FOR DEMONSTRATION PURPOSES
@@ -192,6 +192,15 @@ void Player::tick() {
     }
 
   }
+}
+
+void Player::death(){
+  despawn();
+  //Respawn at spawn location
+  this->pos=Pos{0,2097152,4194304}; //Use per-level Pos information if available
+  this->spawn_flag=true;
+  this->hp=this->max_hp;
+  //Decrement a counter for 'Game Over' state
 }
 
 void Player::draw()

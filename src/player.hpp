@@ -25,6 +25,7 @@ class Player: public Mob {
   bool switch_animation(int anim_idx);
   virtual void draw();
   virtual void tick();
+  virtual void death();
 
   private:
   std::shared_ptr<Creep> test_creep; // FOR DEMONSTRATION PURPOSES
