@@ -15,7 +15,7 @@
 
 ### New Features
 - [ ] Player death *[Z]*
-- [ ] AI behavior [Z]*
+- [ ] AI behavior *[Z]*
 - [ ] Sprite animations *[K/Z]*
 - [ ] Animation Combos *[Z]*
 - [ ] Pause / Title screen *[K]*
