@@ -1,4 +1,5 @@
 #include "item.hpp"
+#include "game.hpp"
 
 Item::Item(Game &game, Pos p) : Sprite(game, p) {
   ReactorCollideBox temp( // what can hit/ effect it

@@ -1,4 +1,5 @@
 #include "potions.hpp"
+#include "game.hpp"
 
 // *********** Health Potion *************
 HealthPotion::HealthPotion(Game &game, Pos pos) : Item(game, pos) {

@@ -1,9 +1,9 @@
 #pragma once
 #include "collide.hpp"
-#include "game.hpp"
 #include "pos.hpp"
 #include <SDL2/SDL.h>
 #include <map>
+#include <memory>
 
 class Game;
 
