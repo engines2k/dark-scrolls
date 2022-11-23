@@ -2,23 +2,26 @@
 #include "pos.hpp"
 #include <iostream>
 
-//Returns true if movement occured
+// Returns true if movement occured
 bool Sprite::move_single_axis(Translation trans) {
   if (trans.x == 0 && trans.y == 0) {
     return false;
   }
   Pos orig_pos = pos;
   pos += trans;
-  for (auto& reactor: reactors) {
+  for (auto &reactor : reactors) {
     ReactorCollideBox wall_reactor = reactor;
     wall_reactor.type &= ReactorCollideType::WALL;
 
     Pos collide_visit;
     ActivatorCollideBox activator;
-    if (game.collide_layers[pos.layer].overlaps_activator(wall_reactor, pos, &collide_visit, &activator)) {
+    if (game.collide_layers[pos.layer].overlaps_activator(
+            wall_reactor, pos, &collide_visit, &activator)) {
       activator.on_recoil(collide_visit, wall_reactor);
-      int base_x = collide_visit.tile_scaled_x() + activator.offset_x - reactor.offset_x;
-      int base_y = collide_visit.tile_scaled_y() + activator.offset_y - reactor.offset_y;
+      int base_x =
+          collide_visit.tile_scaled_x() + activator.offset_x - reactor.offset_x;
+      int base_y =
+          collide_visit.tile_scaled_y() + activator.offset_y - reactor.offset_y;
 
       if (trans.x < 0) {
         pos.x = base_x + activator.width + SUBPIXELS_IN_PIXEL;
@@ -39,11 +42,12 @@ bool Sprite::move_single_axis(Translation trans) {
 }
 
 void Sprite::add_colliders() {
-  for (auto& activator: activators) {
-      if(facing_left) {
-          activator.offset_x = (SHAPE.w * SUBPIXELS_IN_PIXEL) -(activator.offset_x + activator.width);
-      }
-    //TODO: Assumes collide layer is always zero
+  for (auto &activator : activators) {
+    if (facing_left) {
+      activator.offset_x = (SHAPE.w * SUBPIXELS_IN_PIXEL) -
+                           (activator.offset_x + activator.width);
+    }
+    // TODO: Assumes collide layer is always zero
     game.collide_layers[0].add_activator(activator, pos);
   }
 }
@@ -52,6 +56,4 @@ void Sprite::set_activators(std::vector<ActivatorCollideBox> a) {
   activators = a;
 }
 
-void Sprite::set_reactors(std::vector<ReactorCollideBox> r) {
-  reactors = r;
-}
+void Sprite::set_reactors(std::vector<ReactorCollideBox> r) { reactors = r; }

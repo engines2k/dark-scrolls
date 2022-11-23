@@ -1,21 +1,20 @@
 #pragma once
-#include "pos.hpp"
 #include "collide.hpp"
-#include <vector>
+#include "pos.hpp"
 #include <memory>
+#include <vector>
 
 static uint64_t NEXT_SPRITE_ID = 0;
 
 class Game;
 
-class Sprite: public std::enable_shared_from_this<Sprite> {
-  public:
-  Sprite(Game &game, Pos pos): game(game) {
+class Sprite : public std::enable_shared_from_this<Sprite> {
+public:
+  Sprite(Game &game, Pos pos) : game(game) {
     current_animation_index = 0;
     NEXT_SPRITE_ID++;
     this->pos = pos;
   }
-
 
   virtual void draw() = 0;
   virtual void tick() {}
@@ -24,20 +23,11 @@ class Sprite: public std::enable_shared_from_this<Sprite> {
   virtual void set_reactors(std::vector<ReactorCollideBox> r);
   virtual void set_activators(std::vector<ActivatorCollideBox> a);
 
-
-  Pos get_pos() const {
-    return pos;
-  }
-  void set_pos(Pos pos) {
-    this->pos = pos;
-  }
-  void despawn() {
-    spawn_flag = false;
-  }
-  bool is_spawned() const {
-    return spawn_flag;
-  }
-  //Returns true if movement occured
+  Pos get_pos() const { return pos; }
+  void set_pos(Pos pos) { this->pos = pos; }
+  void despawn() { spawn_flag = false; }
+  bool is_spawned() const { return spawn_flag; }
+  // Returns true if movement occured
   bool move(Translation trans) {
     Translation x_axis = trans;
     x_axis.y = 0;
@@ -52,7 +42,7 @@ class Sprite: public std::enable_shared_from_this<Sprite> {
 
   const int id = NEXT_SPRITE_ID;
 
-  protected:
+protected:
   static constexpr SDL_Rect SHAPE = {.x = 0, .y = 0, .w = 64, .h = 64};
   int current_animation_index;
   Pos pos;
@@ -61,7 +51,7 @@ class Sprite: public std::enable_shared_from_this<Sprite> {
   Game &game;
   std::vector<ReactorCollideBox> reactors;
   std::vector<ActivatorCollideBox> activators;
-  private:
+
+private:
   bool move_single_axis(Translation trans);
 };
-

@@ -1,9 +1,9 @@
 #pragma once
+#include "media_manager.hpp"
+#include "sprite.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <string>
-#include "sprite.hpp"
-#include "media_manager.hpp"
 
 class Game;
 
@@ -13,21 +13,17 @@ class Text : public Sprite {
   SDL_Texture *texture = NULL;
   TTF_Font *font;
 
-  int texW,texH;
+  int texW, texH;
   SDL_Rect dstrect;
-  SDL_Color color = { 255, 255, 255 };
+  SDL_Color color = {255, 255, 255};
 
 public:
   char *text;
-  void set_color(SDL_Color n_color) {
-    color = n_color;
-  }
+  void set_color(SDL_Color n_color) { color = n_color; }
 
-  int get_w() {
-    return texW;
-  }
+  int get_w() { return texW; }
 
-  Text(char *n_text, Game &game, Pos pos, SDL_Color n_color = { 255, 255, 255 });
+  Text(char *n_text, Game &game, Pos pos, SDL_Color n_color = {255, 255, 255});
 
   void draw();
   void tick();
@@ -37,17 +33,17 @@ class Incantation : public Sprite {
   Mix_Chunk *type_sound;
   Mix_Chunk *type_finish_sound;
   Mix_Chunk *type_init_sound;
-  SDL_Color color_red = { 255, 0, 0 };
-  SDL_Color color_grey = { 200, 200, 200 };
+  SDL_Color color_red = {255, 0, 0};
+  SDL_Color color_grey = {200, 200, 200};
   SDL_Surface *typed_surface = NULL;
   TTF_Font *font;
   SDL_Texture *typed_texture;
-  int typed_texW,typed_texH;
+  int typed_texW, typed_texH;
   SDL_Rect dstrect;
 
   SDL_Surface *untyped_surface = NULL;
   SDL_Texture *untyped_texture;
-  int untyped_texW,untyped_texH;
+  int untyped_texW, untyped_texH;
   SDL_Rect undstrect;
 
   std::string phrase;
@@ -55,7 +51,7 @@ class Incantation : public Sprite {
   bool inc_btn_pressed = false;
   std::shared_ptr<Sprite> player;
 
-  public:
+public:
   Incantation(std::string n_phrase, Game &game, Pos pos);
 
   void tick();

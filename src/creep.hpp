@@ -1,14 +1,15 @@
 #pragma once
-#include <SDL2/SDL.h>
-#include "mob.hpp"
 #include "animation.hpp"
+#include "mob.hpp"
+#include <SDL2/SDL.h>
 
 class Game;
 
 // Should probably share another inheritance with player for
-// mutual properties, like health and speed, etc. but I'm going to leave this for later.
-class Creep: public Mob {
-  public:
+// mutual properties, like health and speed, etc. but I'm going to leave this
+// for later.
+class Creep : public Mob {
+public:
   Creep(Game &game, Pos pos);
 
   void patrol();
@@ -20,7 +21,7 @@ class Creep: public Mob {
   virtual void draw();
   virtual void tick();
 
-  private:
+private:
   std::vector<Animation> animations;
   SDL_Surface *surface = nullptr;
   SDL_Texture *texture = nullptr;
@@ -29,5 +30,3 @@ class Creep: public Mob {
   uint32_t speed;
   SDL_Rect shape = {.x = 160, .y = -160, .w = 54, .h = 54};
 };
-
-

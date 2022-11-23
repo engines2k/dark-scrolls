@@ -1,9 +1,9 @@
 #pragma once
-#include "player.hpp"
-#include "keyboard_manager.hpp"
-#include "collide.hpp"
 #include "camera.hpp"
+#include "collide.hpp"
+#include "keyboard_manager.hpp"
 #include "media_manager.hpp"
+#include "player.hpp"
 #include <mutex>
 
 constexpr double FRAME_RATE = 1.0 / 60.0;
@@ -15,9 +15,10 @@ struct FrameCounter {
 
 class Player;
 
-class Game: public std::enable_shared_from_this<Game> {
-  public:
-  Game(SDL_Renderer *renderer): renderer(renderer), current_level(*this), media(renderer) {
+class Game : public std::enable_shared_from_this<Game> {
+public:
+  Game(SDL_Renderer *renderer)
+      : renderer(renderer), current_level(*this), media(renderer) {
     // FIXME: Figure out how to determine max collide layers
     collide_layers.resize(1);
   }
@@ -35,9 +36,10 @@ class Game: public std::enable_shared_from_this<Game> {
   std::vector<CollideLayer> collide_layers;
   MediaManager media;
 
-  //Text test_text;
+  // Text test_text;
 
   void tick();
-  private:
+
+private:
   static std::filesystem::path calc_data_path();
 };
