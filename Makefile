@@ -8,6 +8,7 @@ SRC_DIRS := ./src
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. Make will incorrectly expand these otherwise.
 SRCS := $(shell find $(SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
+HEADERS := $(shell find $(SRC_DIRS) -name '*.hpp' -or -name '*.h')
 
 # String substitution for every C/C++ file.
 # As an example, hello.cpp turns into ./build/hello.cpp.o
@@ -72,6 +73,10 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 clean:
 	rm -r $(BUILD_DIR)
 	rm $(EXENAME)
+
+.PHONY: format
+format:
+	clang-format --style=LLVM -i $(SRCS) $(HEADERS)
 
 # Include the .d makefiles. The - at the front suppresses the errors of missing
 # Makefiles. Initially, all the .d files will be missing, and we don't want those
