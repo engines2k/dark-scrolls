@@ -45,7 +45,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -194,7 +193,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -259,13 +257,13 @@
         }, 
         {
          "id":30,
-         "image":"..\/..\/..\/..\/..\/..\/Users\/synco\/Downloads\/barrel (1).png",
+         "image":"..\/tileset_gfx\/barrel.png",
          "imageheight":32,
          "imagewidth":32
         }, 
         {
          "id":31,
-         "image":"..\/..\/..\/..\/..\/..\/Users\/synco\/Downloads\/cage_box (1).png",
+         "image":"..\/tileset_gfx\/cage_box.png",
          "imageheight":35,
          "imagewidth":35
         }, 
