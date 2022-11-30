@@ -73,6 +73,7 @@ Player::Player(Game &game, Pos pos) : Mob(game, pos) {
 
   speed = (140 * FRAME_RATE) * SUBPIXELS_IN_PIXEL;
   speed_mod = 0;
+  lives = 3;
 }
 
 void Player::add_colliders() {
@@ -166,7 +167,7 @@ void Player::tick() {
     else
       moving = false;
 
-    if (game.keyboard.is_held(SDL_SCANCODE_0)) // Suicide test code
+    if (game.keyboard.is_pressed(SDL_SCANCODE_0)) // Suicide test code
     {
       death();
     }
@@ -188,12 +189,18 @@ void Player::tick() {
 
 void Player::death() {
   despawn();
-  // Respawn at spawn location
-  this->pos =
-      Pos{0, 2097152, 4194304}; // Use per-level Pos information if available
-  this->spawn_flag = true;
-  this->hp = this->max_hp;
   // Decrement a counter for 'Game Over' state
+  lives--;
+  // Respawn at spawn location
+  if (lives > 0) {
+    pos =
+        Pos{0, 2097152, 4194304}; // Use per-level Pos information if available
+    spawn_flag = true;
+    hp = max_hp;
+    speed_mod = 0;
+  } else {
+    // 'Game Over' state
+  }
 }
 
 void Player::draw() {

@@ -66,14 +66,20 @@ Creep::Creep(Game &game, Pos pos) : Mob(game, pos) {
 
 void Creep::patrol() {
 
-  if (pos.y == og_pos.y && returning)
+  Translation vel = Translation{.x = 0, .y = 0};
+
+  if (pos.x == og_pos.x && returning)
     returning = !returning;
-  if (abs(og_pos.y - pos.y) / SUBPIXELS_IN_PIXEL >= 140)
+  if (abs(og_pos.x - pos.x) / SUBPIXELS_IN_PIXEL >= 140)
     returning = true;
-  if (abs(og_pos.y - pos.y) / SUBPIXELS_IN_PIXEL < 140 && !returning)
-    pos.y += speed;
+  if (abs(og_pos.x - pos.x) / SUBPIXELS_IN_PIXEL < 140 && !returning)
+    vel.x = speed;
   else
-    pos.y += -speed;
+    vel.x = -speed;
+
+  if (vel.x != 0) vel.x = vel.x / sqrt(2);
+
+  move(vel);
 }
 
 // Merge with Player::switch animation creates strange errror
