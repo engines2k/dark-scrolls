@@ -19,9 +19,8 @@ class Text : public Sprite {
 
 public:
   char *text;
-  void set_color(SDL_Color n_color) { color = n_color; }
-
-  int get_w() { return texW; }
+  void set_color(SDL_Color n_color);
+  int get_w();
 
   Text(char *n_text, Game &game, Pos pos, SDL_Color n_color = {255, 255, 255});
 

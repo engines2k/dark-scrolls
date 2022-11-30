@@ -51,6 +51,10 @@ Incantation::Incantation(std::string n_phrase, Game &game, Pos pos)
   phrase = n_phrase;
 }
 
+void Text::set_color(SDL_Color n_color) { color = n_color; }
+
+int Text::get_w() { return texW; }
+
 void Incantation::tick() {
 
   if (game.keyboard.is_pressed(SDL_SCANCODE_RETURN)) {

@@ -17,11 +17,7 @@ class Player;
 
 class Game : public std::enable_shared_from_this<Game> {
 public:
-  Game(SDL_Renderer *renderer)
-      : renderer(renderer), current_level(*this), media(renderer) {
-    // FIXME: Figure out how to determine max collide layers
-    collide_layers.resize(1);
-  }
+  Game(SDL_Renderer *renderer);
 
   std::shared_ptr<Camera> camera = NULL;
   SDL_Renderer *renderer;

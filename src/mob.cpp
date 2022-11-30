@@ -3,6 +3,28 @@
 
 #include <cstdio>
 
+Mob::Mob(Game &game, Pos pos) : Sprite(game, pos) { show_health = true; }
+
+int Mob::get_health() const { return hp; }
+
+void Mob::take_damage(int dmg) {
+  if (hp - dmg < 0)
+    hp = 0;
+  else
+    hp -= dmg;
+}
+
+void Mob::heal(int healing) {
+  if (hp + healing > max_hp)
+    hp = max_hp;
+  else
+    hp += healing;
+}
+
+void Mob::set_health(int n_hp) { hp = n_hp; }
+
+void Mob::death() { despawn(); }
+
 void Mob::tick() {
   Sprite::tick();
   // Get hurt when overlapping hurtbox

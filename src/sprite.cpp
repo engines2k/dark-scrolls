@@ -2,6 +2,31 @@
 #include "pos.hpp"
 #include <iostream>
 
+Sprite::Sprite(Game &game, Pos pos) : game(game) {
+  current_animation_index = 0;
+  NEXT_SPRITE_ID++;
+  this->pos = pos;
+}
+
+Pos Sprite::get_pos() const { return pos; }
+
+void Sprite::set_pos(Pos pos) { this->pos = pos; }
+
+void Sprite::despawn() { spawn_flag = false; }
+
+bool Sprite::is_spawned() const { return spawn_flag; }
+
+// Returns true if movement occured
+bool Sprite::move(Translation trans) {
+    Translation x_axis = trans;
+    x_axis.y = 0;
+    Translation y_axis = trans;
+    y_axis.x = 0;
+    bool moved_x = move_single_axis(x_axis);
+    bool moved_y = move_single_axis(y_axis);
+    return moved_x || moved_y;
+  }
+
 // Returns true if movement occured
 bool Sprite::move_single_axis(Translation trans) {
   if (trans.x == 0 && trans.y == 0) {

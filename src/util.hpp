@@ -50,3 +50,4 @@ protected:
 class Empty {};
 
 char scancode_to_char(SDL_Scancode code);
+

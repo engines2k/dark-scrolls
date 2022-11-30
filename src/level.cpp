@@ -14,6 +14,98 @@
 
 using json = nlohmann::json;
 
+// Tile
+uint32_t Tile::get_id() const { return id; }
+SDL_Texture *Tile::get_texture() { return texture; }
+TileProperties &Tile::props() { return properties; }
+const TileProperties &Tile::props() const { return properties; }
+
+Tile &Tile::operator=(const Tile &other) noexcept {
+  if (this == &other) {
+    return *this;
+  }
+  return *this = Tile(other);
+}
+
+Tile::Tile(Tile &&other) noexcept {
+  this->renderer = nullptr;
+  this->texture = nullptr;
+  this->id = 0;
+
+  *this = other;
+}
+
+Tile &Tile::operator=(Tile &&other) noexcept {
+  if (this == &other) {
+    return *this;
+  }
+  if (this->texture) {
+    SDL_DestroyTexture(this->texture);
+  }
+
+  this->renderer = other.renderer;
+  this->texture = other.texture;
+  this->texture_backup = std::move(other.texture_backup);
+  this->id = other.id;
+  this->properties = other.properties;
+
+  other.texture = nullptr;
+  return *this;
+}
+
+// TileLayer
+std::vector<std::shared_ptr<Tile>> &TileLayer::operator[](size_t layer_id) {
+  return tile_data[layer_id];
+}
+
+const std::vector<std::shared_ptr<Tile>> &TileLayer::operator[](size_t layer_id) const {
+  return tile_data[layer_id];
+}
+
+size_t TileLayer::size() const { return tile_data.size(); }
+
+//Level
+TileLayer &Level::operator[](size_t layer_id) { return layers[layer_id]; }
+
+const TileLayer &Level::operator[](size_t layer_id) const {
+  return layers[layer_id];
+}
+
+Tile &Level::operator[](Pos pos) {
+  unsigned layer = pos.layer;
+  unsigned tile_y = pos.tile_y();
+  unsigned tile_x = pos.tile_x();
+  bool in_bounds = layer < layers.size() && tile_y < layers[layer].size() &&
+                    tile_x < layers[layer][tile_y].size();
+
+  if (in_bounds) {
+    return *layers[layer][tile_y][tile_x];
+  } else {
+    return *tilemap.find(0)->second;
+  }
+}
+
+const Tile &Level::operator[](Pos pos) const {
+  unsigned layer = pos.layer;
+  unsigned tile_y = pos.tile_y();
+  unsigned tile_x = pos.tile_x();
+  bool in_bounds = layer < layers.size() && tile_y < layers[layer].size() &&
+                    tile_x < layers[layer][tile_y].size();
+
+  if (in_bounds) {
+    return *layers[layer][tile_y][tile_x];
+  } else {
+    return *tilemap.find(0)->second;
+  }
+}
+
+size_t Level::size() const { return layers.size(); }
+
+float Level::get_camera_zoom() { return camera_zoom; }
+
+void Level::set_camera_zoom(float scalar) { camera_zoom = scalar; }
+
+// Tile Group
 static void do_nothing_on_tile_react(int x, int y, TileLayer &layer) {}
 
 const OnTileReactFn DO_NOTHING_ON_TILE_REACT = do_nothing_on_tile_react;

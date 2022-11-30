@@ -43,48 +43,19 @@ public:
        const nlohmann::json &j);
   Tile(Game &game, SDL_Texture *texture, uint32_t id,
        TileProperties properties);
-  uint32_t get_id() const { return id; }
-  SDL_Texture *get_texture() { return texture; }
-  TileProperties &props() { return properties; }
-  const TileProperties &props() const { return properties; }
+
+  uint32_t get_id() const;
+  SDL_Texture *get_texture();
+  TileProperties &props();
+  const TileProperties &props() const;
   Tile horizontal_flip(Game &game);
   Tile vertical_flip(Game &game);
   Tile diagonal_flip(Game &game);
 
   Tile(const Tile &other) noexcept;
-
-  Tile &operator=(const Tile &other) noexcept {
-    if (this == &other) {
-      return *this;
-    }
-    return *this = Tile(other);
-  }
-
-  Tile(Tile &&other) noexcept {
-    this->renderer = nullptr;
-    this->texture = nullptr;
-    this->id = 0;
-
-    *this = other;
-  }
-
-  Tile &operator=(Tile &&other) noexcept {
-    if (this == &other) {
-      return *this;
-    }
-    if (this->texture) {
-      SDL_DestroyTexture(this->texture);
-    }
-
-    this->renderer = other.renderer;
-    this->texture = other.texture;
-    this->texture_backup = std::move(other.texture_backup);
-    this->id = other.id;
-    this->properties = other.properties;
-
-    other.texture = nullptr;
-    return *this;
-  }
+  Tile &operator=(const Tile &other) noexcept;
+  Tile(Tile &&other) noexcept;
+  Tile &operator=(Tile &&other) noexcept;
 
   void reload_texture();
   void handle_reactions();
@@ -110,15 +81,9 @@ class TileLayer {
 public:
   TileLayer(std::vector<std::vector<std::shared_ptr<Tile>>> tiles);
 
-  std::vector<std::shared_ptr<Tile>> &operator[](size_t layer_id) {
-    return tile_data[layer_id];
-  }
-
-  const std::vector<std::shared_ptr<Tile>> &operator[](size_t layer_id) const {
-    return tile_data[layer_id];
-  }
-
-  size_t size() const { return tile_data.size(); }
+  std::vector<std::shared_ptr<Tile>> &operator[](size_t layer_id);
+  const std::vector<std::shared_ptr<Tile>> &operator[](size_t layer_id) const;
+  size_t size() const;
 
 private:
   std::vector<std::vector<std::shared_ptr<Tile>>> tile_data;
@@ -151,45 +116,16 @@ public:
   Level &operator=(Level &&) = default;
 
   void draw();
-  TileLayer &operator[](size_t layer_id) { return layers[layer_id]; }
+  TileLayer &operator[](size_t layer_id);
+  const TileLayer &operator[](size_t layer_id) const;
 
-  const TileLayer &operator[](size_t layer_id) const {
-    return layers[layer_id];
-  }
+  Tile &operator[](Pos pos);
+  const Tile &operator[](Pos pos) const;
 
-  Tile &operator[](Pos pos) {
-    unsigned layer = pos.layer;
-    unsigned tile_y = pos.tile_y();
-    unsigned tile_x = pos.tile_x();
-    bool in_bounds = layer < layers.size() && tile_y < layers[layer].size() &&
-                     tile_x < layers[layer][tile_y].size();
+  size_t size() const;
 
-    if (in_bounds) {
-      return *layers[layer][tile_y][tile_x];
-    } else {
-      return *tilemap.find(0)->second;
-    }
-  }
-
-  const Tile &operator[](Pos pos) const {
-    unsigned layer = pos.layer;
-    unsigned tile_y = pos.tile_y();
-    unsigned tile_x = pos.tile_x();
-    bool in_bounds = layer < layers.size() && tile_y < layers[layer].size() &&
-                     tile_x < layers[layer][tile_y].size();
-
-    if (in_bounds) {
-      return *layers[layer][tile_y][tile_x];
-    } else {
-      return *tilemap.find(0)->second;
-    }
-  }
-
-  size_t size() const { return layers.size(); }
-
-  float get_camera_zoom() { return camera_zoom; }
-
-  void set_camera_zoom(float scalar) { camera_zoom = scalar; }
+  float get_camera_zoom();
+  void set_camera_zoom(float scalar);
 
   void add_colliders(std::vector<CollideLayer> &layers);
   void handle_reactions();

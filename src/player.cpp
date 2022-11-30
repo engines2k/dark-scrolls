@@ -221,3 +221,7 @@ void Player::draw() {
 
   game.camera->render_ex(game.renderer, texture, NULL, &my_rect, 0, NULL, flip);
 }
+
+bool Player::is_immobile() const { return this->IMMOBILE_FLAG; }
+
+void Player::immobile(bool b) { this->IMMOBILE_FLAG = b; }

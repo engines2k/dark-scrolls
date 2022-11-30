@@ -14,9 +14,9 @@ public:
 
   virtual void add_colliders() override;
 
-  bool is_immobile() const { return this->IMMOBILE_FLAG; }
+  bool is_immobile() const;
 
-  void immobile(bool b) { this->IMMOBILE_FLAG = b; }
+  void immobile(bool b);
 
   bool switch_animation(int anim_idx);
   virtual void draw();

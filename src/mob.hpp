@@ -8,27 +8,13 @@ class Game;
 
 class Mob : public Sprite {
 public:
-  Mob(Game &game, Pos pos) : Sprite(game, pos) { show_health = true; }
+  Mob(Game &game, Pos pos);
 
-  int get_health() const { return hp; }
-
-  void take_damage(int dmg) {
-    if (hp - dmg < 0)
-      hp = 0;
-    else
-      hp -= dmg;
-  }
-
-  void heal(int healing) {
-    if (hp + healing > max_hp)
-      hp = max_hp;
-    else
-      hp += healing;
-  }
-
-  void set_health(int n_hp) { hp = n_hp; }
-
-  virtual void death() { despawn(); }
+  int get_health() const;
+  void take_damage(int dmg);
+  void heal(int healing);
+  void set_health(int n_hp);
+  virtual void death();
 
   virtual void tick();
   virtual void draw(SDL_Rect shape);
