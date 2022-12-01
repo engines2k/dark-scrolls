@@ -1,4 +1,5 @@
 #include "media_manager.hpp"
+#include "game.hpp"
 #include <iostream>
 
 std::atomic_int SUB_MEDIA_NEXT_ID = 0;
@@ -8,11 +9,10 @@ std::filesystem::path normallize_media_key(std::filesystem::path path) {
   return path.lexically_normal();
 }
 
-MediaManager::MediaManager(SDL_Renderer *renderer) {
-  this->renderer = renderer;
-}
+MediaManager::MediaManager(Game &game): game(game) {}
 
-SDL_Renderer *MediaManager::get_renderer() { return renderer; }
+Game &MediaManager::get_game() { return game; }
+SDL_Renderer *MediaManager::get_renderer() { return game.renderer; }
 
 struct SurfaceFactory : public MediaFactory {
   using KeyType = std::filesystem::path;
@@ -167,7 +167,7 @@ SDL_Texture *MediaManager::showFont(TTF_Font *font, char *text,
     abort();
   }
 
-  texture = SDL_CreateTextureFromSurface(renderer, surface);
+  texture = SDL_CreateTextureFromSurface(get_renderer(), surface);
 
   SDL_FreeSurface(surface);
 

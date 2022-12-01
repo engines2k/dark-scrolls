@@ -1,7 +1,7 @@
 #include "game.hpp"
 
 Game::Game(SDL_Renderer *renderer)
-     : renderer(renderer), current_level(*this), media(renderer) {
+     : renderer(renderer), current_level(*this), media(*this) {
   // FIXME: Figure out how to determine max collide layers
   collide_layers.resize(1);
 }

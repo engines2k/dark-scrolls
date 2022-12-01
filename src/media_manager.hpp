@@ -63,9 +63,11 @@ template <typename Factory> struct SubMediaManager : public SubMediaManagerBase 
   }
 };
 
+class Game;
+
 class MediaManager {
   std::map<int, std::unique_ptr<SubMediaManagerBase>> sub_managers;
-  SDL_Renderer *renderer;
+  Game &game;
 
   template <typename Factory> static void check_factory() {
     static_assert(std::is_base_of_v<MediaFactory, Factory>,
@@ -95,19 +97,20 @@ public:
   read(const typename std::decay_t<Factory>::KeyType key) {
     typename std::decay_t<Factory>::KeyType normal_key =
         normallize_media_key(key);
-    auto sub_man = get_sub_manager<Factory>();
+    auto &sub_man = get_sub_manager<Factory>();
     auto media_iter = sub_man.media.find(normal_key);
     if (media_iter == sub_man.media.end()) {
       auto media = sub_man.factory.construct(*this, normal_key);
-      sub_man.media[key] = media;
+      sub_man.media[normal_key] = media;
       return media;
     } else {
       return media_iter->second;
     }
   }
 
-  MediaManager(SDL_Renderer *renderer);
+  MediaManager(Game &game);
   SDL_Renderer *get_renderer();
+  Game &get_game();
   SDL_Texture *readTexture(const std::filesystem::path &path);
   SDL_Surface *readSurface(const std::filesystem::path &path);
   Mix_Chunk *readWAV(const std::filesystem::path &path);

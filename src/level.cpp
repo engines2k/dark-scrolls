@@ -15,7 +15,7 @@
 using json = nlohmann::json;
 
 // Tile
-uint32_t Tile::get_id() const { return id; }
+uint32_t Tile::get_local_id() const { return id; }
 SDL_Texture *Tile::get_texture() { return texture; }
 TileProperties &Tile::props() { return properties; }
 const TileProperties &Tile::props() const { return properties; }
@@ -135,7 +135,7 @@ struct TileImpl {
 
   static void backup_texture(Tile &self);
   static OnTileReactFn gen_react_fn(Game &game, Tilemap &tilemap,
-                                    uint32_t id_offset, const json &j);
+                                    const json &j);
 };
 
 void TileImpl::backup_texture(Tile &tile) {
@@ -148,13 +148,13 @@ void TileImpl::backup_texture(Tile &tile) {
 
 // Implimentation of the type TileReactorBehavor in "doc/Tile Exdata.txt"
 OnTileReactFn TileImpl::gen_react_fn(Game &game, Tilemap &tilemap,
-                                     uint32_t id_offset, const json &j) {
+                                     const json &j) {
   if (j.is_array()) {
     std::vector<json> function_defs = j;
     std::vector<OnTileReactFn> functions;
     for (auto &function_data : function_defs) {
       functions.push_back(
-          gen_react_fn(game, tilemap, id_offset, function_data));
+          gen_react_fn(game, tilemap, function_data));
     }
     return [functions = std::move(functions)](int tile_x, int tile_y,
                                               TileLayer &current_layer) {
@@ -167,19 +167,19 @@ OnTileReactFn TileImpl::gen_react_fn(Game &game, Tilemap &tilemap,
   if (fn_type == "do_nothing") {
     return DO_NOTHING_ON_TILE_REACT;
   } else if (fn_type == "change_id") {
-    uint32_t new_id = static_cast<uint32_t>(j["new_id"]) + id_offset;
+    uint32_t new_id = static_cast<uint32_t>(j["new_id"]);
     TileGroup new_tile = TileGroup(tilemap, new_id);
     return
         [new_tile](int tile_x, int tile_y, TileLayer &current_layer) mutable {
-          int this_id = current_layer[tile_y][tile_x]->get_id();
+          int this_id = current_layer[tile_y][tile_x]->get_local_id();
           current_layer[tile_y][tile_x] = new_tile.transfer_flip(this_id);
         };
   } else if (fn_type == "lever") {
     bool new_lever_state = j["new_lever_state"];
-    uint32_t new_id = static_cast<uint32_t>(j["new_id"]) + id_offset;
+    uint32_t new_id = static_cast<uint32_t>(j["new_id"]);
     TileGroup new_tile = TileGroup(tilemap, new_id);
     return [=](int tile_x, int tile_y, TileLayer &current_layer) mutable {
-      int this_id = current_layer[tile_y][tile_x]->get_id();
+      int this_id = current_layer[tile_y][tile_x]->get_local_id();
       current_layer[tile_y][tile_x] = new_tile.transfer_flip(this_id);
 
       for (size_t i = 0; i < current_layer.size(); i++) {
@@ -206,7 +206,7 @@ OnTileReactFn TileImpl::gen_react_fn(Game &game, Tilemap &tilemap,
   }
 }
 
-Tile::Tile(Game &game, Tilemap &tilemap, uint32_t id_offset,
+Tile::Tile(Game &game, Tilemap &tilemap,
            const std::filesystem::path &tileset_loc, uint32_t id,
            const nlohmann::json &j) {
   std::string texture_path = j["image"];
@@ -223,7 +223,6 @@ Tile::Tile(Game &game, Tilemap &tilemap, uint32_t id_offset,
   SDL_SetRenderTarget(game.renderer, big_tex);
   SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_NONE);
   SDL_RenderCopy(game.renderer, tex, nullptr, nullptr);
-  SDL_DestroyTexture(tex);
   tex = big_tex;
 
   auto properties_iter = j.find("properties");
@@ -333,7 +332,7 @@ Tile::Tile(Game &game, Tilemap &tilemap, uint32_t id_offset,
         TileReactorData tile_reactor;
         tile_reactor.react_box =
             ReactorCollideBox(reactor_type, start_x, width, start_y, height);
-        tile_reactor.on_react = TileImpl::gen_react_fn(game, tilemap, id_offset,
+        tile_reactor.on_react = TileImpl::gen_react_fn(game, tilemap,
                                                        hitbox_json["on_react"]);
 
         this->properties.colliders.reactors.push_back(tile_reactor);
@@ -348,7 +347,7 @@ Tile::Tile(Game &game, Tilemap &tilemap, uint32_t id_offset,
       json lever_change_data = json::parse(std::string(value));
 
       *lever_change_state =
-          TileImpl::gen_react_fn(game, tilemap, id_offset, lever_change_data);
+          TileImpl::gen_react_fn(game, tilemap, lever_change_data);
     }
   }
 
@@ -487,7 +486,7 @@ Level::Level(Game &game, const std::filesystem::path &level_loc) {
         level_loc.parent_path() / tilesets[i]["source"].get<std::string>();
     std::ifstream tileset_file(tileset_loc);
     json tileset_json = json::parse(tileset_file);
-    load_tileset(tileset_json, tileset_loc, first_tid, last_tid);
+    load_tileset(tileset_loc, first_tid, last_tid);
   }
 
   std::vector<json> layers = level_data["layers"];
@@ -537,45 +536,59 @@ void Level::draw() {
   }
 }
 
-void Level::load_tileset(const json &tileset,
-                         const std::filesystem::path &tileset_loc,
-                         uint32_t first_tid, uint32_t end_tid) {
-  std::vector<json> tiles = tileset["tiles"];
-  for (auto &tile_data : tiles) {
-    uint32_t global_tile_id = tile_data["id"].get<uint32_t>() + first_tid;
-    if (global_tile_id >= end_tid) {
-      continue;
-    }
-    Tile placeholder_tile(*game, nullptr, global_tile_id, TileProperties());
+struct TilemapFactory : public MediaFactory {
+  using KeyType = std::filesystem::path;
+  using MediaType = Tilemap *;
+  Tilemap *construct(MediaManager &media, const std::filesystem::path& path) {
+    std::ifstream tileset_file(path);
+    json tileset_json = json::parse(tileset_file);
 
-    for (int flip_bits = 0; flip_bits < 0x8; flip_bits++) {
-      int placeholder_id = global_tile_id | (flip_bits << 29);
-      Tile placeholder_tile(*game, nullptr, placeholder_id, TileProperties());
-      tilemap.insert(std::pair(
-          placeholder_id, std::make_shared<Tile>(std::move(placeholder_tile))));
+    Tilemap *tilemap = new Tilemap();
+    std::vector<json> tiles = tileset_json["tiles"];
+    for (auto &tile_data : tiles) {
+      uint32_t local_tile_id = tile_data["id"].get<uint32_t>();
+      for (uint32_t flip_bits = 0; flip_bits < 0x8; flip_bits++) {
+        uint32_t placeholder_id = local_tile_id | (flip_bits << 29);
+        Tile placeholder_tile(media.get_game(), nullptr, placeholder_id, TileProperties());
+        tilemap->insert(std::pair(
+            placeholder_id, std::make_shared<Tile>(std::move(placeholder_tile))));
+      }
     }
+    for (auto &tile_data : tiles) {
+      uint32_t local_tile_id = tile_data["id"].get<uint32_t>();
+      Tile base_tile(media.get_game(), *tilemap, path, local_tile_id, tile_data);
+
+      for (uint32_t flip_bits = 0; flip_bits < 0x8; flip_bits++) {
+        Tile new_tile = base_tile;
+        if ((flip_bits & 0x1) == 0x1) {
+          new_tile = new_tile.diagonal_flip(media.get_game());
+        }
+        if ((flip_bits & 0x2) == 0x2) {
+          new_tile = new_tile.horizontal_flip(media.get_game());
+        }
+        if ((flip_bits & 0x4) == 0x4) {
+          new_tile = new_tile.vertical_flip(media.get_game());
+        }
+        *(*tilemap)[new_tile.get_local_id()] = std::move(new_tile);
+      }
+    }
+    return tilemap;
   }
-  for (auto &tile_data : tiles) {
-    uint32_t global_tile_id = tile_data["id"].get<uint32_t>() + first_tid;
-    if (global_tile_id >= end_tid) {
+
+  void unload(MediaManager &media, const std::filesystem::path& path, Tilemap *tiles) {
+    delete tiles;
+  }
+};
+
+void Level::load_tileset(const std::filesystem::path &tileset_loc,
+                         uint32_t first_tid, uint32_t end_tid) {
+  Tilemap *local_tilemap = game->media.read<TilemapFactory>(tileset_loc);
+  for (auto &tile: *local_tilemap) {
+    uint32_t global_tile_id = tile.second->get_local_id() + first_tid;
+    if ((global_tile_id & 0x1FFFFFFF) >= end_tid) {
       continue;
     }
-    Tile base_tile(*game, tilemap, first_tid, tileset_loc, global_tile_id,
-                   tile_data);
-
-    for (int flip_bits = 0; flip_bits < 0x8; flip_bits++) {
-      Tile new_tile = base_tile;
-      if ((flip_bits & 0x1) == 0x1) {
-        new_tile = new_tile.diagonal_flip(*game);
-      }
-      if ((flip_bits & 0x2) == 0x2) {
-        new_tile = new_tile.horizontal_flip(*game);
-      }
-      if ((flip_bits & 0x4) == 0x4) {
-        new_tile = new_tile.vertical_flip(*game);
-      }
-      *tilemap[new_tile.get_id()] = std::move(new_tile);
-    }
+    this->tilemap[global_tile_id] = tile.second;
   }
 }
 

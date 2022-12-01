@@ -9,7 +9,7 @@
 - [ ] Move animation data into .json files *[Z]*
 
 ### Bug fixes
-- [ ] Integration with media manager *[K]*
+- [X] Integration with media manager *[K]*
 - [ ] Infinite health glitch *[K]*
 - [ ] Incantation fix *[Z]*
 

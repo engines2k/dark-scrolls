@@ -38,13 +38,14 @@ using Tilemap = std::unordered_map<uint32_t, std::shared_ptr<Tile>>;
 
 class Tile {
 public:
-  Tile(Game &game, Tilemap &tilemap, uint32_t id_offset,
+  Tile(Game &game, Tilemap &tilemap,
        const std::filesystem::path &tileset_loc, uint32_t id,
        const nlohmann::json &j);
   Tile(Game &game, SDL_Texture *texture, uint32_t id,
        TileProperties properties);
 
-  uint32_t get_id() const;
+  //uint32_t get_id() const;
+  uint32_t get_local_id() const;
   SDL_Texture *get_texture();
   TileProperties &props();
   const TileProperties &props() const;
@@ -61,10 +62,9 @@ public:
   void handle_reactions();
 
   ~Tile() {
-    // Probally broken, need to impl some kind of unloading.
-    /*if (texture) {
+    if (texture) {
       SDL_DestroyTexture(texture);
-    }*/
+    }
   }
 
 private:
@@ -133,8 +133,7 @@ public:
   void reload_texture();
 
 private:
-  void load_tileset(const nlohmann::json &tileset,
-                    const std::filesystem::path &tileset_loc,
+  void load_tileset(const std::filesystem::path &tileset_loc,
                     uint32_t first_tid, uint32_t end_tid);
 
   uint32_t width;
