@@ -51,6 +51,7 @@ Animation::Animation(const Animation &a) : game(a.game) {
   start_tick = game.frame_counter.rendered_frames;
   frames = a.frames;
   animation_l = a.animation_l;
+  loops = a.loops;
 }
 
 SDL_Texture *Animation::play() {

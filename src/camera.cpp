@@ -7,6 +7,7 @@ const int WIDTH = 800, HEIGHT = 600;
 Camera::Camera(Game &game) : game(game) {
   zoom_default = 1.5;
   zoom_factor = zoom_default;
+  zoom_enabled = false;
 }
 
 void Camera::add_focus(std::shared_ptr<Sprite> sprite) {
