@@ -19,7 +19,8 @@ struct SurfaceFactory : public MediaFactory {
   using MediaType = SDL_Surface *;
   SDL_Surface *construct(MediaManager &media,
                          const std::filesystem::path &path) {
-    SDL_Surface *surface = IMG_Load(path.c_str());
+    std::string path_str = path.u8string();
+    SDL_Surface *surface = IMG_Load(path_str.c_str());
 
     if (surface == NULL) {
       printf("Image error: %s\n", SDL_GetError());
@@ -75,7 +76,8 @@ struct WavFactory : public MediaFactory {
   using KeyType = std::filesystem::path;
   using MediaType = Mix_Chunk *;
   Mix_Chunk *construct(MediaManager &media, const std::filesystem::path &path) {
-    Mix_Chunk *waves = Mix_LoadWAV(path.c_str());
+    std::string path_str = path.u8string();
+    Mix_Chunk *waves = Mix_LoadWAV(path_str.c_str());
 
     if (!waves) {
       printf("Sound error: %s\n", SDL_GetError());
@@ -135,7 +137,8 @@ struct FontFactory : public MediaFactory {
   using KeyType = FontKey;
   using MediaType = TTF_Font *;
   TTF_Font *construct(MediaManager &media, const FontKey &key) {
-    TTF_Font *font = TTF_OpenFont(key.path.c_str(), key.size);
+    std::string path_str = key.path.u8string();
+    TTF_Font *font = TTF_OpenFont(path_str.c_str(), key.size);
 
     if (!font) {
       printf("Font error: %s\n", SDL_GetError());
