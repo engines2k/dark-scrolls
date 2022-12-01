@@ -48,6 +48,8 @@ protected:
 };
 
 class Empty {};
+struct VirtualDestroy {
+  virtual ~VirtualDestroy() {}
+};
 
 char scancode_to_char(SDL_Scancode code);
-

@@ -1,71 +1,141 @@
 #include "media_manager.hpp"
 #include <iostream>
 
+std::atomic_int SUB_MEDIA_NEXT_ID = 0;
+
+template <>
+std::filesystem::path normallize_media_key(std::filesystem::path path) {
+  return path.lexically_normal();
+}
+
 MediaManager::MediaManager(SDL_Renderer *renderer) {
   this->renderer = renderer;
 }
 
-SDL_Surface *MediaManager::readSurface(std::string filename) {
-  auto surface_iter = surfaces.find(filename);
-  if (surface_iter == surfaces.end()) {
+SDL_Renderer *MediaManager::get_renderer() { return renderer; }
 
-    SDL_Surface *surface = IMG_Load(filename.c_str());
-    // surface =
+struct SurfaceFactory : public MediaFactory {
+  using KeyType = std::filesystem::path;
+  using MediaType = SDL_Surface *;
+  SDL_Surface *construct(MediaManager &media,
+                         const std::filesystem::path &path) {
+    SDL_Surface *surface = IMG_Load(path.c_str());
 
     if (surface == NULL) {
       printf("Image error: %s\n", SDL_GetError());
       abort();
     }
 
-    surfaces[filename] = surface;
-
     return surface;
   }
 
-  return surface_iter->second;
+  void unload(MediaManager &media, const std::filesystem::path &path,
+              SDL_Surface *surface) {
+    SDL_FreeSurface(surface);
+  }
+};
+
+SDL_Surface *MediaManager::readSurface(const std::filesystem::path &path) {
+  return read<SurfaceFactory>(path);
 }
 
-SDL_Texture *MediaManager::readTexture(std::string filename) {
-  auto texture_iter = textures.find(filename);
-  if (texture_iter == textures.end()) {
-    SDL_Surface *surface = readSurface(filename.c_str());
+struct TextureFactory : public MediaFactory {
+  using KeyType = std::filesystem::path;
+  using MediaType = SDL_Texture *;
+  SDL_Texture *construct(MediaManager &media,
+                         const std::filesystem::path &path) {
+    SDL_Surface *surface = media.readSurface(path);
 
-    if (surface == NULL) {
+    SDL_Texture *texture =
+        SDL_CreateTextureFromSurface(media.get_renderer(), surface);
+
+    if (texture == NULL) {
       printf("Texture error: %s\n", SDL_GetError());
       abort();
     }
 
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-    textures[filename] = texture;
-
     return texture;
   }
 
-  return texture_iter->second;
+  void unload(MediaManager &media, const std::filesystem::path &path,
+              SDL_Texture *texture) {
+    SDL_DestroyTexture(texture);
+  }
+
+  bool flush_on_texture_invalid() {
+    return true;
+  }
+};
+
+SDL_Texture *MediaManager::readTexture(const std::filesystem::path &path) {
+  return read<TextureFactory>(path);
 }
 
-Mix_Chunk *MediaManager::readWAV(std::string filename) {
-  if (sounds.find(filename) == sounds.end()) {
-    Mix_Chunk *waves = Mix_LoadWAV(filename.c_str());
+struct WavFactory : public MediaFactory {
+  using KeyType = std::filesystem::path;
+  using MediaType = Mix_Chunk *;
+  Mix_Chunk *construct(MediaManager &media, const std::filesystem::path &path) {
+    Mix_Chunk *waves = Mix_LoadWAV(path.c_str());
 
     if (!waves) {
       printf("Sound error: %s\n", SDL_GetError());
       abort();
     }
 
-    sounds[filename] = waves;
-
     return waves;
   }
 
-  Mix_Chunk *waves = sounds[filename];
-  return waves;
+  void unload(MediaManager &media, const std::filesystem::path &path,
+              Mix_Chunk *sfx) {
+    Mix_FreeChunk(sfx);
+  }
+};
+
+Mix_Chunk *MediaManager::readWAV(const std::filesystem::path &path) {
+  return read<WavFactory>(path);
 }
 
-TTF_Font *MediaManager::readFont(std::string filename, int size) {
-  if (fonts.find(filename) == fonts.end()) {
-    TTF_Font *font = TTF_OpenFont(filename.c_str(), size);
+struct FontKey {
+  FontKey(std::filesystem::path path, int size) {
+    this->path = path;
+    this->size = size;
+  }
+
+  std::filesystem::path path;
+  int size;
+
+  bool operator<(const FontKey &other) const {
+    return path == other.path ? size < other.size : path < other.path;
+  }
+
+  bool operator<=(const FontKey &other) const {
+    return path == other.path ? size <= other.size : path < other.path;
+  }
+
+  bool operator==(const FontKey &other) const {
+    return path == other.path && size == other.size;
+  }
+
+  bool operator!=(const FontKey &other) const { return !(*this == other); }
+
+  bool operator>(const FontKey &other) const {
+    return path == other.path ? size > other.size : path > other.path;
+  }
+
+  bool operator>=(const FontKey &other) const {
+    return path == other.path ? size >= other.size : path > other.path;
+  }
+};
+
+template <> FontKey normallize_media_key(FontKey key) {
+  return FontKey(normallize_media_key(key.path), key.size);
+}
+
+struct FontFactory : public MediaFactory {
+  using KeyType = FontKey;
+  using MediaType = TTF_Font *;
+  TTF_Font *construct(MediaManager &media, const FontKey &key) {
+    TTF_Font *font = TTF_OpenFont(key.path.c_str(), key.size);
 
     if (!font) {
       printf("Font error: %s\n", SDL_GetError());
@@ -75,8 +145,14 @@ TTF_Font *MediaManager::readFont(std::string filename, int size) {
     return font;
   }
 
-  TTF_Font *font = fonts[filename];
-  return font;
+  void unload(MediaManager &media, const FontKey &key, TTF_Font *font) {
+    TTF_CloseFont(font);
+  }
+};
+
+TTF_Font *MediaManager::readFont(const std::filesystem::path &path, int size) {
+  auto key = FontKey(path, size);
+  return read<FontFactory>(key);
 }
 
 SDL_Texture *MediaManager::showFont(TTF_Font *font, char *text,
@@ -99,8 +175,7 @@ SDL_Texture *MediaManager::showFont(TTF_Font *font, char *text,
 }
 
 void MediaManager::flushTextureCache() {
-  for (auto &texture : textures) {
-    SDL_DestroyTexture(texture.second);
+  for (auto &sub_man: sub_managers) {
+    sub_man.second->on_texture_invalid();
   }
-  textures.clear();
 }
