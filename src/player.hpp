@@ -8,6 +8,7 @@ class Game;
 
 class Player : public Mob {
 public:
+  bool typing = false;
   float speed_mod;
   int lives;
 
@@ -29,6 +30,7 @@ private:
   std::vector<Animation> animations;
   bool IMMOBILE_FLAG = false;
   bool moving = false;
+
   uint32_t speed;
 
   SDL_Surface *surface = nullptr;

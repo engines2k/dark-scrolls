@@ -122,7 +122,6 @@ int Camera::render(SDL_Renderer *renderer, SDL_Texture *texture,
                    const SDL_Rect *srcrect, const SDL_Rect *dstrect) {
 
   SDL_Rect processed_rect = rect_processed(*dstrect);
-
   return SDL_RenderCopy(renderer, texture, srcrect, &processed_rect);
 }
 
@@ -132,7 +131,6 @@ int Camera::render_ex(SDL_Renderer *renderer, SDL_Texture *texture,
                       const SDL_RendererFlip flip) {
 
   SDL_Rect processed_rect = rect_processed(*dstrect);
-
   return SDL_RenderCopyEx(renderer, texture, srcrect, &processed_rect, angle,
                           center, flip);
 }
@@ -140,6 +138,5 @@ int Camera::render_ex(SDL_Renderer *renderer, SDL_Texture *texture,
 int Camera::fill_rect(SDL_Renderer *renderer, SDL_Rect *dstrect) {
 
   SDL_Rect processed_rect = rect_processed(*dstrect);
-
   return SDL_RenderFillRect(renderer, &processed_rect);
 }

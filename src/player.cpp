@@ -2,6 +2,7 @@
 #include "game.hpp"
 #include "mob.hpp"
 #include "pos.hpp"
+#include "text.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
@@ -112,6 +113,12 @@ void Player::tick() {
   set_activators(frame.activators);
   set_reactors(animations[current_animation_index].current_reactors());
   Mob::tick();
+
+  if (game.keyboard.is_pressed(SDL_SCANCODE_RETURN) && !typing) {
+    game.sprite_list.push_back(std::make_shared<Incantation>(Incantation("This_is_an_incantation", game, Pos{.layer = 0, .x = 0, .y = 100})));
+  }
+
+  if(typing) return;
 
   int mspeed = speed + int(speed_mod * FRAME_RATE * SUBPIXELS_IN_PIXEL);
 
