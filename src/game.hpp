@@ -40,6 +40,7 @@ public:
   void tick();
 
   void load_level(const std::filesystem::path &path);
+  void reset_level();
 
 private:
   static std::filesystem::path calc_data_path();

@@ -467,7 +467,7 @@ Level::Level(Game &game, const std::filesystem::path &level_loc) {
   json level_data = json::parse(level_file);
   this->width = level_data["width"].get<uint32_t>();
   this->height = level_data["height"].get<uint32_t>();
-  empty_tile = std::make_unique<Tile>(game, nullptr, 0, TileProperties());
+  empty_tile = std::make_shared<Tile>(game, nullptr, 0, TileProperties());
   empty_tile->props().invisible = true;
   tilemap.insert(std::pair(0, empty_tile.get()));
 

@@ -52,6 +52,8 @@ void Game::tick() {
     load_level("data/level/level_1.tmj");
   } else if (keyboard.is_pressed(SDL_SCANCODE_9)) {
     load_level("data/level/test_room_2.tmj");
+  } else if (keyboard.is_pressed(SDL_SCANCODE_EQUALS)) {
+    reset_level();
   }
 
   keyboard.reset_pressed();
@@ -59,6 +61,10 @@ void Game::tick() {
   SDL_RenderPresent(renderer);
   auto frame_counter_lock = std::lock_guard(this->frame_counter_lock);
   frame_counter.rendered_frames++;
+}
+
+void Game::reset_level() {
+  load_level(level_path);
 }
 
 void Game::load_level(const std::filesystem::path &path) {
