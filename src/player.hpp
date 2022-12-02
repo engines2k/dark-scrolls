@@ -9,7 +9,6 @@ class Game;
 class Player : public Mob {
 public:
   float speed_mod;
-  int lives;
 
   Player(Game &game, Pos pos);
 

@@ -74,7 +74,6 @@ Player::Player(Game &game, Pos pos) : Mob(game, pos) {
 
   speed = (140 * FRAME_RATE) * SUBPIXELS_IN_PIXEL;
   speed_mod = 0;
-  lives = 3;
 }
 
 void Player::add_colliders() {
@@ -191,18 +190,8 @@ void Player::tick() {
 
 void Player::death() {
   despawn();
-  // Decrement a counter for 'Game Over' state
-  lives--;
-  // Respawn at spawn location
-  if (lives > 0) {
-    pos =
-        Pos{0, 2097152, 4194304}; // Use per-level Pos information if available
-    spawn_flag = true;
-    hp = max_hp;
-    speed_mod = 0;
-  } else {
-    // 'Game Over' state
-  }
+  // Reload current level
+  game.load_level(game.level_path);
 }
 
 void Player::draw() {
