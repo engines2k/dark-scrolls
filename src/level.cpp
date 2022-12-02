@@ -467,9 +467,9 @@ Level::Level(Game &game, const std::filesystem::path &level_loc) {
   json level_data = json::parse(level_file);
   this->width = level_data["width"].get<uint32_t>();
   this->height = level_data["height"].get<uint32_t>();
-  Tile *empty = new Tile(game, nullptr, 0, TileProperties());
-  empty->props().invisible = true;
-  tilemap.insert(std::pair(0, std::move(empty)));
+  empty_tile = std::make_unique<Tile>(game, nullptr, 0, TileProperties());
+  empty_tile->props().invisible = true;
+  tilemap.insert(std::pair(0, empty_tile.get()));
 
   std::vector<json> tilesets = level_data["tilesets"];
   std::sort(tilesets.begin(), tilesets.end(),

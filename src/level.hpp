@@ -147,6 +147,7 @@ private:
   // Index order is Layer id y x
   std::vector<TileLayer> layers;
   LevelProperties props;
+  std::shared_ptr<Tile> empty_tile;
 
   Game *game;
 public:
