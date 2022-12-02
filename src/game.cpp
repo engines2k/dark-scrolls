@@ -47,6 +47,11 @@ void Game::tick() {
 
   sprite_list = std::move(next_sprite_list);
 
+  if (frame_counter.rendered_frames == player->despawn_time){
+    reset_level();
+    player->despawn_time = 0;
+  }
+
   //FIXME: Level load debug
   if (keyboard.is_pressed(SDL_SCANCODE_0)) {
     load_level("data/level/level_1.tmj");

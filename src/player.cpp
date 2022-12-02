@@ -201,16 +201,8 @@ void Player::death() {
     Text t((char *)"You Died", game, pos);
     game.sprite_list.push_back(std::make_shared<Text>(t));
     t.draw();
-    // despawn(); // replace with animation, disallow movement
-    despawn_time = game.frame_counter.rendered_frames;
-  }
-
-  // Reload current level
-  // wait some time while death animation plays out
-  if((game.frame_counter.rendered_frames - 90) > despawn_time){
-    despawn_time = 0;
-    despawn();
-    // game.load_level(game.level_path);
+    despawn_time = game.frame_counter.rendered_frames + 90;
+    despawn(); // replace with animation, disallow movement
   }
 }
 
