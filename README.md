@@ -7,10 +7,10 @@
 - [ ] Signs *(display text on bottom of screen when you get close)*
 
 ### Kate
-- [ ] Add game.cpp file *[K]*
-- [X] Integration with media manager *[K]*
-- [ ] Infinite health glitch *[K]*
-- [ ] Pause / Title screen *[K]*
+- [ ] Add game.cpp file
+- [X] Integration with media manager
+- [ ] Infinite health glitch
+- [ ] Pause / Title screen
 
 ### Jacob
 - [x] Player respawns at spawn point
