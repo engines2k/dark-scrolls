@@ -55,12 +55,15 @@ Animation::Animation(const Animation &a) : game(a.game) {
 }
 
 SDL_Texture *Animation::play() {
-  int frame_index =
-      ((int)game.frame_counter.rendered_frames - start_tick) % animation_l;
+  int frame_index = ((int)game.frame_counter.rendered_frames - start_tick) % animation_l;
+  
+  // If this frame is a keyframe
   if (frames.find(frame_index) != frames.end()) {
     current_frame = frame_index;
-    const char *p = frames[current_frame]->sound;
+    if(frames[current_frame]->reactors.size() > 0)
+      cur_reactors = frames[current_frame]->reactors;
 
+    const char *p = frames[current_frame]->sound;
     if (strcmp(p, "NOSOUND")) {
       Mix_Chunk *s = game.media.readWAV(p);
       Mix_PlayChannel(-1, s, 0);
@@ -99,21 +102,12 @@ void Animation::set_frame_activators(int fn,
 
 AnimationFrame Animation::frame() { return *frames[current_frame]; }
 
-std::vector<ReactorCollideBox> Animation::frame_reactors() {
-  int frame_index =
-      ((int)game.frame_counter.rendered_frames - start_tick) % animation_l;
-  if (frames.find(frame_index) != frames.end()) {
-    return frames[frame_index]->reactors;
-  }
-
-  std::vector<ReactorCollideBox> empty;
-  return empty;
+std::vector<ReactorCollideBox> Animation::current_reactors() {
+  return cur_reactors;
 }
 
 std::vector<ActivatorCollideBox> Animation::frame_activators() {
   if (frames.find(current_frame) != frames.end()) {
-    // std::cout << "returning " << frames[current_frame]->activators.size() <<
-    // " for frame index " << current_frame << std::endl;
     return frames[current_frame]->activators;
   }
 

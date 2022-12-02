@@ -31,6 +31,7 @@ Player::Player(Game &game, Pos pos) : Mob(game, pos) {
 
   Animation walk(game, 48, 1);
   walk.set_frame(0, "data/sprite/player_run000.png", "NOSOUND");
+  walk.add_reactor(0, hurtbox);
   walk.set_frame(6, "data/sprite/player_run001.png", "data/sound/walk.wav");
   walk.set_frame(13, "data/sprite/player_run002.png", "NOSOUND");
   walk.set_frame(20, "data/sprite/player_run003.png", "NOSOUND");
@@ -41,10 +42,12 @@ Player::Player(Game &game, Pos pos) : Mob(game, pos) {
 
   Animation idle(game, 70, 1);
   idle.set_frame(0, "data/sprite/player_idle000.png", "NOSOUND");
+  idle.add_reactor(0, hurtbox);
   idle.set_frame(35, "data/sprite/player_idle001.png", "NOSOUND");
 
   Animation attack(game, 30, 0);
   attack.set_frame(0, "data/sprite/player_slash000.png", "NOSOUND", {-7, 0});
+  attack.add_reactor(0, hurtbox);
   attack.set_frame(7, "data/sprite/player_slash001.png", "NOSOUND", {-7, 0});
   attack.set_frame(9, "data/sprite/player_slash001.png", "data/sound/swing.wav",
                    {-7, 0});
@@ -54,6 +57,7 @@ Player::Player(Game &game, Pos pos) : Mob(game, pos) {
 
   Animation dodge(game, 37, 0);
   dodge.set_frame(0, "data/sprite/player_dodge000.png", "data/sound/dodge.wav");
+  dodge.add_reactor(0, hurtbox);
   dodge.set_frame(4, "data/sprite/player_dodge001.png", "NOSOUND", {0, 0}, 4);
   // dodge.set_frame(8, "data/sprite/player_dodge002.png", "NOSOUND");
   dodge.set_frame(11, "data/sprite/player_dodge003.png", "NOSOUND");
@@ -61,15 +65,12 @@ Player::Player(Game &game, Pos pos) : Mob(game, pos) {
                   {0, 0}, 1);
   dodge.set_frame(23, "data/sprite/player_dodge005.png", "NOSOUND");
 
-  // //FIXME
   attack.add_activator(14, hitbox);
 
   animations.push_back(idle);
   animations.push_back(walk);
   animations.push_back(attack);
   animations.push_back(dodge);
-
-  reactors.push_back(std::move(hurtbox));
 
   speed = (140 * FRAME_RATE) * SUBPIXELS_IN_PIXEL;
   speed_mod = 0;
@@ -109,6 +110,7 @@ bool Player::switch_animation(int new_animation_index) {
 void Player::tick() {
   AnimationFrame frame = animations[current_animation_index].frame();
   set_activators(frame.activators);
+  set_reactors(animations[current_animation_index].current_reactors());
   Mob::tick();
 
   int mspeed = speed + int(speed_mod * FRAME_RATE * SUBPIXELS_IN_PIXEL);

@@ -75,10 +75,9 @@ void Sprite::add_colliders() {
     // TODO: Assumes collide layer is always zero
     game.collide_layers[0].add_activator(activator, pos);
   }
+
 }
 
-void Sprite::set_activators(std::vector<ActivatorCollideBox> a) {
-  activators = a;
-}
+void Sprite::set_activators(std::vector<ActivatorCollideBox> a) { activators = a; }
 
 void Sprite::set_reactors(std::vector<ReactorCollideBox> r) { reactors = r; }

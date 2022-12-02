@@ -1,8 +1,8 @@
-# Objectives: Stage 2
+
 
 ### Clean up code
-- [ ] Modify hitboxes to be handled by animations *[Z]*
-- [ ] Add mob collision *[Z]*
+- [X] Modify animations to handle reactors *[Z]*
+- [x] Add mob collision *[Z]*
 - [ ] Move code out of header files *[A]*
 - [x] Consistent naming convention *[A]*
 - [ ] Add game.cpp file *[K]*
