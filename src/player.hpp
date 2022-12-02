@@ -10,6 +10,7 @@ class Player : public Mob {
 public:
   bool typing = false;
   float speed_mod;
+  uint64_t despawn_time = 0;
 
   Player(Game &game, Pos pos);
 
