@@ -1,12 +1,13 @@
 #pragma once
 #include "collide.hpp"
 #include "pos.hpp"
+#include "media_manager.hpp"
 #include <SDL2/SDL.h>
 #include <nlohmann/json.hpp>
 
 class Game;
 
-enum class SpriteSpawnType { NONE, PLAYER, CREEP, HEALTH_POTION, SPEED_POTION };
+enum class SpriteSpawnType { NONE, PLAYER, CREEP, HEALTH_POTION, SPEED_POTION, TITLE_SCREEN };
 
 class TileLayer;
 
@@ -34,7 +35,7 @@ struct TileProperties {
 
 class Tile;
 
-using Tilemap = std::unordered_map<uint32_t, std::shared_ptr<Tile>>;
+using Tilemap = std::unordered_map<uint32_t, Tile *>;
 
 class Tile {
 public:
@@ -79,14 +80,14 @@ private:
 
 class TileLayer {
 public:
-  TileLayer(std::vector<std::vector<std::shared_ptr<Tile>>> tiles);
+  TileLayer(std::vector<std::vector<Tile *>> tiles);
 
-  std::vector<std::shared_ptr<Tile>> &operator[](size_t layer_id);
-  const std::vector<std::shared_ptr<Tile>> &operator[](size_t layer_id) const;
+  std::vector<Tile *> &operator[](size_t layer_id);
+  const std::vector<Tile *> &operator[](size_t layer_id) const;
   size_t size() const;
 
 private:
-  std::vector<std::vector<std::shared_ptr<Tile>>> tile_data;
+  std::vector<std::vector<Tile *>> tile_data;
 
 public:
   decltype(std::declval<TileLayer>().tile_data.begin()) begin() {
@@ -106,11 +107,14 @@ public:
   }
 };
 
+struct LevelProperties {
+  std::filesystem::path background_music;
+};
+
 class Level {
 public:
   Level(Game &game);
   Level(Game &game, const std::filesystem::path &level_loc);
-  Level(const Level &) = delete;
   Level &operator=(const Level &) = delete;
   Level(Level &&) = default;
   Level &operator=(Level &&) = default;
@@ -124,15 +128,16 @@ public:
 
   size_t size() const;
 
-  float get_camera_zoom();
-  void set_camera_zoom(float scalar);
-
   void add_colliders(std::vector<CollideLayer> &layers);
   void handle_reactions();
 
-  void reload_texture();
+  Level copy_level() const;
+
+  LevelProperties &get_props();
 
 private:
+  Level(const Level &) = default;
+
   void load_tileset(const std::filesystem::path &tileset_loc,
                     uint32_t first_tid, uint32_t end_tid);
 
@@ -141,17 +146,9 @@ private:
   Tilemap tilemap;
   // Index order is Layer id y x
   std::vector<TileLayer> layers;
+  LevelProperties props;
 
   Game *game;
-
-  Translation camera_offset = {.x = 32 * SUBPIXELS_IN_PIXEL,
-                               .y = 32 * SUBPIXELS_IN_PIXEL};
-
-  // This needs to be fixed.
-  // A draw function needs to be created that handles
-  // zoom for everything drawn (and probably transpositions as well.)
-  float camera_zoom = 1;
-
 public:
   decltype(std::declval<Level &>().layers.begin()) begin() {
     return layers.begin();
@@ -167,3 +164,15 @@ public:
     return layers.end();
   }
 };
+
+struct LevelFactory: public MediaFactory<Level *> {
+  using KeyType = std::filesystem::path;
+  Level *construct(MediaManager &media, const std::filesystem::path& path) {
+    return new Level(media.get_game(), path);
+  }
+
+  void unload(MediaManager &media, const std::filesystem::path& path, Level *level) {
+    delete level;
+  }
+};
+

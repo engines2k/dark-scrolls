@@ -2,8 +2,6 @@
 #include "game.hpp"
 #include <iostream>
 
-std::atomic_int SUB_MEDIA_NEXT_ID = 0;
-
 template <>
 std::filesystem::path normallize_media_key(std::filesystem::path path) {
   return path.lexically_normal();
@@ -11,12 +9,15 @@ std::filesystem::path normallize_media_key(std::filesystem::path path) {
 
 MediaManager::MediaManager(Game &game): game(game) {}
 
+MediaManager::~MediaManager() {
+  unloadAll();
+}
+
 Game &MediaManager::get_game() { return game; }
 SDL_Renderer *MediaManager::get_renderer() { return game.renderer; }
 
-struct SurfaceFactory : public MediaFactory {
+struct SurfaceFactory : public MediaFactory<SDL_Surface *> {
   using KeyType = std::filesystem::path;
-  using MediaType = SDL_Surface *;
   SDL_Surface *construct(MediaManager &media,
                          const std::filesystem::path &path) {
     std::string path_str = path.u8string();
@@ -40,9 +41,8 @@ SDL_Surface *MediaManager::readSurface(const std::filesystem::path &path) {
   return read<SurfaceFactory>(path);
 }
 
-struct TextureFactory : public MediaFactory {
+struct TextureFactory : public MediaFactory<SDL_Texture *> {
   using KeyType = std::filesystem::path;
-  using MediaType = SDL_Texture *;
   SDL_Texture *construct(MediaManager &media,
                          const std::filesystem::path &path) {
     SDL_Surface *surface = media.readSurface(path);
@@ -72,9 +72,8 @@ SDL_Texture *MediaManager::readTexture(const std::filesystem::path &path) {
   return read<TextureFactory>(path);
 }
 
-struct WavFactory : public MediaFactory {
+struct WavFactory : public MediaFactory<Mix_Chunk *> {
   using KeyType = std::filesystem::path;
-  using MediaType = Mix_Chunk *;
   Mix_Chunk *construct(MediaManager &media, const std::filesystem::path &path) {
     std::string path_str = path.u8string();
     Mix_Chunk *waves = Mix_LoadWAV(path_str.c_str());
@@ -95,6 +94,30 @@ struct WavFactory : public MediaFactory {
 
 Mix_Chunk *MediaManager::readWAV(const std::filesystem::path &path) {
   return read<WavFactory>(path);
+}
+
+struct MusicFactory : public MediaFactory<Mix_Music *> {
+  using KeyType = std::filesystem::path;
+  Mix_Music *construct(MediaManager &media, const std::filesystem::path &path) {
+    std::string path_str = path.u8string();
+    Mix_Music *song = Mix_LoadMUS(path_str.c_str());
+
+    if (!song) {
+      printf("Music error: %s\n", SDL_GetError());
+      abort();
+    }
+
+    return song;
+  }
+
+  void unload(MediaManager &media, const std::filesystem::path &path,
+              Mix_Music *song) {
+    Mix_FreeMusic(song);
+  }
+};
+
+Mix_Music *MediaManager::readMusic(const std::filesystem::path &path) {
+  return read<MusicFactory>(path);
 }
 
 struct FontKey {
@@ -133,9 +156,8 @@ template <> FontKey normallize_media_key(FontKey key) {
   return FontKey(normallize_media_key(key.path), key.size);
 }
 
-struct FontFactory : public MediaFactory {
+struct FontFactory : public MediaFactory<TTF_Font *> {
   using KeyType = FontKey;
-  using MediaType = TTF_Font *;
   TTF_Font *construct(MediaManager &media, const FontKey &key) {
     std::string path_str = key.path.u8string();
     TTF_Font *font = TTF_OpenFont(path_str.c_str(), key.size);
@@ -179,6 +201,12 @@ SDL_Texture *MediaManager::showFont(TTF_Font *font, char *text,
 
 void MediaManager::flushTextureCache() {
   for (auto &sub_man: sub_managers) {
-    sub_man.second->on_texture_invalid();
+    sub_man.second->on_texture_invalid(*this);
+  }
+}
+
+void MediaManager::unloadAll() {
+  for (auto &sub_man: sub_managers) {
+    sub_man.second->unload_all(*this);
   }
 }

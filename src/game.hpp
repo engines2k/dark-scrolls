@@ -5,6 +5,9 @@
 #include "media_manager.hpp"
 #include "player.hpp"
 #include <mutex>
+#include <filesystem>
+
+constexpr int WIDTH = 800, HEIGHT = 600;
 
 constexpr double FRAME_RATE = 1.0 / 60.0;
 
@@ -26,7 +29,7 @@ public:
   FrameCounter frame_counter;
   std::mutex frame_counter_lock;
   Level current_level;
-  std::filesystem::path data_path = calc_data_path();
+  std::filesystem::path level_path;
   std::vector<std::shared_ptr<Sprite>> sprite_list;
   std::shared_ptr<Player> player = NULL;
   std::vector<CollideLayer> collide_layers;
@@ -35,6 +38,8 @@ public:
   // Text test_text;
 
   void tick();
+
+  void load_level(const std::filesystem::path &path);
 
 private:
   static std::filesystem::path calc_data_path();

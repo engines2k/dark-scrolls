@@ -5,20 +5,23 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
-#include <atomic>
 #include <filesystem>
 #include <map>
 #include <memory>
 #include <string>
 #include <type_traits>
+#include <typeinfo>
+#include <typeindex>
 
+// This type must be default constructible
+template <typename MT>
 struct MediaFactory {
   // The type used to lookup the piece of media
   // KeyType must implement operator<
   // using KeyType = 0
   //
   // The type this piece of media will produce
-  // using MediaType = 0
+  using MediaType = MT;
   //
   // Creates an instance of the media
   // MediaType construct(MediaManager &media, const KeyType &key) = 0
@@ -30,6 +33,13 @@ struct MediaFactory {
   bool flush_on_texture_invalid() {
     return false;
   }
+
+  // If true call texture_reload on each MediaType 
+  // when textures are invalidated
+  bool reload_on_texture_invalid() {
+    return false;
+  }
+  void texture_reload(MediaType media) {}
 };
 
 template <typename KeyType> KeyType normallize_media_key(KeyType key) {
@@ -39,10 +49,11 @@ template <typename KeyType> KeyType normallize_media_key(KeyType key) {
 template <>
 std::filesystem::path normallize_media_key(std::filesystem::path path);
 
-extern std::atomic_int SUB_MEDIA_NEXT_ID;
+class MediaManager;
 
 struct SubMediaManagerBase {
-  virtual void on_texture_invalid() = 0;
+  virtual void on_texture_invalid(MediaManager &media) = 0;
+  virtual void unload_all(MediaManager &media) = 0;
 
   virtual ~SubMediaManagerBase() {}
 };
@@ -51,34 +62,42 @@ template <typename Factory> struct SubMediaManager : public SubMediaManagerBase 
   std::map<typename Factory::KeyType, typename Factory::MediaType> media;
   Factory factory;
 
-  virtual void on_texture_invalid() override {
+  virtual void on_texture_invalid(MediaManager &media_man) override {
     if (factory.flush_on_texture_invalid()) {
-      media.clear();
+      unload_all(media_man);
+    }
+    if (factory.reload_on_texture_invalid()) {
+      for (auto &item: media) {
+        factory.texture_reload(item.second);
+      }
     }
   }
 
-  static int get_id() {
-    static int ID = SUB_MEDIA_NEXT_ID.fetch_add(1);
-    return ID;
+  virtual void unload_all(MediaManager &media_man) override {
+    for (auto &item: media) {
+      factory.unload(media_man, item.first, item.second);
+    }
+    media.clear();
   }
 };
 
 class Game;
 
 class MediaManager {
-  std::map<int, std::unique_ptr<SubMediaManagerBase>> sub_managers;
+  std::map<std::type_index, std::unique_ptr<SubMediaManagerBase>> sub_managers;
   Game &game;
 
   template <typename Factory> static void check_factory() {
-    static_assert(std::is_base_of_v<MediaFactory, Factory>,
+    static_assert(std::is_base_of_v<MediaFactory<typename Factory::MediaType>, Factory>,
                   "Type Factory must be a MediaFactory");
   }
 
   template <typename Factory>
   SubMediaManager<std::decay_t<Factory>> &get_sub_manager() {
     using F = std::decay_t<Factory>;
+    check_factory<F>();
     using SM = SubMediaManager<F>;
-    int sub_man_id = SM::get_id();
+    std::type_index sub_man_id = typeid(SM);
     auto sub_man_iter = sub_managers.find(sub_man_id);
     SM *sub_man;
     if (sub_man_iter == sub_managers.end()) {
@@ -109,12 +128,16 @@ public:
   }
 
   MediaManager(Game &game);
+  ~MediaManager();
+
   SDL_Renderer *get_renderer();
   Game &get_game();
   SDL_Texture *readTexture(const std::filesystem::path &path);
   SDL_Surface *readSurface(const std::filesystem::path &path);
   Mix_Chunk *readWAV(const std::filesystem::path &path);
+  Mix_Music *readMusic(const std::filesystem::path &path);
   TTF_Font *readFont(const std::filesystem::path &path, int size);
   SDL_Texture *showFont(TTF_Font *font, char *text, SDL_Color color);
   void flushTextureCache();
+  void unloadAll();
 };

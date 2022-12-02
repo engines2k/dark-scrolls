@@ -6,7 +6,6 @@
 #include "level.hpp"
 #include "mob.hpp"
 #include "player.hpp"
-#include "potions.hpp"
 #include "sprite.hpp"
 #include "text.hpp"
 #include "util.hpp"
@@ -22,8 +21,6 @@
 #include <stdio.h>
 #include <unordered_set>
 #include <vector>
-
-const int WIDTH = 800, HEIGHT = 600;
 
 uint32_t game_timer(uint32_t rate, void *game_ptr) {
   Game &game = *static_cast<Game *>(game_ptr);
@@ -84,102 +81,13 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  Game game(SDL_CreateRenderer(window, -1, 0));
-
-  game.camera = std::make_shared<Camera>(game);
-  if (!game.camera) {
-    std::cerr << "Camera not initialized" << std::endl;
-    abort();
-  }
-
-  game.current_level = Level(game, game.data_path / "level/level_1.tmj");
-  for (unsigned layer_id = 0; layer_id < game.current_level.size();
-       layer_id++) {
-    for (unsigned y = 0; y < game.current_level[layer_id].size(); y++) {
-      for (unsigned x = 0; x < game.current_level[layer_id][y].size(); x++) {
-        Pos pos;
-        pos.layer = static_cast<int>(layer_id);
-        pos.y = static_cast<int>(y) * TILE_SUBPIXEL_SIZE;
-        pos.x = static_cast<int>(x) * TILE_SUBPIXEL_SIZE;
-        if (game.current_level[pos].props().spawn_type ==
-            SpriteSpawnType::PLAYER) {
-          Pos player_pos = pos;
-          // FIXME: Collide layer placeholder
-          player_pos.layer = 0;
-          game.player = std::make_shared<Player>(game, player_pos);
-          break;
-        }
-      }
-    }
-  }
-
-  for (unsigned layer_id = 0; layer_id < game.current_level.size();
-       layer_id++) {
-    for (unsigned y = 0; y < game.current_level[layer_id].size(); y++) {
-      for (unsigned x = 0; x < game.current_level[layer_id][y].size(); x++) {
-        Pos pos;
-        pos.layer = static_cast<int>(layer_id);
-        pos.y = static_cast<int>(y) * TILE_SUBPIXEL_SIZE;
-        pos.x = static_cast<int>(x) * TILE_SUBPIXEL_SIZE;
-        Pos sprite_pos = pos;
-        // FIXME: Collide layer placeholder
-        sprite_pos.layer = 0;
-        if (game.current_level[pos].props().spawn_type ==
-            SpriteSpawnType::CREEP) {
-          game.sprite_list.push_back(std::make_shared<Creep>(game, sprite_pos));
-        }
-      }
-    }
-  }
-
-  for (unsigned layer_id = 0; layer_id < game.current_level.size();
-       layer_id++) {
-    for (unsigned y = 0; y < game.current_level[layer_id].size(); y++) {
-      for (unsigned x = 0; x < game.current_level[layer_id][y].size(); x++) {
-        Pos pos;
-        pos.layer = static_cast<int>(layer_id);
-        pos.y = static_cast<int>(y) * TILE_SUBPIXEL_SIZE;
-        pos.x = static_cast<int>(x) * TILE_SUBPIXEL_SIZE;
-        Pos item_pos = pos;
-        // FIXME: Collide layer placeholder
-        item_pos.layer = 0;
-        if (game.current_level[pos].props().spawn_type ==
-            SpriteSpawnType::HEALTH_POTION) {
-          game.sprite_list.push_back(
-              std::make_shared<HealthPotion>(game, item_pos));
-        }
-        if (game.current_level[pos].props().spawn_type ==
-            SpriteSpawnType::SPEED_POTION) {
-          game.sprite_list.push_back(
-              std::make_shared<SpeedPotion>(game, item_pos));
-        }
-      }
-    }
-  }
-
-  if (!game.player) {
-    std::cerr << "Player not found in level" << std::endl;
-    abort();
-  }
-
-  game.camera->add_focus(game.player);
-
-  game.sprite_list.push_back(game.player);
-  game.sprite_list.push_back(
-      std::make_shared<Text>(Text((char *)"Welcome to Dark Scrolls", game,
-                                  Pos{.layer = 0,
-                                      .x = 220 * SUBPIXELS_IN_PIXEL,
-                                      .y = -27 * SUBPIXELS_IN_PIXEL})));
-  game.sprite_list.push_back(std::make_shared<Incantation>(Incantation(
-      "This_is_an_incantation", game, Pos{.layer = 0, .x = 0, .y = 100})));
-
+  auto game_loc = std::make_unique<Game>(SDL_CreateRenderer(window, -1, 0));
+  auto &game = *game_loc;
   game.tick_event_id = SDL_RegisterEvents(1);
 
-  SDL_TimerID tick_timer = SDL_AddTimer(FRAME_RATE * 1000, game_timer, &game);
+  game.load_level("data/level/level_1.tmj");
 
-  // music
-  Mix_Music *m = Mix_LoadMUS("data/sound/music.wav");
-  Mix_PlayMusic(m, 100);
+  SDL_TimerID tick_timer = SDL_AddTimer(FRAME_RATE * 1000, game_timer, &game);
 
   SDL_Event event;
   while (1) {
@@ -198,7 +106,6 @@ int main(int argc, char *argv[]) {
         break;
       case SDL_RENDER_TARGETS_RESET:
       case SDL_RENDER_DEVICE_RESET:
-        game.current_level.reload_texture();
         game.media.flushTextureCache();
         break;
       }
@@ -212,6 +119,10 @@ endgame:
 
   SDL_DestroyWindow(window);
 
+  game_loc = nullptr;
+
+  Mix_Quit();
+  IMG_Quit();
   SDL_Quit();
   return 0;
 }

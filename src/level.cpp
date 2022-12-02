@@ -54,11 +54,11 @@ Tile &Tile::operator=(Tile &&other) noexcept {
 }
 
 // TileLayer
-std::vector<std::shared_ptr<Tile>> &TileLayer::operator[](size_t layer_id) {
+std::vector<Tile *> &TileLayer::operator[](size_t layer_id) {
   return tile_data[layer_id];
 }
 
-const std::vector<std::shared_ptr<Tile>> &TileLayer::operator[](size_t layer_id) const {
+const std::vector<Tile *> &TileLayer::operator[](size_t layer_id) const {
   return tile_data[layer_id];
 }
 
@@ -101,10 +101,6 @@ const Tile &Level::operator[](Pos pos) const {
 
 size_t Level::size() const { return layers.size(); }
 
-float Level::get_camera_zoom() { return camera_zoom; }
-
-void Level::set_camera_zoom(float scalar) { camera_zoom = scalar; }
-
 // Tile Group
 static void do_nothing_on_tile_react(int x, int y, TileLayer &layer) {}
 
@@ -112,10 +108,10 @@ const OnTileReactFn DO_NOTHING_ON_TILE_REACT = do_nothing_on_tile_react;
 
 // Represents a tile and its 7 rotations and reflections
 struct TileGroup {
-  std::array<std::shared_ptr<Tile>, 8> tiles;
+  std::array<Tile *, 8> tiles;
 
   TileGroup(Tilemap &tilemap, uint32_t tile_id);
-  std::shared_ptr<Tile> transfer_flip(uint32_t id);
+  Tile *transfer_flip(uint32_t id);
 };
 
 TileGroup::TileGroup(Tilemap &tilemap, uint32_t tile_id) {
@@ -125,7 +121,7 @@ TileGroup::TileGroup(Tilemap &tilemap, uint32_t tile_id) {
   }
 }
 
-std::shared_ptr<Tile> TileGroup::transfer_flip(uint32_t id) {
+Tile *TileGroup::transfer_flip(uint32_t id) {
   int flip_bits = id >> 29;
   return tiles[flip_bits];
 }
@@ -244,6 +240,8 @@ Tile::Tile(Game &game, Tilemap &tilemap,
         this->properties.spawn_type = SpriteSpawnType::HEALTH_POTION;
       } else if (value == "speed_potion") {
         this->properties.spawn_type = SpriteSpawnType::SPEED_POTION;
+      } else if (value == "title_screen") {
+        this->properties.spawn_type = SpriteSpawnType::TITLE_SCREEN;
       }
     } else if (name == "activators") {
       std::vector<json> hitboxes = json::parse(std::string(value));
@@ -449,7 +447,7 @@ void Tile::reload_texture() {
   SDL_UpdateTexture(texture, nullptr, &texture_backup.front(), TILE_SIZE * 4);
 }
 
-TileLayer::TileLayer(std::vector<std::vector<std::shared_ptr<Tile>>> tiles) {
+TileLayer::TileLayer(std::vector<std::vector<Tile *>> tiles) {
   tile_data = std::move(tiles);
 }
 
@@ -462,11 +460,14 @@ Level::Level(Game &game) {
 Level::Level(Game &game, const std::filesystem::path &level_loc) {
   this->game = &game;
   std::ifstream level_file(level_loc);
+  if (!level_file) {
+    std::cerr << "Error opening level file." << std::endl;
+    abort();
+  }
   json level_data = json::parse(level_file);
   this->width = level_data["width"].get<uint32_t>();
   this->height = level_data["height"].get<uint32_t>();
-  std::shared_ptr<Tile> empty =
-      std::make_shared<Tile>(Tile(game, nullptr, 0, TileProperties()));
+  Tile *empty = new Tile(game, nullptr, 0, TileProperties());
   empty->props().invisible = true;
   tilemap.insert(std::pair(0, std::move(empty)));
 
@@ -491,8 +492,8 @@ Level::Level(Game &game, const std::filesystem::path &level_loc) {
 
   std::vector<json> layers = level_data["layers"];
   for (auto &layer_data : layers) {
-    std::vector<std::vector<std::shared_ptr<Tile>>> tiles;
-    std::vector<std::shared_ptr<Tile>> current_row;
+    std::vector<std::vector<Tile *>> tiles;
+    std::vector<Tile *> current_row;
     std::vector<uint32_t> tile_data =
         layer_data["data"].get<std::vector<uint32_t>>();
     for (uint32_t tile_id : tile_data) {
@@ -503,7 +504,7 @@ Level::Level(Game &game, const std::filesystem::path &level_loc) {
         std::cerr << "Tile " << tile_id << " could not be found." << std::endl;
         abort();
       }
-      std::shared_ptr<Tile> tile = tile_iter->second;
+      Tile *tile = tile_iter->second;
       current_row.push_back(tile);
       if (current_row.size() >= this->width) {
         tiles.push_back(std::move(current_row));
@@ -512,6 +513,22 @@ Level::Level(Game &game, const std::filesystem::path &level_loc) {
     }
     this->layers.push_back(TileLayer(std::move(tiles)));
   }
+
+  auto properties_iter = level_data.find("properties");
+  std::vector<json> props;
+  if (properties_iter != level_data.end()) {
+    props = *properties_iter;
+  }
+
+  for (auto &prop : props) {
+    const std::string &name = prop["name"];
+    json value = prop["value"];
+
+    if (name == "background_music") {
+      this->props.background_music = std::string(value);
+    }
+  }
+
 }
 
 void Level::draw() {
@@ -536,9 +553,8 @@ void Level::draw() {
   }
 }
 
-struct TilemapFactory : public MediaFactory {
+struct TilemapFactory : public MediaFactory<Tilemap *> {
   using KeyType = std::filesystem::path;
-  using MediaType = Tilemap *;
   Tilemap *construct(MediaManager &media, const std::filesystem::path& path) {
     std::ifstream tileset_file(path);
     json tileset_json = json::parse(tileset_file);
@@ -551,7 +567,7 @@ struct TilemapFactory : public MediaFactory {
         uint32_t placeholder_id = local_tile_id | (flip_bits << 29);
         Tile placeholder_tile(media.get_game(), nullptr, placeholder_id, TileProperties());
         tilemap->insert(std::pair(
-            placeholder_id, std::make_shared<Tile>(std::move(placeholder_tile))));
+            placeholder_id, new Tile(std::move(placeholder_tile))));
       }
     }
     for (auto &tile_data : tiles) {
@@ -569,14 +585,27 @@ struct TilemapFactory : public MediaFactory {
         if ((flip_bits & 0x4) == 0x4) {
           new_tile = new_tile.vertical_flip(media.get_game());
         }
-        *(*tilemap)[new_tile.get_local_id()] = std::move(new_tile);
+        *(*tilemap)[new_tile.get_local_id()] = new_tile;
       }
     }
     return tilemap;
   }
 
   void unload(MediaManager &media, const std::filesystem::path& path, Tilemap *tiles) {
+    for (auto &tile: *tiles) {
+      delete tile.second;
+    }
     delete tiles;
+  }
+
+  bool reload_on_texture_invalid() {
+    return true;
+  }
+
+  void texture_reload(Tilemap *tiles) {
+    for (auto& tile: *tiles) {
+      tile.second->reload_texture();
+    }
   }
 };
 
@@ -589,12 +618,6 @@ void Level::load_tileset(const std::filesystem::path &tileset_loc,
       continue;
     }
     this->tilemap[global_tile_id] = tile.second;
-  }
-}
-
-void Level::reload_texture() {
-  for (auto &tile_pair : tilemap) {
-    tile_pair.second->reload_texture();
   }
 }
 
@@ -636,4 +659,12 @@ void Level::handle_reactions() {
       }
     }
   }
+}
+
+Level Level::copy_level() const {
+  return *this;
+}
+
+LevelProperties &Level::get_props() {
+  return props;
 }
