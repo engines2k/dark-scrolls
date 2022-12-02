@@ -10,7 +10,6 @@ class Player : public Mob {
 public:
   bool typing = false;
   float speed_mod;
-  int lives;
 
   Player(Game &game, Pos pos);
 
