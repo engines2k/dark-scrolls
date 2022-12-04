@@ -50,23 +50,19 @@ Player::Player(Game &game, Pos pos) : Mob(game, pos) {
   attack.set_frame(0, "data/sprite/player_slash000.png", "NOSOUND", {-7, 0});
   attack.add_reactor(0, hurtbox);
   attack.set_frame(7, "data/sprite/player_slash001.png", "NOSOUND", {-7, 0});
-  attack.set_frame(9, "data/sprite/player_slash001.png", "data/sound/swing.wav",
-                   {-7, 0});
+  attack.set_frame(9, "data/sprite/player_slash001.png", "data/sound/swing.wav",{-7, 0});
   attack.set_frame(14, "data/sprite/player_slash002.png", "NOSOUND", {-7, 0});
   attack.set_frame(15, "data/sprite/player_slash002.png", "NOSOUND", {-7, 0});
   attack.set_frame(23, "data/sprite/player_slash003.png", "NOSOUND", {-7, 0});
+  attack.add_activator(14, hitbox);
 
   Animation dodge(game, 37, 0);
   dodge.set_frame(0, "data/sprite/player_dodge000.png", "data/sound/dodge.wav");
   dodge.add_reactor(0, hurtbox);
   dodge.set_frame(4, "data/sprite/player_dodge001.png", "NOSOUND", {0, 0}, 4);
-  // dodge.set_frame(8, "data/sprite/player_dodge002.png", "NOSOUND");
   dodge.set_frame(11, "data/sprite/player_dodge003.png", "NOSOUND");
-  dodge.set_frame(17, "data/sprite/player_dodge004.png", "data/sound/land.wav",
-                  {0, 0}, 1);
+  dodge.set_frame(17, "data/sprite/player_dodge004.png", "data/sound/land.wav", {0, 0}, 1);
   dodge.set_frame(23, "data/sprite/player_dodge005.png", "NOSOUND");
-
-  attack.add_activator(14, hitbox);
 
   animations.push_back(idle);
   animations.push_back(walk);

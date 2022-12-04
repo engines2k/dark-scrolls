@@ -56,13 +56,14 @@ Animation::Animation(const Animation &a) : game(a.game) {
 
 SDL_Texture *Animation::play() {
   int frame_index = ((int)game.frame_counter.rendered_frames - start_tick) % animation_l;
-  
-  // If this frame is a keyframe
+  // Set keyframe
   if (frames.find(frame_index) != frames.end()) {
     current_frame = frame_index;
+    // Set reactors
     if(frames[current_frame]->reactors.size() > 0)
       cur_reactors = frames[current_frame]->reactors;
 
+    // Play sound
     const char *p = frames[current_frame]->sound;
     if (strcmp(p, "NOSOUND")) {
       Mix_Chunk *s = game.media.readWAV(p);
@@ -71,7 +72,6 @@ SDL_Texture *Animation::play() {
   }
 
   SDL_Texture *tex = game.media.readTexture(frames[current_frame]->frame_path);
-
   return tex;
 }
 
@@ -81,37 +81,23 @@ void Animation::set_frame(int fn, const char *fpath, const char *spath) {
 
 void Animation::set_frame(int fn, const char *fpath, const char *spath,
                           Translation sprite_offset) {
-  frames.emplace(
-      fn, std::make_shared<AnimationFrame>(fn, fpath, spath, sprite_offset));
+  frames.emplace(fn, std::make_shared<AnimationFrame>(fn, fpath, spath, sprite_offset));
 }
 
 void Animation::set_frame(int fn, const char *fpath, const char *spath,
                           Translation sprite_offset, int velocity) {
-  frames.emplace(fn, std::make_shared<AnimationFrame>(fn, fpath, spath,
-                                                      sprite_offset, velocity));
+  frames.emplace(fn, std::make_shared<AnimationFrame>(fn, fpath, spath, sprite_offset, velocity));
 }
 
-void Animation::set_frame_reactors(int fn, std::vector<ReactorCollideBox> r) {
-  frames[fn]->reactors = r;
-}
-
-void Animation::set_frame_activators(int fn,
-                                     std::vector<ActivatorCollideBox> a) {
-  frames[fn]->activators = a;
-}
 
 AnimationFrame Animation::frame() { return *frames[current_frame]; }
 
-std::vector<ReactorCollideBox> Animation::current_reactors() {
-  return cur_reactors;
-}
+std::vector<ReactorCollideBox> Animation::current_reactors() { return cur_reactors; }
 
 std::vector<ActivatorCollideBox> Animation::frame_activators() {
-  if (frames.find(current_frame) != frames.end()) {
-    return frames[current_frame]->activators;
-  }
-
   std::vector<ActivatorCollideBox> empty;
+  if (frames.find(current_frame) != frames.end())
+    return frames[current_frame]->activators;
   return empty;
 }
 

@@ -23,7 +23,6 @@ public:
   void set_pos(Pos pos);
   void despawn();
   bool is_spawned() const;
-  
   bool move(Translation trans);
 
   virtual ~Sprite() {}

@@ -1,0 +1,135 @@
+[
+	{
+	"spritename": "player",
+	"default_reactors": [
+		{
+		"type": "WALL",
+		"dimensions": [32, 54, 17, 8]
+		},
+		{
+		"type": "HURT_BY_EVIL",
+		"dimensions": [32, 54, 17, 8]
+		}
+	],
+	"animations": [	
+		{
+		"name": "idle",
+		"keyframes": [
+			{
+			"frame": 0,
+			"img": "player_idle000.png"
+			},
+			{
+			"frame": 35,
+			"img": "player_idle001.png"
+			}
+		]
+		},
+		{
+		"name": "walk",
+		"keyframes": [							
+			{
+			"frame": 0,
+			"img": "player_run000.png",
+			},
+			{
+			"frame": 6,
+			"img": "player_run001.png",
+			"sound": "walk.wav",
+			},
+			{
+			"frame": 13,
+			"img": "player_run002.png",
+			},
+			{
+			"frame": 20,
+			"img": "player_run003.png",
+			},
+			{
+			"frame": 24,
+			"img": "player_run004.png",
+			},
+			{
+			"frame": 30,
+			"img": "player_run005.png",
+			"sound": "walk.wav"
+			},
+			{
+			"frame": 37,
+			"img": "player_run006.png",
+			},
+			{
+			"frame": 44,
+			"img": "player_run007.png"
+			}
+		]
+		},
+		{
+		"name": "attack",
+		"keyframes": [
+			{
+			"frame": 0,
+			"img": "player_slash000.png"
+			},
+			{
+			"frame": 7,
+			"img": "player_slash001.png"
+			},
+			{
+			"frame": 9,
+			"img": "player_slash002.png"
+			},
+			{
+			"frame": 14,
+			"img": "player_slash003.png",
+			"activators": [
+				{
+				"type": "HURTS_EVIL",
+				"dimensions": [55, 20, 12, 19]
+				}
+			]
+			},
+			{
+			"frame": 15,
+			"img": "player_slash003.png",
+			},
+			{
+			"frame": 23,
+			"img": "player_slash004.png"
+			}
+		]
+		},
+		{
+		"name": "dodge",
+		"keyframes": [
+			{
+			"frame": 0,
+			"img": "player_dodge000.png"
+			},
+			{
+			"frame": 4,
+			"img": "player_dodge001.png"
+			},
+			{
+			"frame": 11,
+			"img": "player_dodge003.png",
+			"invincible": true
+			},
+			{
+			"frame": 17,
+			"img": "player_dodge004.png"
+			},
+			{
+			"frame": 23,
+			"img": "player_dodge005.png"
+			},
+			{
+			"frame": 24,
+			"img": "player_dodge005.png",
+			"invincible": false
+			}
+		]
+		}
+	]
+	}
+]

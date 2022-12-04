@@ -6,17 +6,16 @@
 - [ ] Inventory System
 - [ ] Signs *(display text on bottom of screen when you get close)*
 
-
 ### Jacob
 - [x] Player respawns at spawn point
 - [ ] Game over state
 
-
 ### Kate
-- [ ] Add game.cpp file
+- [X] Add game.cpp file
 - [X] Integration with media manager
 - [ ] Infinite health glitch
 - [ ] Pause / Title screen
+- [ ] Simple HUD
 
 ### Zeke
 - [X] Modify animations to handle reactors 

@@ -1,0 +1,31 @@
+"spritename": "Example",					// Name of sprite
+"default_reactors": [						// Applied to every frame by default
+	{
+	"type": "WALL",							// Reactor type
+	"dimensions": [0, 0, 0, 0]				// width, height, offset x, offset y
+	},
+	
+],
+"default_activators": [						// Applied to every frame by default
+	{
+	"type": "HURTS_EVIL",					// Reactor type
+	"dimensions": [0, 0, 0, 0]				// width, height, offset x, offset y
+	}
+],
+"animations": [								// All animations go in here
+	{
+	"name": "walk",							// Name of animation
+	"keyframes": [							// Frames when animation does something
+		{
+			"frame": 0,						// When frame is to be played*
+			"img": "sprite.png",			// Image filename*
+			"imgoffset": [0, 0],			// Offset for img rendering 
+			"sound": "sound.wav",			// Sound filename
+			"invulnerable": false,			// Toggles all hurtboxes
+			"activators": [],				// Set new hitboxes^
+			"reactors": [],					// Set new hurtboxes^
+			"velocity": [0, 0]				// Apply movement^
+		}]									
+	}]										// * = required
+}											// ^ = not valid for fixtures
+
