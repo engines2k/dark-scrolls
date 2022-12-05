@@ -47,9 +47,18 @@ void Game::tick() {
 
   sprite_list = std::move(next_sprite_list);
 
-  if (frame_counter.rendered_frames == player->despawn_time){
-    reset_level();
-    player->despawn_time = 0;
+  if (player->despawn_time) {
+    // fade to black
+    double opacity =
+      (90 - (player->despawn_time - frame_counter.rendered_frames)) * 2.8333;
+    SDL_Rect death_fade = {0, 0, 1260, 960};
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, (uint8_t)opacity);
+    SDL_RenderFillRect(renderer, &death_fade);
+    if (frame_counter.rendered_frames == player->despawn_time){
+      reset_level();
+      player->despawn_time = 0;
+    }
   }
 
   //FIXME: Level load debug
