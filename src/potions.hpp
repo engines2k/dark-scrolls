@@ -7,6 +7,7 @@ public:
   HealthPotion(Game &game, Pos pos);
   virtual void draw();
   virtual void tick();
+  virtual void use();
   void set_heal_amount(int num);
 
 protected:
@@ -18,6 +19,7 @@ public:
   SpeedPotion(Game &game, Pos pos);
   virtual void draw();
   virtual void tick();
+  virtual void use();
   void set_speed_mod(int num);
 
 protected:

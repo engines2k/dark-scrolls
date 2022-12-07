@@ -1,6 +1,7 @@
 #pragma once
 #include "camera.hpp"
 #include "collide.hpp"
+#include "inventory.hpp"
 #include "keyboard_manager.hpp"
 #include "media_manager.hpp"
 #include "player.hpp"
@@ -32,6 +33,7 @@ public:
   std::filesystem::path level_path;
   std::vector<std::shared_ptr<Sprite>> sprite_list;
   std::shared_ptr<Player> player = NULL;
+  std::shared_ptr<Inventory> inventory = NULL;
   std::vector<CollideLayer> collide_layers;
   MediaManager media;
 

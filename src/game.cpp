@@ -142,6 +142,9 @@ void Game::load_level(const std::filesystem::path &path) {
     sprite_list.push_back(player);
   }
 
+  inventory = std::make_shared<Inventory>(*this, Pos { 0, 0, 0 });
+  sprite_list.push_back(inventory);
+
   /*game.sprite_list.push_back(
       std::make_shared<Text>(Text((char *)"Welcome to Dark Scrolls", game,
                                   Pos{.layer = 0,

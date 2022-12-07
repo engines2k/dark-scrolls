@@ -32,8 +32,21 @@ void Item::tick() {
   // Check for player coliding with Item
   for (auto &reactor : reactors) {
     if (hitbox.collides_with(pos, reactor, game.player->get_pos())) {
+      game.inventory->add_item(*this);
       despawn();
       player_collide = true;
     }
   }
+}
+
+void Item::use() {}
+
+std::string Item::get_filename() { return filename; }
+
+Item &Item::operator=(const Item &other) {
+  this->filename = other.filename;
+  this->reactbox = other.reactbox;
+  this->hitbox = other.hitbox;
+  this->player_collide = other.player_collide;
+  return *this;
 }
