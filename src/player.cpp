@@ -193,6 +193,7 @@ void Player::tick() {
 
 void Player::death() {
   if(!despawn_time){
+    Mix_FadeOutMusic(1000);
     // display death text
     Text t((char *)"You Died", game, pos);
     game.sprite_list.push_back(std::make_shared<Text>(t));
