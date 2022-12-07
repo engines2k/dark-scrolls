@@ -1,9 +1,9 @@
 # Dark Scrolls: Stage 2 Tasks
 
 ### Amber
-- [ ] Move code out of header files
+- [x] Move code out of header files
 - [x] Consistent naming convention
-- [ ] Inventory System
+- [x] Inventory System
 - [ ] Signs *(display text on bottom of screen when you get close)*
 
 ### Jacob
