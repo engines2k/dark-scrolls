@@ -55,6 +55,11 @@ void Game::tick() {
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, (uint8_t)opacity);
     SDL_RenderFillRect(renderer, &death_fade);
+    // display death text
+    Text t((char *)"You Died", *this, player->get_pos());
+    if(frame_counter.rendered_frames == (uint64_t)player->despawn_time-89)
+      sprite_list.push_back(std::make_shared<Text>(t));
+    t.draw();
     if (frame_counter.rendered_frames == (uint64_t)player->despawn_time){
       reset_level();
       player->despawn_time = -1;
