@@ -194,6 +194,8 @@ void Player::tick() {
 void Player::death() {
   if(!despawn_time){
     Mix_FadeOutMusic(1000);
+    Mix_Chunk *s = game.media.readWAV("data/sound/player_death.wav");
+    Mix_PlayChannel(-1, s, 0);
     despawn_time = game.frame_counter.rendered_frames + 90;
     despawn(); // replace with animation, disallow movement
   }
