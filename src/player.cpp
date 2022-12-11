@@ -71,6 +71,8 @@ Player::Player(Game &game, Pos pos) : Mob(game, pos) {
 
   speed = (140 * FRAME_RATE) * SUBPIXELS_IN_PIXEL;
   speed_mod = 0;
+
+  death_sfx = game.media.readWAV("data/sound/player_death.wav");
 }
 
 void Player::add_colliders() {
@@ -192,10 +194,9 @@ void Player::tick() {
 }
 
 void Player::death() {
-  if(!despawn_time){
+  if(!despawn_time) {
     Mix_FadeOutMusic(1000);
-    Mix_Chunk *s = game.media.readWAV("data/sound/player_death.wav");
-    Mix_PlayChannel(-1, s, 0);
+    Mix_PlayChannel(-1, death_sfx, 0);
     despawn_time = game.frame_counter.rendered_frames + 90;
     despawn(); // replace with animation, disallow movement
   }

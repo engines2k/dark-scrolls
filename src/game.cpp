@@ -5,6 +5,7 @@ Game::Game(SDL_Renderer *renderer)
      : renderer(renderer), current_level(*this), media(*this) {
   // FIXME: Figure out how to determine max collide layers
   collide_layers.resize(1);
+  death_fade = {0, 0, 1260, 960};
 }
 
 void Game::tick() {
@@ -49,32 +50,29 @@ void Game::tick() {
 
   if (player->despawn_time > 0) {
     // fade to black
-    double opacity =
+    opacity =
       (90 - (player->despawn_time - frame_counter.rendered_frames)) * 2.8333;
-    SDL_Rect death_fade = {0, 0, 1260, 960};
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, (uint8_t)opacity);
     SDL_RenderFillRect(renderer, &death_fade);
     // display death text
-    Text t((char *)"You Died", *this, player->get_pos());
-    if(frame_counter.rendered_frames == (uint64_t)player->despawn_time-89)
+    Text t((char *) "You Died", *this, player->get_pos());
+    if (frame_counter.rendered_frames == (uint64_t)player->despawn_time-89)
       sprite_list.push_back(std::make_shared<Text>(t));
     t.draw();
-    if (frame_counter.rendered_frames == (uint64_t)player->despawn_time){
+    if (frame_counter.rendered_frames == (uint64_t)player->despawn_time) {
       reset_level();
       player->despawn_time = -1;
     }
   }
   if (player->despawn_time < 0) {
     // fade back in
-    double opacity =
-      255 + (player->despawn_time * 8.5);
-    SDL_Rect death_fade = {0, 0, 1260, 960};
+    opacity = 255 + (player->despawn_time * 8.5);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, (uint8_t)opacity);
     SDL_RenderFillRect(renderer, &death_fade);
     player->despawn_time--;
-    if (player->despawn_time < -30){
+    if (player->despawn_time < -30) {
       player->despawn_time = 0;
     }
   }

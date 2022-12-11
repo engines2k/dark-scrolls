@@ -46,4 +46,6 @@ public:
 
 private:
   static std::filesystem::path calc_data_path();
+  double opacity;
+  SDL_Rect death_fade;
 };

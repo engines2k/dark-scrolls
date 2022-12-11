@@ -38,4 +38,5 @@ private:
   static constexpr uint8_t RED = 126;
   static constexpr uint8_t GREEN = 219;
   static constexpr uint8_t BLUE = 222;
+  Mix_Chunk *death_sfx = nullptr;
 };
