@@ -52,8 +52,8 @@ public:
       : BitFlag<ReactorCollideType>(inner) {}
 
   static const ReactorCollideType WALL;
-  static const ReactorCollideType HURT_BY_GOOD;
   static const ReactorCollideType HURT_BY_EVIL;
+  static const ReactorCollideType HURT_BY_GOOD;
   static const ReactorCollideType HURT_BY_ANY;
   static const ReactorCollideType INTERACTABLE;
   ActivatorCollideType activated_by() const;

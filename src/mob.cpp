@@ -3,7 +3,7 @@
 
 #include <cstdio>
 
-Mob::Mob(Game &game, Pos pos) : Sprite(game, pos) { show_health = true; }
+Mob::Mob(Game &game, Pos pos) : Fixture(game, pos) { show_health = true; }
 
 int Mob::get_health() const { return hp; }
 

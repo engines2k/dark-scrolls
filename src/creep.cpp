@@ -7,7 +7,7 @@
 
 Creep::Creep(Game &game, Pos pos) : Mob(game, pos) {
 
-  Animation walk(game, 120 /* Animation length */, 1 /* Loops?*/);
+  Animation walk(game, 120 /* Animation length */, true /* Loops?*/);
   walk.set_frame(0, "data/sprite/clacker_walk000.png", "NOSOUND");
   walk.set_frame(16, "data/sprite/clacker_walk001.png", "NOSOUND");
   walk.set_frame(30, "data/sprite/clacker_walk002.png", "NOSOUND");
@@ -16,7 +16,7 @@ Creep::Creep(Game &game, Pos pos) : Mob(game, pos) {
   walk.set_frame(84, "data/sprite/clacker_walk005.png", "NOSOUND");
   walk.set_frame(109, "data/sprite/clacker_walk006.png", "NOSOUND");
 
-  Animation die(game, 60, 0);
+  Animation die(game, 60, false);
   die.set_frame(0, "data/sprite/clacker_die000.png",
                 "data/sound/creep_deathslash.wav");
   die.set_frame(10, "data/sprite/clacker_die001.png",
@@ -26,7 +26,7 @@ Creep::Creep(Game &game, Pos pos) : Mob(game, pos) {
   die.set_frame(40, "data/sprite/clacker_die004.png", "NOSOUND");
   die.set_frame(50, "data/sprite/clacker_die005.png", "NOSOUND");
 
-  Animation attack(game, 60, 0);
+  Animation attack(game, 60, false);
   attack.set_frame(0, "data/sprite/clacker_attack000.png",
                    "data/sound/poison_bloom.wav");
   attack.set_frame(20, "data/sprite/clacker_attack001.png", "NOSOUND");

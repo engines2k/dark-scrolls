@@ -20,9 +20,9 @@
 ### Zeke
 - [X] Modify animations to handle reactors 
 - [x] Add mob collision
-- [ ] Move animation data into .json files
+- [X] Move animation data into .json files
 - [ ] Incantation fix
-- [ ] Player death
+- [X] Player death
 - [ ] AI behavior
 - [ ] Animation Combos
-- [ ] Sprite animations *consult kate*
+- [ ] Sprite animations 

@@ -5,12 +5,11 @@
 #include <SDL2/SDL_image.h>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
-
-#include <cstdio>
 
 using json = nlohmann::json;
 

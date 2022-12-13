@@ -3,17 +3,15 @@
 	"spritename": "player",
 	"default_reactors": [
 		{
-		"type": "WALL",
-		"dimensions": [32, 54, 17, 8]
-		},
-		{
-		"type": "HURT_BY_EVIL",
+		"type": ["WALL", "HURT_BY_EVIL"],
 		"dimensions": [32, 54, 17, 8]
 		}
 	],
 	"animations": [	
 		{
 		"name": "idle",
+		"loops": true,
+		"length": 70,
 		"keyframes": [
 			{
 			"frame": 0,
@@ -27,27 +25,29 @@
 		},
 		{
 		"name": "walk",
+		"loops": false,
+		"length": 48,
 		"keyframes": [							
 			{
 			"frame": 0,
-			"img": "player_run000.png",
+			"img": "player_run000.png"
 			},
 			{
 			"frame": 6,
 			"img": "player_run001.png",
-			"sound": "walk.wav",
+			"sound": "walk.wav"
 			},
 			{
 			"frame": 13,
-			"img": "player_run002.png",
+			"img": "player_run002.png"
 			},
 			{
 			"frame": 20,
-			"img": "player_run003.png",
+			"img": "player_run003.png"
 			},
 			{
 			"frame": 24,
-			"img": "player_run004.png",
+			"img": "player_run004.png"
 			},
 			{
 			"frame": 30,
@@ -56,7 +56,7 @@
 			},
 			{
 			"frame": 37,
-			"img": "player_run006.png",
+			"img": "player_run006.png"
 			},
 			{
 			"frame": 44,
@@ -65,7 +65,9 @@
 		]
 		},
 		{
-		"name": "attack",
+		"name": "light_attack",
+		"loops": false,
+		"length": 30,
 		"keyframes": [
 			{
 			"frame": 0,
@@ -77,47 +79,54 @@
 			},
 			{
 			"frame": 9,
-			"img": "player_slash002.png"
+			"img": "player_slash002.png",
+			"sound": "swing.wav"
 			},
 			{
 			"frame": 14,
-			"img": "player_slash003.png",
+			"img": "player_slash002.png",
 			"activators": [
 				{
-				"type": "HURTS_EVIL",
-				"dimensions": [55, 20, 12, 19]
+				"type": ["HIT_EVIL"],
+				"dimensions": [55, 20, 12, 19],
+				"damage": 40
 				}
 			]
 			},
 			{
 			"frame": 15,
-			"img": "player_slash003.png",
+			"img": "player_slash003.png"
 			},
 			{
 			"frame": 23,
-			"img": "player_slash004.png"
+			"img": "player_slash003.png"
 			}
 		]
 		},
 		{
 		"name": "dodge",
+		"loops": false,
+		"length": 37,
 		"keyframes": [
 			{
 			"frame": 0,
-			"img": "player_dodge000.png"
+			"img": "player_dodge000.png",
+			"sound": "dodge.wav"
 			},
 			{
 			"frame": 4,
-			"img": "player_dodge001.png"
+			"img": "player_dodge001.png",
+			"velocity": 4
 			},
 			{
 			"frame": 11,
 			"img": "player_dodge003.png",
-			"invincible": true
+			"invulnerable": true
 			},
 			{
 			"frame": 17,
-			"img": "player_dodge004.png"
+			"img": "player_dodge004.png",
+			"sound": "land.wav"
 			},
 			{
 			"frame": 23,
@@ -126,7 +135,36 @@
 			{
 			"frame": 24,
 			"img": "player_dodge005.png",
-			"invincible": false
+			"invulnerable": false
+			}
+		]
+		},
+		{
+		"name": "death",
+		"loops": false,
+		"loop_start": 40,
+		"length": 120,
+		"immobilizes": true,
+		"keyframes": [
+			{
+			"frame": 0,
+			"img": "player_death000.png"
+			},
+			{
+			"frame": 20,
+			"img": "player_death001.png"
+			},
+			{
+			"frame": 40,
+			"img": "player_death003.png"
+			},
+			{
+			"frame": 60,
+			"img": "player_death004.png"
+			},
+			{
+			"frame": 80,
+			"img": "player_death005.png"
 			}
 		]
 		}

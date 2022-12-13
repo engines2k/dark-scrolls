@@ -2,11 +2,9 @@
 #include "level.hpp"
 #include "pos.hpp"
 #include "sprite.hpp"
-#include <SDL2/SDL.h>
+#include "fixture.hpp"
 
-class Game;
-
-class Mob : public Sprite {
+class Mob : public Fixture {
 public:
   Mob(Game &game, Pos pos);
 
