@@ -180,7 +180,7 @@ TTF_Font *MediaManager::readFont(const std::filesystem::path &path, int size) {
   return read<FontFactory>(key);
 }
 
-SDL_Texture *MediaManager::showFont(TTF_Font *font, char *text,
+SDL_Texture *MediaManager::showFont(TTF_Font *font, const char *text,
                                     SDL_Color color) {
   SDL_Texture *texture = NULL;
   SDL_Surface *surface = NULL;

@@ -1,5 +1,6 @@
 #include "game.hpp"
 #include "potions.hpp"
+#include "title.hpp"
 
 Game::Game(SDL_Renderer *renderer)
      : renderer(renderer), current_level(*this), media(*this) {
@@ -48,7 +49,7 @@ void Game::tick() {
 
   sprite_list = std::move(next_sprite_list);
 
-  if (player->despawn_time > 0) {
+  if (player && player->despawn_time > 0) {
     // fade to black
     opacity =
       (90 - (player->despawn_time - frame_counter.rendered_frames)) * 2.8333;
@@ -65,7 +66,7 @@ void Game::tick() {
       player->despawn_time = -1;
     }
   }
-  if (player->despawn_time < 0) {
+  if (player && player->despawn_time < 0) {
     // fade back in
     opacity = 255 + (player->despawn_time * 8.5);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -75,6 +76,10 @@ void Game::tick() {
     if (player->despawn_time < -30) {
       player->despawn_time = 0;
     }
+  }
+
+  if (!next_level.empty()) {
+    load_level(std::filesystem::path(next_level));
   }
 
   //FIXME: Level load debug
@@ -102,6 +107,7 @@ void Game::load_level(const std::filesystem::path &path) {
   Mix_HaltChannel(-1);
   sprite_list.clear();
   player = nullptr;
+  next_level = std::filesystem::path();
   camera = std::make_shared<Camera>(*this);
   if (!camera) {
     std::cerr << "Camera not initialized" << std::endl;
@@ -156,6 +162,10 @@ void Game::load_level(const std::filesystem::path &path) {
             SpriteSpawnType::SPEED_POTION) {
           sprite_list.push_back(
               std::make_shared<SpeedPotion>(*this, sprite_pos));
+        } else if (current_level[pos].props().spawn_type ==
+            SpriteSpawnType::TITLE_SCREEN) {
+          sprite_list.push_back(
+              std::make_shared<TitleScreen>(*this));
         }
       }
     }
@@ -164,11 +174,13 @@ void Game::load_level(const std::filesystem::path &path) {
   if (player) {
     camera->add_focus(player);
 
+    inventory = std::make_shared<Inventory>(*this, Pos { 0, 0, 0 });
+    sprite_list.push_back(inventory);
+
     sprite_list.push_back(player);
   }
 
-  inventory = std::make_shared<Inventory>(*this, Pos { 0, 0, 0 });
-  sprite_list.push_back(inventory);
+
 
   /*game.sprite_list.push_back(
       std::make_shared<Text>(Text((char *)"Welcome to Dark Scrolls", game,

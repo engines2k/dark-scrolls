@@ -85,12 +85,12 @@ int main(int argc, char *argv[]) {
   auto &game = *game_loc;
   game.tick_event_id = SDL_RegisterEvents(1);
 
-  game.load_level("data/level/level_1.tmj");
+  game.load_level("data/level/title.tmj");
 
   SDL_TimerID tick_timer = SDL_AddTimer(FRAME_RATE * 1000, game_timer, &game);
 
   SDL_Event event;
-  while (1) {
+  while (game.running) {
     if (SDL_WaitEvent(&event)) {
       switch (event.type) {
       case SDL_QUIT:

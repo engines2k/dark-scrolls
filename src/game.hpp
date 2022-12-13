@@ -36,6 +36,8 @@ public:
   std::shared_ptr<Inventory> inventory = NULL;
   std::vector<CollideLayer> collide_layers;
   MediaManager media;
+  bool running = true;
+  std::filesystem::path next_level;
 
   // Text test_text;
 

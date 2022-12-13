@@ -137,7 +137,7 @@ public:
   Mix_Chunk *readWAV(const std::filesystem::path &path);
   Mix_Music *readMusic(const std::filesystem::path &path);
   TTF_Font *readFont(const std::filesystem::path &path, int size);
-  SDL_Texture *showFont(TTF_Font *font, char *text, SDL_Color color);
+  SDL_Texture *showFont(TTF_Font *font, const char *text, SDL_Color color);
   void flushTextureCache();
   void unloadAll();
 };
