@@ -87,11 +87,10 @@ void Incantation::draw() {
   SDL_DestroyTexture(untyped_texture);
 }
 
-AppearingText::AppearingText(char *n_text, Game &game, Pos pos, Pos display, int n_radius, bool only_once, SDL_Color n_color)
-              :Text(n_text, game, display, n_color) {
+AppearingText::AppearingText(char *n_text, Game &game, Pos pos, int n_radius, bool only_once, SDL_Color n_color)
+              :Text(n_text, game, pos, n_color) {
   radius = n_radius; // radius is in terms of how many blocks around the center it encapsulates
   once = only_once;
-  this->pos = pos;
 
   ActivatorCollideBox temp(
     ActivatorCollideType::HIT_GOOD | ActivatorCollideType::INTERACT,

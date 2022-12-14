@@ -61,7 +61,7 @@ public:
 
 class AppearingText : public Text {
   public:
-    AppearingText(char *n_text, Game &game, Pos pos, Pos display, int n_radius = 1, bool only_once = false, SDL_Color n_color = {255, 255, 255});
+    AppearingText(char *n_text, Game &game, Pos pos, int n_radius = 1, bool only_once = false, SDL_Color n_color = {255, 255, 255});
 
     void tick();
     void draw();
