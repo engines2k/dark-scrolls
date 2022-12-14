@@ -1,5 +1,6 @@
 #include "title.hpp"
 #include "game.hpp"
+#include "util.hpp"
 
 TitleScreen::TitleScreen(Game &game): Sprite(game, Pos {.layer = 0, .x = 0, .y = 0}) {}
 
@@ -7,18 +8,6 @@ extern const std::vector<TitleScreenOption> TitleScreen::OPTIONS = {
   TitleScreenOption {.name = "play", .action = [](TitleScreen& self){self.game.next_level = "data/level/level_1.tmj";}},
   TitleScreenOption {.name = "quit", .action = [](TitleScreen& self){self.game.running = false;}}
 };
-
-void render_text_at(Game& game, TTF_Font* font, int x, int y, SDL_Color color, const char *text) {
-  SDL_Texture* rendered_text = game.media.showFont(font, text, color);
-
-  int width, height;
-  SDL_QueryTexture(rendered_text, nullptr, nullptr, &width, &height);
-
-  SDL_Rect box = SDL_Rect {.x = x, .y = y, .w = width, .h = height};
-
-  SDL_RenderCopy(game.renderer, rendered_text, nullptr, &box);
-  SDL_DestroyTexture(rendered_text);
-}
 
 void TitleScreen::draw() {
   constexpr int TITLE_Y = HEIGHT * .28;

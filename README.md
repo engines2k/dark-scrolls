@@ -14,7 +14,7 @@
 - [X] Add game.cpp file
 - [X] Integration with media manager
 - [ ] Infinite health glitch
-- [ ] Pause / Title screen
+- [X] Pause / Title screen
 - [ ] Simple HUD
 
 ### Zeke

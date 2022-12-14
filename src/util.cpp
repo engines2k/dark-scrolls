@@ -1,4 +1,5 @@
 #include "util.hpp"
+#include "game.hpp"
 
 char scancode_to_char(SDL_Scancode code) {
   switch (code) {
@@ -59,4 +60,16 @@ char scancode_to_char(SDL_Scancode code) {
   default:
     return '\0';
   }
+}
+
+void render_text_at(Game& game, TTF_Font* font, int x, int y, SDL_Color color, const char *text) {
+  SDL_Texture* rendered_text = game.media.showFont(font, text, color);
+
+  int width, height;
+  SDL_QueryTexture(rendered_text, nullptr, nullptr, &width, &height);
+
+  SDL_Rect box = SDL_Rect {.x = x, .y = y, .w = width, .h = height};
+
+  SDL_RenderCopy(game.renderer, rendered_text, nullptr, &box);
+  SDL_DestroyTexture(rendered_text);
 }

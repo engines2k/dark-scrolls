@@ -81,3 +81,5 @@ void Sprite::add_colliders() {
 void Sprite::set_activators(std::vector<ActivatorCollideBox> a) { activators = a; }
 
 void Sprite::set_reactors(std::vector<ReactorCollideBox> r) { reactors = r; }
+
+bool Sprite::never_paused() { return false; }

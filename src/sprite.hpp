@@ -18,6 +18,7 @@ public:
   virtual void add_colliders();
   virtual void set_reactors(std::vector<ReactorCollideBox> r);
   virtual void set_activators(std::vector<ActivatorCollideBox> a);
+  virtual bool never_paused();
 
   Pos get_pos() const;
   void set_pos(Pos pos);

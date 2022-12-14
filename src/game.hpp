@@ -38,6 +38,8 @@ public:
   MediaManager media;
   bool running = true;
   std::filesystem::path next_level;
+  bool paused = false;
+  bool should_unpause = false;
 
   // Text test_text;
 

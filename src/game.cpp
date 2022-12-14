@@ -1,6 +1,7 @@
 #include "game.hpp"
 #include "potions.hpp"
 #include "title.hpp"
+#include "pause.hpp"
 
 Game::Game(SDL_Renderer *renderer)
      : renderer(renderer), current_level(*this), media(*this) {
@@ -17,28 +18,42 @@ void Game::tick() {
   for (auto &collide_layer : collide_layers) {
     collide_layer.clear();
   }
-  current_level.add_colliders(collide_layers);
 
-  for (auto &sprite : sprite_list) {
-    sprite->add_colliders();
+  if (!paused) {
+    current_level.add_colliders(collide_layers);
   }
 
   for (auto &sprite : sprite_list) {
-    sprite->tick();
+    if (!paused || sprite->never_paused()) {
+      sprite->add_colliders();
+    }
   }
-
-  current_level.handle_reactions();
-
-  current_level.draw();
 
   for (auto &sprite : sprite_list) {
-    sprite->draw();
+    if (!paused || sprite->never_paused()) {
+      sprite->tick();
+    }
   }
 
-  // set_cam_trans();
-  camera->calc_offset();
-  camera->calc_zoom();
+  if (!paused) {
+    current_level.handle_reactions();
 
+    current_level.draw();
+  }
+
+  
+  for (auto &sprite : sprite_list) {
+    if (!paused || sprite->never_paused()) {
+      sprite->draw();
+    }
+  }
+
+  if (!paused) {
+    // set_cam_trans();
+    camera->calc_offset();
+    camera->calc_zoom();
+  }
+  
   std::vector<std::shared_ptr<Sprite>> next_sprite_list;
 
   for (auto &sprite : sprite_list) {
@@ -49,7 +64,7 @@ void Game::tick() {
 
   sprite_list = std::move(next_sprite_list);
 
-  if (player && player->despawn_time > 0) {
+  if (!paused && player && player->despawn_time > 0) {
     // fade to black
     opacity =
       (90 - (player->despawn_time - frame_counter.rendered_frames)) * 2.8333;
@@ -66,7 +81,7 @@ void Game::tick() {
       player->despawn_time = -1;
     }
   }
-  if (player && player->despawn_time < 0) {
+  if (!paused && player && player->despawn_time < 0) {
     // fade back in
     opacity = 255 + (player->despawn_time * 8.5);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -91,6 +106,24 @@ void Game::tick() {
     reset_level();
   }
 
+  if (player && !paused && keyboard.is_pressed(SDL_SCANCODE_ESCAPE)) {
+    paused = true;
+    std::vector<char> curr_screen;
+    int pitch = WIDTH * 3;
+    curr_screen.resize(pitch * HEIGHT);
+    SDL_RenderReadPixels(renderer, nullptr, SDL_PIXELFORMAT_RGB24, curr_screen.data(), pitch);
+    SDL_Texture* background = SDL_CreateTexture(renderer,
+        SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STATIC, WIDTH, HEIGHT);
+    SDL_UpdateTexture(background, nullptr, curr_screen.data(), pitch);
+
+    sprite_list.push_back(std::make_shared<PauseScreen>(*this, background));
+  }
+
+  if (should_unpause) {
+    paused = false;
+    should_unpause = false;
+  }
+
   keyboard.reset_pressed();
 
   SDL_RenderPresent(renderer);
@@ -107,7 +140,11 @@ void Game::load_level(const std::filesystem::path &path) {
   Mix_HaltChannel(-1);
   sprite_list.clear();
   player = nullptr;
+  inventory = nullptr;
   next_level = std::filesystem::path();
+  paused = false;
+  should_unpause = false;
+  keyboard.reset_pressed();
   camera = std::make_shared<Camera>(*this);
   if (!camera) {
     std::cerr << "Camera not initialized" << std::endl;

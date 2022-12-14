@@ -1,7 +1,10 @@
 #pragma once
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <cstddef>
 #include <type_traits>
+
+class Game;
 
 template <typename SelfType> class BitFlag {
 public:
@@ -53,3 +56,5 @@ struct VirtualDestroy {
 };
 
 char scancode_to_char(SDL_Scancode code);
+
+void render_text_at(Game& game, TTF_Font* font, int x, int y, SDL_Color color, const char *text);
