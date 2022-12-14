@@ -8,7 +8,7 @@
 
 ### Jacob
 - [x] Player respawns at spawn point
-- [ ] Game over state
+- [x] Game over state / Fade out & level reset
 
 ### Kate
 - [X] Add game.cpp file
