@@ -4,7 +4,7 @@
 - [x] Move code out of header files
 - [x] Consistent naming convention
 - [x] Inventory System
-- [ ] Signs *(display text on bottom of screen when you get close)*
+- [x] Signs *(display text on bottom of screen when you get close)*
 
 ### Jacob
 - [x] Player respawns at spawn point
