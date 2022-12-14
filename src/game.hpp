@@ -14,6 +14,7 @@ constexpr double FRAME_RATE = 1.0 / 60.0;
 
 struct FrameCounter {
   uint64_t rendered_frames = 0;
+  uint64_t real_rendered_frames = 0;
   uint64_t scheduled_frames = 0;
 };
 

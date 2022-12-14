@@ -28,7 +28,7 @@ uint32_t game_timer(uint32_t rate, void *game_ptr) {
   auto frame_counter_lock = std::lock_guard(game.frame_counter_lock);
 
   if (game.frame_counter.scheduled_frames -
-          game.frame_counter.rendered_frames >=
+          game.frame_counter.real_rendered_frames >=
       2) {
     return rate;
   }

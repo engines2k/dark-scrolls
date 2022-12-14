@@ -119,6 +119,10 @@ void Game::tick() {
     sprite_list.push_back(std::make_shared<PauseScreen>(*this, background));
   }
 
+  if (!paused) {
+    frame_counter.rendered_frames++;
+  }
+
   if (should_unpause) {
     paused = false;
     should_unpause = false;
@@ -128,7 +132,7 @@ void Game::tick() {
 
   SDL_RenderPresent(renderer);
   auto frame_counter_lock = std::lock_guard(this->frame_counter_lock);
-  frame_counter.rendered_frames++;
+  frame_counter.real_rendered_frames++;
 }
 
 void Game::reset_level() {
