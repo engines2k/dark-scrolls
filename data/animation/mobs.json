@@ -148,23 +148,28 @@
 		"keyframes": [
 			{
 			"frame": 0,
-			"img": "player_death000.png"
+			"img": "player_death000.png",
+			"imgoffset": [-30, 0]
 			},
 			{
 			"frame": 20,
-			"img": "player_death001.png"
+			"img": "player_death001.png",
+			"imgoffset": [-30, 0]
 			},
 			{
 			"frame": 40,
-			"img": "player_death003.png"
+			"img": "player_death003.png",
+			"imgoffset": [-30, 0]
 			},
 			{
 			"frame": 60,
-			"img": "player_death004.png"
+			"img": "player_death004.png",
+			"imgoffset": [-30, 0]
 			},
 			{
 			"frame": 80,
-			"img": "player_death005.png"
+			"img": "player_death005.png",
+			"imgoffset": [-30, 0]
 			}
 		]
 		}
