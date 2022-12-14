@@ -145,6 +145,7 @@ void Player::death() {
     Mix_FadeOutMusic(1000);
     Mix_PlayChannel(-1, death_sfx, 0);
     despawn_time = game.frame_counter.rendered_frames + 90;
+    IMMOBILE_FLAG = true;
     //despawn(); // replace with animation, disallow movement
   }
 }
