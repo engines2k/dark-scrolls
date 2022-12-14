@@ -12,6 +12,7 @@ void HealthPotion::draw() {
   if (player_collide) {
     Mix_Chunk *s = game.media.readWAV("data/sound/heal.wav");
     Mix_PlayChannel(-1, s, 0);
+    game.sprite_list.push_back(std::make_shared<AppearingText>(AppearingText((char*)"Health Potion!", game, pos, Pos{.layer = 0, .x = WIDTH-100, .y = HEIGHT-100}, 2, true, {255, 255, 255})));
   }
 }
 
@@ -43,6 +44,7 @@ void SpeedPotion::draw() {
   if (player_collide) {
     Mix_Chunk *s = game.media.readWAV("data/sound/heal.wav");
     Mix_PlayChannel(-1, s, 0);
+    game.sprite_list.push_back(std::make_shared<AppearingText>(AppearingText((char*)"Speed Potion!", game, pos, Pos{.layer = 0, .x = WIDTH-100, .y = HEIGHT-100}, 2, true, {255, 255, 255})));
   }
 }
 

@@ -9,13 +9,14 @@ class Game;
 
 // This class is probably deprecated. But it lives for now.
 class Text : public Sprite {
-  SDL_Surface *surface = NULL;
-  SDL_Texture *texture = NULL;
-  TTF_Font *font;
+  protected:
+    SDL_Surface *surface = NULL;
+    SDL_Texture *texture = NULL;
+    TTF_Font *font;
 
-  int texW, texH;
-  SDL_Rect dstrect;
-  SDL_Color color = {255, 255, 255};
+    int texW, texH;
+    SDL_Rect dstrect;
+    SDL_Color color = {255, 255, 255};
 
 public:
   char *text;
@@ -55,4 +56,22 @@ public:
 
   void tick();
   void draw();
+};
+
+
+class AppearingText : public Text {
+  public:
+    AppearingText(char *n_text, Game &game, Pos pos, Pos display, int n_radius = 1, bool only_once = false, SDL_Color n_color = {255, 255, 255});
+
+    void tick();
+    void draw();
+  
+  protected:
+    bool once = false; // If you only want the text to appear one time
+    int radius = 1;
+    const int block_size = 32; // size of a tile in pixels
+    ActivatorCollideBox hitbox;
+    ReactorCollideBox reactbox;
+    bool player_inside = false;
+    int count = 0;
 };

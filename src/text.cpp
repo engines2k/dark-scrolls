@@ -11,7 +11,7 @@ Text::Text(char *n_text, Game &game, Pos pos, SDL_Color n_color): Sprite(game, p
   char font_path[261];
   // snprintf(font_path, 261, "%s\\fonts\\arial.ttf", getenv("WINDIR"));
   snprintf(font_path, 261, "./data/font/alagard.ttf");
-  font = game.media.readFont(font_path, 25);
+  font = game.media.readFont(font_path, 30);
 }
 
 void Text::draw() {
@@ -85,4 +85,61 @@ void Incantation::draw() {
   untyped_surface = nullptr;
   SDL_DestroyTexture(typed_texture);
   SDL_DestroyTexture(untyped_texture);
+}
+
+AppearingText::AppearingText(char *n_text, Game &game, Pos pos, Pos display, int n_radius, bool only_once, SDL_Color n_color)
+              :Text(n_text, game, display, n_color) {
+  radius = n_radius; // radius is in terms of how many blocks around the center it encapsulates
+  once = only_once;
+  this->pos = pos;
+
+  ActivatorCollideBox temp(
+    ActivatorCollideType::HIT_GOOD | ActivatorCollideType::INTERACT,
+    0 * SUBPIXELS_IN_PIXEL,
+    radius * block_size * SUBPIXELS_IN_PIXEL,
+    0 * SUBPIXELS_IN_PIXEL,
+    radius * block_size * SUBPIXELS_IN_PIXEL);
+
+    hitbox = temp;
+    hitbox.damage.hp_delt = 0;
+
+    ReactorCollideBox temp1(
+      ReactorCollideType::INTERACTABLE,
+      0 * SUBPIXELS_IN_PIXEL,
+      radius * block_size * SUBPIXELS_IN_PIXEL,
+      0 * SUBPIXELS_IN_PIXEL,
+      radius * block_size * SUBPIXELS_IN_PIXEL
+    );
+    reactbox = temp1;
+
+    reactors.push_back(reactbox);
+    activators.push_back(hitbox);
+}
+
+void AppearingText::tick() {
+  for (auto &reactor : reactors) {
+    if (hitbox.collides_with(pos, reactor, game.player->get_pos())) {
+      player_inside = true;
+      count ++;
+      if (once && count > 25) {
+        hitbox = ActivatorCollideBox();
+        reactbox = ReactorCollideBox();
+      }
+    } else {
+      player_inside = false;
+    }
+  }
+}
+
+void AppearingText::draw() {
+  if (player_inside) {
+    texW = 0;
+    texH = 0;
+    texture = game.media.showFont(font, text, color);
+    SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
+    dstrect = {WIDTH - 50 - texW, 50, texW, texH};
+
+    SDL_RenderCopy(game.renderer, texture, NULL, &dstrect);
+    SDL_DestroyTexture(texture);
+  }
 }

@@ -219,6 +219,10 @@ void Game::load_level(const std::filesystem::path &path) {
     sprite_list.push_back(inventory);
 
     sprite_list.push_back(player);
+    if (level_path == "data/level/level_1.tmj") {
+      sprite_list.push_back(std::make_shared<AppearingText>(AppearingText((char*)"A Lever!", *this, Pos{.layer = 0, .x = 58*32*SUBPIXELS_IN_PIXEL, .y = 17*32*SUBPIXELS_IN_PIXEL}, Pos{.layer = 0, .x = WIDTH-100, .y = HEIGHT-100}, 2, false, {255, 255, 255})));
+      sprite_list.push_back(std::make_shared<AppearingText>(AppearingText((char*)"A Secret Room!", *this, Pos{.layer = 0, .x = 27*32*SUBPIXELS_IN_PIXEL, .y = 7*32*SUBPIXELS_IN_PIXEL}, Pos{.layer = 0, .x = WIDTH-100, .y = HEIGHT-100}, 2, false, {255, 255, 255})));
+    }
   }
 
 
