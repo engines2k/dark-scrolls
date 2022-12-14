@@ -106,6 +106,10 @@ void Game::tick() {
     reset_level();
   }
 
+  if (!paused) {
+    frame_counter.rendered_frames++;
+  }
+
   if (player && !paused && keyboard.is_pressed(SDL_SCANCODE_ESCAPE)) {
     paused = true;
     std::vector<char> curr_screen;
@@ -117,10 +121,6 @@ void Game::tick() {
     SDL_UpdateTexture(background, nullptr, curr_screen.data(), pitch);
 
     sprite_list.push_back(std::make_shared<PauseScreen>(*this, background));
-  }
-
-  if (!paused) {
-    frame_counter.rendered_frames++;
   }
 
   if (should_unpause) {
