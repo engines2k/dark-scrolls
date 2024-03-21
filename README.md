@@ -1,28 +1,13 @@
-# Dark Scrolls: Stage 2 Tasks
+# Dark Scrolls
 
-### Amber
-- [x] Move code out of header files
-- [x] Consistent naming convention
-- [x] Inventory System
-- [x] Signs *(display text on bottom of screen when you get close)*
+A top-down dungeon crawler demo, created as a project for my Video Game Design class at Colorado Mesa University. It built in collaboration with 3 other students and a graphic designer, and I was the project manager for the duration of the class.
 
-### Jacob
-- [x] Player respawns at spawn point
-- [x] Game over state / Fade out & level reset
+The game engine was built from scratch in C++ and uses the SDL libary. Players can move, attack and kill enemies, and acquire potions and use spells that have various effects.
 
-### Kate
-- [X] Add game.cpp file
-- [X] Integration with media manager
-- [ ] Infinite health glitch
-- [X] Pause / Title screen
-- [ ] Simple HUD
+## Outcomes
 
-### Zeke
-- [X] Modify animations to handle reactors 
-- [x] Add mob collision
-- [X] Move animation data into .json files
-- [ ] Incantation fix
-- [X] Player death
-- [ ] AI behavior
-- [ ] Animation Combos
-- [ ] Sprite animations 
+This project gave me good experience in low-level programming, OOP, AGILE software development principles, branches, merging, and project management. It was also a fun experiment in sprite development and sound design, creating the various assets for the game.
+
+## How to build
+
+## Screenshots
