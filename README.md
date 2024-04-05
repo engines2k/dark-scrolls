@@ -6,8 +6,26 @@ The game engine was built from scratch in C++ and uses the SDL libary. Players c
 
 ## Outcomes
 
-This project gave me good experience in low-level programming, OOP, AGILE software development principles, branches, merging, and project management. It was also a fun experiment in sprite development and sound design, creating the various assets for the game.
+This project gave me good experience in C++, low-level programming, OOP, AGILE software development principles, branches, merging, and project management. It was also a fun experiment in sprite development and sound design, creating the various assets for the game.
 
-## How to build
+## How to build 
+
+## Linux
+Ensure that you have these packages installed:
+
+```
+libsdl-dev
+libsdl-ttf-dev
+libsdl-image-dev
+libsdl-mixer-dev
+```
+
+Then simply run `make` in the root project folder to build the `dark-scrolls` executable.
 
 ## Screenshots
+
+![Main menu](screenshots/menu.png)
+![Player spawned in](screenshots/gameplay.png)
+![Player attacking enemies](screenshots/gameplay-2.png)
+![Player dashing](screenshots/gameplay-3.png)
+![Game over](screenshots/gameplay-1.png)
